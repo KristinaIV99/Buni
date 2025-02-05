@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2196f3">
+    <title>Skaityk ir tobulėk</title>
+    
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./main.css">
+    <link rel="icon" href="./icons/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+    <div id="app">
+        <input type="file" accept=".md" id="fileInput" class="file-input">
+        <div id="content"></div>
+    </div>
+
+    <!-- Vendor moduliai -->
+    <script type="module" src="./vendor/marked.esm.js"></script>
+    <script type="module" src="./vendor/purify.es.mjs"></script>
+
+    <!-- Pagalbiniai moduliai -->
+    <script type="module" src="./text-reader.js"></script>
+    <script type="module" src="./text-normalizer.js"></script>
+    <script type="module" src="./aho-corasick.js"></script>
+    <script type="module" src="./dictionary-manager.js"></script>
+    <script type="module" src="./text-statistics.js"></script>
+    <script type="module" src="./unknown-words-exporter.js"></script>
+    <script type="module" src="./text-paginator.js"></script>
+    <script type="module" src="./text-highlighter.js"></script>
+
+    <!-- UI moduliai -->
+    <script type="module" src="./html-converter.js"></script>
+
+    <!-- Pagrindinis modulis -->
+    <script type="module" src="./main.js"></script>
+    
+    <!-- Service Worker -->
+    <script>
+        const APP_NAME = '[App]';
+        if ('serviceWorker' in navigator) {
+            console.debug(`${APP_NAME} Registruojamas Service Worker...`);
+            navigator.serviceWorker.register('./sw.js')
+                .then(registration => {
+                    console.debug(`${APP_NAME} Service Worker sėkmingai užregistruotas:`, registration.scope);
+                })
+                .catch(error => {
+                    console.error(`${APP_NAME} Service Worker registracijos klaida:`, error);
+                });
+        } else {
+            console.warn(`${APP_NAME} Service Worker nepalaikomas šioje naršyklėje`);
+        }
+    </script>
+</body>
+</html>
