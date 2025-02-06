@@ -114,7 +114,10 @@ export class TextHighlighter {
 			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
 			span.textContent = match.word;
 			span.dataset.info = JSON.stringify(match.info);
-			span.addEventListener('click', this.boundHandlePopup);
+			span.addEventListener('click', (e) => {
+				console.log('Žodis paspaustas');
+				this.boundHandlePopup(e);
+			});
 			fragment.appendChild(span);
 
 			lastIndex = match.end;
@@ -155,37 +158,37 @@ export class TextHighlighter {
 	}
 
     _handlePopup(event) {
-        event.stopPropagation();
+		event.stopPropagation();
 		this._removeAllPopups();
 
 		const info = JSON.parse(event.target.dataset.info);
+		console.log('Info objektas:', info); // Naujas log
+
 		const popup = document.createElement('div');
 		popup.className = 'word-info-popup';
-
 		popup.innerHTML = `
 			<div class="word-info-title">
-				<span>${info.text}</span>
+				<span>${info.text || info.pattern || info.word}</span>
 				<span class="word-info-type ${info.type}">
 					${info.type === 'phrase' ? 'Frazė' : 'Žodis'}
 				</span>
 			</div>
 			<div class="word-info-grid">
-				<div><span class="word-info-label">Vertimas:</span> ${info.vertimas}</div>
-				<div><span class="word-info-label">Kalbos dalis:</span> ${info["kalbos dalis"]}</div>
-				<div><span class="word-info-label">Bazinė forma:</span> ${info["bazinė forma"]}</div>
-				<div><span class="word-info-label">Bazės vertimas:</span> ${info["bazė vertimas"]}</div>
-				<div><span class="word-info-label">CERF:</span> ${info.CERF}</div>
+				<div><span class="word-info-label">Vertimas:</span> ${info.vertimas || '-'}</div>
+				<div><span class="word-info-label">Kalbos dalis:</span> ${info["kalbos dalis"] || '-'}</div>
+				<div><span class="word-info-label">Bazinė forma:</span> ${info["bazinė forma"] || '-'}</div>
+				<div><span class="word-info-label">Bazės vertimas:</span> ${info["bazė vertimas"] || '-'}</div>
+				<div><span class="word-info-label">CERF:</span> ${info.CERF || '-'}</div>
 			</div>
 		`;
 
 		const rect = event.target.getBoundingClientRect();
 		popup.style.left = `${window.scrollX + rect.left}px`;
 		popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
-		
+    
 		document.body.appendChild(popup);
 		this.activePopup = popup;
 		this._adjustPopupPosition(popup);
-
 		document.addEventListener('click', this._handleDocumentClick.bind(this));
 	}
 
