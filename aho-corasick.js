@@ -120,59 +120,38 @@ class AhoCorasick {
     search(text) {
 		console.log('[AhoCorasick] Pradedama paieška tekste');
 		
-		if (!this.ready) {
-			throw new Error('Reikia iškviesti buildFailureLinks()');
-		}
-
 		const matches = [];
-		const words = this._splitIntoWords(text);
+		const allText = text.toLowerCase();
 		
-		// Pirma ieškome frazių
-		console.log('[AhoCorasick] Ieškome frazių...');
+		// Pirma ieškome frazių (ilgiausios pirma)
 		const phrases = Array.from(this.patterns.entries())
 			.filter(([_, data]) => data.type === 'phrase')
-			.map(([pattern, data]) => ({ pattern, data }));
+			.sort((a, b) => b[0].length - a[0].length); // Rūšiuojame pagal ilgį
 		
-		console.log('Rastos frazės šablonai:', phrases);
-
-		// Jungiame žodžius į tekstą frazių paieškai
-		let fullText = '';
-		let offset = 0;
-		const positions = new Map(); // saugome žodžių pozicijas
-
-		words.forEach(({ word, start }) => {
-			fullText += word + ' ';
-			positions.set(offset, start);
-			offset += word.length + 1;
-		});
-
-		// Ieškome frazių
-		phrases.forEach(({ pattern, data }) => {
+		console.log('Ieškome frazių:', phrases.map(p => p[0]));
+		
+		for (const [phrase, data] of phrases) {
 			let index = 0;
-			const lowerText = fullText.toLowerCase();
-			
-			while ((index = lowerText.indexOf(pattern, index)) !== -1) {
-				// Randame tikrąją poziciją tekste
-				const realStart = Array.from(positions.entries())
-					.find(([pos, _]) => pos <= index)?.[1] || 0;
-				
-				matches.push({
-					pattern,
-					start: realStart,
-					end: realStart + pattern.length,
-					text: pattern,
-					outputs: [data],
-					type: 'phrase'
-				});
-				
-				index += pattern.length;
+			while ((index = allText.indexOf(phrase, index)) !== -1) {
+				// Tikriname žodžių ribas
+				if (this._isFullWord(text, index, index + phrase.length)) {
+					matches.push({
+						pattern: phrase,
+						start: index,
+						end: index + phrase.length,
+						text: text.slice(index, index + phrase.length),
+						outputs: [data.data],
+						type: 'phrase'
+					});
+					console.log(`Rasta frazė "${phrase}" pozicijoje ${index}`);
+				}
+				index += 1;
 			}
-		});
-
+		}
+		
 		// Tada ieškome žodžių
+		const words = this._splitIntoWords(text);
 		for (const { word, start } of words) {
-			if (word.length < 1) continue;
-
 			let currentNode = this.root;
 			const lowerWord = word.toLowerCase();
 
@@ -189,7 +168,6 @@ class AhoCorasick {
 			}
 		}
 
-		console.log('Rasti visi atitimenys prieš filtravimą:', matches);
 		return this._filterOverlappingMatches(matches);
 	}
 
