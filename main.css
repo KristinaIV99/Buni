@@ -428,19 +428,6 @@ hr {
 }
 
 /* ==========================================================================
-   ŽODŽIŲ ŽYMĖJIMAS
-   ========================================================================== */
-.border-b.border-dotted.border-yellow-400 {
-    border-bottom: 1px dotted #ffd700;
-    cursor: pointer;
-}
-
-.border-b.border-dotted.border-blue-400 {
-    border-bottom: 1px dotted #2196F3;
-    cursor: pointer;
-}
-
-/* ==========================================================================
    POPUP STILIAI
    ========================================================================== */
 .word-info-popup {
@@ -495,7 +482,8 @@ hr {
     background-color: rgba(33, 150, 243, 0.2);
     border-bottom: 2px solid rgba(33, 150, 243, 0.5);
     cursor: pointer;
-    padding: 2px 0;
+    padding: 2px;
+    border-radius: 2px;
 }
 
 .highlight-word:hover {
@@ -506,7 +494,8 @@ hr {
     background-color: rgba(255, 215, 0, 0.2);
     border-bottom: 2px solid rgba(255, 215, 0, 0.5);
     cursor: pointer;
-    padding: 2px 0;
+    padding: 2px;
+    border-radius: 2px;
 }
 
 .highlight-phrase:hover {
