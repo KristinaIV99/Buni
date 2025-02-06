@@ -58,24 +58,36 @@ export class TextHighlighter {
     }
 
     _highlightWords(text, words) {
-        const parts = [];
-        let lastIndex = 0;
-        const lowerText = text.toLowerCase();
+		const wordBoundaryRegex = /[\s.,!?;:'"„"\(\)\[\]{}<>\/\-—–]/;
+    
+		function isWordBoundary(char) {
+			return !char || wordBoundaryRegex.test(char);
+		}
 
-        // Randame visus žodžius tekste
-        const matches = [];
-        Object.keys(words).forEach(word => {
-            let index = 0;
-            while ((index = lowerText.indexOf(word, index)) !== -1) {
-                matches.push({
-                    start: index,
-                    end: index + word.length,
-                    word: text.slice(index, index + word.length),
-                    ...words[word]
-                });
-                index += word.length;
-            }
-        });
+		function isFullWord(text, start, end) {
+			const prevChar = start > 0 ? text[start - 1] : ' ';
+			const nextChar = end < text.length ? text[end] : ' ';
+			return isWordBoundary(prevChar) && isWordBoundary(nextChar);
+		}
+
+		const matches = [];
+		Object.keys(words).forEach(word => {
+			let index = 0;
+			const lowerText = text.toLowerCase();
+			
+			while ((index = lowerText.indexOf(word, index)) !== -1) {
+				// Tikriname ar tai pilnas žodis
+				if (isFullWord(text, index, index + word.length)) {
+					matches.push({
+						start: index,
+						end: index + word.length,
+						word: text.slice(index, index + word.length),
+						...words[word]
+					});
+				}
+				index += 1; // Ieškome toliau nuo sekančios pozicijos
+			}
+		});
 
         // Rūšiuojame ir filtruojame persidengimus
         matches.sort((a, b) => a.start - b.start);
