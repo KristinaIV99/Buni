@@ -314,7 +314,7 @@ class AhoCorasick {
     }
 
     _isFullWord(text, start, end) {
-        console.log('Tikriname žodžio ribas:', {
+		console.log('Tikriname žodžio ribas:', {
 			text: text.slice(start, end),
 			prieš: start > 0 ? text[start - 1] : ' ',
 			po: end < text.length ? text[end] : ' ',
@@ -324,16 +324,13 @@ class AhoCorasick {
 		const prevChar = start > 0 ? text[start - 1] : ' ';
 		const nextChar = end < text.length ? text[end] : ' ';
 		
-		// Pakeičiame frazių patikrinimą
-		if (text.slice(start, end).includes(' ')) {
-			// Jei tai frazė (turi tarpų), tikriname tik pradžią ir pabaigą
-			return this.wordBoundaryRegex.test(prevChar) && 
-				this.wordBoundaryRegex.test(nextChar);
-		}
-    
-		// Jei tai žodis (be tarpų), tikriname griežčiau
-		return this.wordBoundaryRegex.test(prevChar) && 
-			this.wordBoundaryRegex.test(nextChar);
+		// Ignoruoti '_' ir kitus specialius žymėjimus
+		const isWordBoundary = char => {
+			if (char === '_') return false;  // Ignoruojame italiko žymes
+			return !char || this.wordBoundaryRegex.test(char);
+		};
+		
+		return isWordBoundary(prevChar) && isWordBoundary(nextChar);
 	}
 }
 
