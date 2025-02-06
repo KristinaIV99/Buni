@@ -9,6 +9,8 @@ export class TextHighlighter {
 
     async processText(text, html) {
         console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
+		console.log('Pradinis HTML:', html);
+
 		const { results } = await this.dictionaryManager.findInText(text);
 		console.log('Žymėjimo rezultatai:', results);
 
@@ -18,17 +20,25 @@ export class TextHighlighter {
 		let node;
 
 		while ((node = walker.nextNode())) {
+			console.log('Tikrinamas node:', {
+				text: node.textContent,
+				offset: offset,
+				length: node.textContent.length
+			});
+
 			const nodeMatches = this._findMatchesInNode(results, offset, node.textContent.length);
+			console.log('Rasti matches šiam node:', nodeMatches);
+
 			if (nodeMatches.length > 0) {
-				node.parentNode.replaceChild(
-					this._createHighlightedFragment(node.textContent, nodeMatches),
-					node
-				);
+				const fragment = this._createHighlightedFragment(node.textContent, nodeMatches);
+				console.log('Sukurtas fragmentas:', fragment.innerHTML);  // Papildomas logging
+				node.parentNode.replaceChild(fragment, node);
 			}
 			offset += node.textContent.length;
 		}
-
-		return doc.body.innerHTML;
+		const finalHtml = doc.body.innerHTML;                      // Išsaugom galutinį HTML
+		console.log('Galutinis HTML:', finalHtml);                 // Papildomas logging
+		return finalHtml;
 	}
 
     _findMatchesInNode(results, offset, nodeLength) {
