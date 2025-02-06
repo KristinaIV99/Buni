@@ -129,14 +129,11 @@ export class TextHighlighter {
 			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
 			span.textContent = match.word;
 			span.dataset.info = JSON.stringify(match.info);
+			console.log('Pridedamas span:', span);
 			span.addEventListener('click', (e) => {
-				console.log('Žodis paspaustas');
+				console.log('Span paspaustas');
 				this.boundHandlePopup(e);
 			});
-			fragment.appendChild(span);
-
-			lastIndex = match.end;
-		});
 
 		if (lastIndex < text.length) {
 			fragment.appendChild(
