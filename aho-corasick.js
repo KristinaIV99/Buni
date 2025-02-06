@@ -20,52 +20,60 @@ class AhoCorasick {
     }
 
     addPattern(pattern, data) {
-        console.log(`[AhoCorasick] Pridedamas šablonas:`, pattern);
-        
-        if (this.ready) {
-            throw new Error('Negalima pridėti šablonų po buildFailureLinks()');
-        }
+		console.log(`[AhoCorasick] Pridedamas šablonas:`, pattern, data);
+		
+		if (this.ready) {
+			throw new Error('Negalima pridėti šablonų po buildFailureLinks()');
+		}
 
-        let node = this.root;
-        const normalizedPattern = pattern.toLowerCase().trim();
-        
-        // Saugome šabloną į bendrą sąrašą
-        this.patterns.set(normalizedPattern, {
-            pattern: normalizedPattern,
-            data: data,
-            type: data.type,
-            length: normalizedPattern.length
-        });
+		// Suvienodiname duomenų struktūrą
+		const normalizedData = {
+			type: data.type,
+			"kalbos dalis": data["kalbos dalis"],
+			"vertimas": data.vertimas,
+			"bazinė forma": data["bazinė forma"],
+			"bazė vertimas": data["bazė vertimas"],
+			"CERF": data.CERF,
+			"base_word": data.base_word || data["bazinė forma"], // Jei nėra base_word, naudojame bazinę formą
+			"related": []
+		};
 
-        // Kuriame medį
-        for (let i = 0; i < normalizedPattern.length; i++) {
-            const char = normalizedPattern[i];
-            
-            if (!node.next.has(char)) {
-                const newNode = this.createNode();
-                newNode.depth = i + 1;
-                node.next.set(char, newNode);
-            }
-            
-            node = node.next.get(char);
-            
-            // Išsaugome dalinus sutapimus
-            const currentSubstring = normalizedPattern.slice(0, i + 1);
-            node.relatedPatterns.add(currentSubstring);
-        }
+		let node = this.root;
+		const normalizedPattern = pattern.toLowerCase().trim();
+		
+		// Saugome šabloną į bendrą sąrašą
+		this.patterns.set(normalizedPattern, {
+			pattern: normalizedPattern,
+			data: normalizedData,
+			type: data.type,
+			length: normalizedPattern.length
+		});
 
-        // Pažymime galutinį mazgą
-        node.isEnd = true;
-        node.pattern = normalizedPattern;
-        node.outputs.push({
-            pattern: normalizedPattern,
-            ...data,
-            length: normalizedPattern.length
-        });
-        
-        this.patternCount++;
-        console.log(`[AhoCorasick] Šablonas pridėtas, iš viso:`, this.patternCount);
-    }
+		// Kuriame medį
+		for (let i = 0; i < normalizedPattern.length; i++) {
+			const char = normalizedPattern[i];
+			
+			if (!node.next.has(char)) {
+				const newNode = this.createNode();
+				newNode.depth = i + 1;
+				node.next.set(char, newNode);
+			}
+			
+			node = node.next.get(char);
+		}
+
+		// Pažymime galutinį mazgą
+		node.isEnd = true;
+		node.pattern = normalizedPattern;
+		node.outputs.push({
+			pattern: normalizedPattern,
+			...normalizedData,
+			length: normalizedPattern.length
+		});
+		
+		this.patternCount++;
+		console.log(`[AhoCorasick] Šablonas pridėtas, iš viso:`, this.patternCount);
+	}
 
     buildFailureLinks() {
         console.log('[AhoCorasick] Kuriami failure links');
