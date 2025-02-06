@@ -274,54 +274,54 @@ class AhoCorasick {
     }
 
 	_filterOverlappingMatches(matches) {
-		if (!matches || !Array.isArray(matches)) {
-			console.warn('Neteisingi matches:', matches);
-			return [];
-		}
+		console.log('[AhoCorasick] Filtruojami persidengiantys atitimenys:', matches);
 
 		// Rūšiuojame pagal pradžios poziciją ir ilgį
-		matches.sort((a, b) => {
+		const sortedMatches = matches.sort((a, b) => {
 			if (a.start === b.start) {
-				return b.pattern.length - a.pattern.length;
+				return b.pattern.length - a.pattern.length; // Ilgesni turi prioritetą
 			}
 			return a.start - b.start;
 		});
 
 		const filtered = [];
-		const usedPositions = new Set();
+		const usedPositions = new Map(); // Naudojame Map vietoj Set
 
-		for (const match of matches) {
-			if (!match.start || !match.end) {
-				console.warn('Neteisingas match formatas:', match);
-				continue;
-			}
+		for (const match of sortedMatches) {
+			const currentRange = `${match.start}-${match.end}`;
+			
+			// Tikriname ar ši pozicija neužimta ilgesniu atitikmeniu
+			const isPositionFree = !Array.from(usedPositions.keys()).some(range => {
+				const [usedStart, usedEnd] = range.split('-').map(Number);
+				return !(match.end <= usedStart || match.start >= usedEnd);
+			});
 
-			let hasOverlap = false;
-
-			// Tikriname ar pozicijos neužimtos
-			for (let pos = match.start; pos < match.end; pos++) {
-				if (usedPositions.has(pos)) {
-					hasOverlap = true;
-					break;
-			}
-			}
-
-			if (!hasOverlap) {
-				filtered.push(match);
-				// Pažymime pozicijas kaip užimtas
-				for (let pos = match.start; pos < match.end; pos++) {
-					usedPositions.add(pos);
-				}
+			if (isPositionFree) {
+				filtered.push({
+					pattern: match.pattern,
+					start: match.start,
+					end: match.end,
+					text: match.text,
+					outputs: match.outputs,
+					type: match.outputs[0].type,
+					related: []
+				});
+				
+				usedPositions.set(currentRange, match.pattern);
 			} else {
-				// Išsaugome kaip susijusį šabloną
+				// Pridedame kaip susijusį šabloną
 				const overlappingMatch = filtered.find(f => 
 					f.start <= match.start && f.end >= match.end);
-				if (overlappingMatch && overlappingMatch.related) {
-					overlappingMatch.related.push(match.pattern);
+				if (overlappingMatch) {
+					overlappingMatch.related.push({
+						pattern: match.pattern,
+						type: match.outputs[0].type
+					});
 				}
 			}
 		}
 
+		console.log('[AhoCorasick] Filtravimo rezultatas:', filtered);
 		return filtered;
 	}
 
