@@ -4,106 +4,113 @@ export class TextHighlighter {
         this.dictionaryManager = dictionaryManager;
         this.boundHandlePopup = this._handlePopup.bind(this);
         this.activePopup = null;
-        this.wordBoundaryRegex = /[\s.,!?;:'"„"\(\)\[\]{}<>\/\-—–]/;
     }
 
     async processText(text, html) {
-		console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
-		console.log('Pradinis HTML:', html);
+        console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
+        
+        try {
+            const { results } = await this.dictionaryManager.findInText(text);
+            console.log('Rasti žodžiai:', results);
 
-		const { results } = await this.dictionaryManager.findInText(text);
-		console.log('Žymėjimo rezultatai:', results);
+            // Surenkame visus žodžius
+            const words = {};
+            results.forEach(result => {
+                const word = result.pattern.toLowerCase();
+                if (!words[word]) {
+                    words[word] = {
+                        pattern: result.pattern,
+                        type: result.type,
+                        info: result.info
+                    };
+                }
+            });
 
-		const doc = new DOMParser().parseFromString(html, 'text/html');
-		const walker = document.createTreeWalker(
-			doc.body,
-			NodeFilter.SHOW_TEXT,
-			{
-				acceptNode: function(node) {
-					// Ignoruojame tuščius teksto nodes
-					return node.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-				}
-			}
-		);
+            // Pakeičiame tekstą HTML dokumente
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            this._processNode(doc.body, words);
 
-		let offset = 0;
-		let node;
+            return doc.body.innerHTML;
+        } catch (error) {
+            console.error('Klaida žymint tekstą:', error);
+            return html;
+        }
+    }
 
-		while ((node = walker.nextNode())) {
-			const nodeText = node.textContent;
-			console.log('Apdorojamas tekstas:', nodeText, 'offset:', offset);
+    _processNode(node, words) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent;
+            const newNode = this._highlightWords(text, words);
+            if (newNode) {
+                node.parentNode.replaceChild(newNode, node);
+            }
+        } else {
+            // Praleidiame jei tai yra script arba style elementas
+            if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') {
+                return;
+            }
+            
+            // Rekursyviai einame per visus vaikinius elementus
+            Array.from(node.childNodes).forEach(child => {
+                this._processNode(child, words);
+            });
+        }
+    }
 
-			const nodeMatches = this._findMatchesInNode(results, offset, nodeText.length);
-			
-			if (nodeMatches.length > 0) {
-				const fragment = this._createHighlightedFragment(nodeText, nodeMatches);
-				node.parentNode.replaceChild(fragment, node);
-			}
-			
-			offset += nodeText.length;
-		}
+    _highlightWords(text, words) {
+        const parts = [];
+        let lastIndex = 0;
+        const lowerText = text.toLowerCase();
 
-		const finalHtml = doc.body.innerHTML;
-		console.log('Galutinis HTML:', finalHtml);
-		return finalHtml;
-	}
+        // Randame visus žodžius tekste
+        const matches = [];
+        Object.keys(words).forEach(word => {
+            let index = 0;
+            while ((index = lowerText.indexOf(word, index)) !== -1) {
+                matches.push({
+                    start: index,
+                    end: index + word.length,
+                    word: text.slice(index, index + word.length),
+                    ...words[word]
+                });
+                index += word.length;
+            }
+        });
 
-    _findMatchesInNode(results, offset, nodeLength) {
-		console.log('Ieškoma atitikmenų node, offset:', offset, 'length:', nodeLength);
-		
-		if (!Array.isArray(results)) {
-			console.warn('Results nėra masyvas:', results);
-			return [];
-		}
+        // Rūšiuojame ir filtruojame persidengimus
+        matches.sort((a, b) => a.start - b.start);
+        const filteredMatches = this._filterOverlappingMatches(matches);
 
-		const nodeMatches = [];
-		for (const result of results) {
-			// Tikriname ar rezultatas turi visus reikalingus laukus
-			if (!result || !result.positions || !Array.isArray(result.positions)) {
-				console.warn('Neteisingas rezultato formatas:', result);
-				continue;
-			}
+        // Kuriame fragmentą
+        const fragment = document.createDocumentFragment();
+        filteredMatches.forEach(match => {
+            if (match.start > lastIndex) {
+                fragment.appendChild(
+                    document.createTextNode(text.slice(lastIndex, match.start))
+                );
+            }
 
-			// Einame per visas pozicijas
-			for (const pos of result.positions) {
-				const start = pos.start - offset;
-				const end = pos.end - offset;
+            const span = document.createElement('span');
+            span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
+            span.textContent = match.word;
+            span.dataset.info = JSON.stringify(match.info);
+            span.addEventListener('click', this.boundHandlePopup);
+            fragment.appendChild(span);
 
-				// Tikriname ar pozicija patenka į šį node
-				if (start < nodeLength && end > 0) {
-					console.log('Rastas atitikmuo node:', {
-						word: pos.text,
-						start,
-						end,
-						type: result.type
-					});
+            lastIndex = match.end;
+        });
 
-					nodeMatches.push({
-						start: Math.max(0, start),
-						end: Math.min(nodeLength, end),
-						text: pos.text,
-						type: result.type,
-						info: {
-							...result.info,
-							text: pos.text,
-							type: result.type,
-							related: result.related || []
-						}
-					});
-				}
-			}
-		}
-	
-	return this._filterOverlappingMatches(nodeMatches);
-	}
+        if (lastIndex < text.length) {
+            fragment.appendChild(
+                document.createTextNode(text.slice(lastIndex))
+            );
+        }
+
+        return fragment;
+    }
 
     _filterOverlappingMatches(matches) {
-        return matches.sort((a, b) => {
-            if (a.start === b.start) {
-                return b.end - b.start - (a.end - a.start);
-            }
-            return a.start - b.start;
-        }).filter((match, index) => {
+        return matches.filter((match, index) => {
             return !matches.some((otherMatch, otherIndex) => {
                 return otherIndex < index && 
                        otherMatch.start <= match.start && 
