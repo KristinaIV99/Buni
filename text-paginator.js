@@ -23,10 +23,8 @@ export class TextPaginator {
         let currentPage = [];
         let wordCount = 0;
 
-        paragraphs.forEach(paragraph => {
-            // Pašaliname HTML žymes žodžių skaičiavimui
-            const plainText = paragraph.replace(/<[^>]*>/g, '');
-            const words = plainText.trim().split(/\s+/).length;
+        sentences.forEach(sentence => {
+            const words = sentence.trim().split(/\s+/).length;
             
             if (wordCount + words > this.wordsPerPage && currentPage.length > 0) {
                 pages.push(currentPage.join(''));
