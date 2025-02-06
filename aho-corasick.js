@@ -118,36 +118,58 @@ class AhoCorasick {
     }
 
     search(text) {
-		console.log('[AhoCorasick] Pradedama paieška tekste');
+		console.log('\n=== PRADEDAMA PAIEŠKA ===');
+		console.log('Teksto ilgis:', text.length);
+
 		const matches = [];
 		const allText = text.toLowerCase();
-		
+    
 		// Surūšiuojame visus šablonus pagal ilgį (ilgiausi pirma)
 		const allPatterns = Array.from(this.patterns.entries())
-			.sort((a, b) => b[0].length - a[0].length);  // Rūšiuojame pagal ilgį
+			.sort((a, b) => b[0].length - a[0].length);
 			
-		console.log('Šablonai pagal ilgį:', allPatterns.map(([pattern, _]) => pattern));
+		console.log('\nŠABLONŲ PRADŽIA:');
+		allPatterns.forEach(([pattern, data], index) => {
+			console.log(`${index + 1}. "${pattern}" (${data.data.type}) - ilgis: ${pattern.length}`);
+		});
 
 		// Ieškome visų šablonų (ir frazių, ir žodžių)
 		for (const [pattern, data] of allPatterns) {
 			let index = 0;
+			let patternMatches = 0;
+			
+			console.log(`\nIeškoma: "${pattern}" (${data.data.type})`);
+			
 			while ((index = allText.indexOf(pattern, index)) !== -1) {
+				const context = allText.slice(Math.max(0, index - 20), Math.min(allText.length, index + pattern.length + 20));
+				console.log(`Rastas "${pattern}" pozicijoje ${index}`);
+				console.log(`Kontekstas: "...${context}..."`);
+				
 				// Patikriname ar tai pilnas žodis/frazė
-				if (this._isFullWord(text, index, index + pattern.length)) {
-					console.log(`Rastas šablonas "${pattern}" (${data.data.type}) pozicijoje ${index}`);
+				const isValid = this._isFullWord(text, index, index + pattern.length);
+				console.log(`Ar tinkamas? ${isValid}`);
+
+				if (isValid) {
+					patternMatches++;
 					matches.push({
 						pattern: pattern,
 						start: index,
 						end: index + pattern.length,
 						text: text.slice(index, index + pattern.length),
 						outputs: [data.data],
-						type: data.data.type
+						type: data.data.type,
+						contentsBefore: text.slice(Math.max(0, index - 10), index),
+						contentsAfter: text.slice(index + pattern.length, Math.min(text.length, index + pattern.length + 10))
 					});
 				}
 				index += 1;
 			}
+			console.log(`Rasta atitikmenų "${pattern}": ${patternMatches}`);
 		}
 
+		console.log('\n=== PAIEŠKA BAIGTA ===');
+		console.log('Viso rasta atitikmenų:', matches.length);
+		
 		return this._filterOverlappingMatches(matches);
 	}
 
