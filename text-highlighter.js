@@ -155,69 +155,36 @@ export class TextHighlighter {
 
     _handlePopup(event) {
         event.stopPropagation();
-        this._removeAllPopups();
+		this._removeAllPopups();
 
-        const info = JSON.parse(event.target.dataset.info);
-        const popup = document.createElement('div');
-        popup.className = 'word-info-popup bg-white shadow-lg rounded-lg p-4 absolute z-50';
+		const info = JSON.parse(event.target.dataset.info);
+		const popup = document.createElement('div');
+		popup.className = 'word-info-popup';
 
-        let content = `
-            <div class="flex flex-col gap-2">
-                <div class="text-lg font-bold border-b pb-2 flex justify-between items-center">
-                    <span>${info.text}</span>
-                    <span class="text-xs px-2 py-1 rounded ${
-                        info.type === 'phrase' ? 'bg-yellow-100' : 'bg-blue-100'
-                    }">
-                        ${info.type === 'phrase' ? 'Frazė' : 'Žodis'}
-                    </span>
-                </div>
-                <div class="grid gap-1">
-                    <div><span class="font-semibold">Vertimas:</span> ${info.vertimas}</div>
-                    <div><span class="font-semibold">Kalbos dalis:</span> ${info["kalbos dalis"]}</div>
-                    <div><span class="font-semibold">Bazinė forma:</span> ${info["bazinė forma"]}</div>
-                    <div><span class="font-semibold">Bazės vertimas:</span> ${info["bazė vertimas"]}</div>
-                    <div><span class="font-semibold">CERF:</span> ${info.CERF}</div>
-                </div>`;
+		popup.innerHTML = `
+			<div class="word-info-title">
+				<span>${info.text}</span>
+				<span class="word-info-type ${info.type}">
+					${info.type === 'phrase' ? 'Frazė' : 'Žodis'}
+				</span>
+			</div>
+			<div class="word-info-grid">
+				<div><span class="word-info-label">Vertimas:</span> ${info.vertimas}</div>
+				<div><span class="word-info-label">Kalbos dalis:</span> ${info["kalbos dalis"]}</div>
+				<div><span class="word-info-label">Bazinė forma:</span> ${info["bazinė forma"]}</div>
+				<div><span class="word-info-label">Bazės vertimas:</span> ${info["bazė vertimas"]}</div>
+				<div><span class="word-info-label">CERF:</span> ${info.CERF}</div>
+			</div>
+		`;
 
-        if (info.related && info.related.length > 0) {
-            content += `
-                <div class="mt-3 border-t pt-3">
-                    <div class="font-semibold mb-2">Susiję šablonai:</div>
-                    <div class="grid gap-2">`;
-            
-            info.related.forEach(related => {
-                content += `
-                    <div class="bg-gray-50 p-2 rounded text-sm">
-                        <div class="font-medium">${related.pattern || related.text}</div>
-                        <div class="text-gray-600 text-xs">
-                            ${related.type === 'phrase' ? 'Frazė' : 'Žodis'} • 
-                            ${related.vertimas} • 
-                            CERF: ${related.CERF}
-                        </div>
-                    </div>`;
-            });
-            
-            content += `
-                    </div>
-                </div>`;
-        }
-
-        content += `</div>`;
-        popup.innerHTML = content;
-
-        const rect = event.target.getBoundingClientRect();
-        popup.style.left = `${window.scrollX + rect.left}px`;
-        popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
-        
-        document.body.appendChild(popup);
-        this.activePopup = popup;
-        this._adjustPopupPosition(popup);
-
-        // Pridedame event listener popupo uždarymui
-        setTimeout(() => {
-            document.addEventListener('click', this._handleDocumentClick.bind(this));
-        }, 0);
-    }
+		const rect = event.target.getBoundingClientRect();
+		popup.style.left = `${window.scrollX + rect.left}px`;
+		popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
+		
+		document.body.appendChild(popup);
+		this.activePopup = popup;
+		this._adjustPopupPosition(popup);
+	}
 
     _adjustPopupPosition(popup) {
         const rect = popup.getBoundingClientRect();
