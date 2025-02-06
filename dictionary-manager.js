@@ -280,17 +280,22 @@ export class DictionaryManager {
     }
 
 	getDictionaryWords() {
-		const words = new Map();
-		
-		// Surenkame žodžius iš searcher.patterns
-		for (const [pattern, type] of this.searcher.patterns) {
-			if (type && type.data && type.data.source && type.data.source.includes('words.json')) {
-				words.set(pattern, type.data);
-			}
-		}
-		
-		return Object.fromEntries(words);
-	}
+    const words = new Map();
+    
+    // Pradinis žodžių kiekis
+    console.log('Pradinis žodžių kiekis:', this.searcher.patterns.size);
+    
+    for (const [pattern, data] of this.searcher.patterns) {
+        if (data?.data?.type === 'word') {
+            words.set(pattern, data.data);
+        }
+    }
+    
+    // Patikrinti rezultatą
+    console.log('Žodžių po filtravimo:', words.size);
+    
+    return Object.fromEntries(words);
+}
 
 	async loadDictionaries(files) {
 		this.searcher = new AhoCorasick(); // Naujas medis
