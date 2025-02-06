@@ -1,6 +1,6 @@
 export class TextPaginator {
     constructor(options = {}) {
-        this.wordsPerPage = options.wordsPerPage || 350;
+        this.minWordsPerPage = 250; // Minimalus žodžių skaičius puslapyje
         this.currentPage = 1;
         this.content = '';
         this.pages = [];
@@ -17,26 +17,43 @@ export class TextPaginator {
     }
 
     splitIntoPages(text) {
-        const sentences = text.match(/[^.]+[.]+/g) || [];
+        // Skaidome tekstą į paragrafus (naudojame dvigubą naują eilutę kaip skyriklį)
+        const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim());
         const pages = [];
         let currentPage = [];
         let wordCount = 0;
 
-        sentences.forEach(sentence => {
-            const words = sentence.trim().split(/\s+/).length;
+        paragraphs.forEach(paragraph => {
+            const paragraphWords = paragraph.trim().split(/\s+/).length;
             
-            if (wordCount + words > this.wordsPerPage && currentPage.length > 0) {
-                pages.push(currentPage.join(''));
-                currentPage = [];
-                wordCount = 0;
+            // Jei pridėjus šį paragrafą viršysime minimalų žodžių limitą ir jau turime bent vieną paragrafą
+            if (wordCount + paragraphWords > this.minWordsPerPage && currentPage.length > 0) {
+                // Tikriname, ar dabartinis puslapis turi pakankamai žodžių
+                const currentPageWords = currentPage.join('\n\n').split(/\s+/).length;
+                if (currentPageWords >= this.minWordsPerPage) {
+                    pages.push(currentPage.join('\n\n'));
+                    currentPage = [];
+                    wordCount = 0;
+                }
             }
             
-            currentPage.push(sentence);
-            wordCount += words;
+            currentPage.push(paragraph);
+            wordCount += paragraphWords;
         });
 
+        // Pridedame paskutinį puslapį, jei jis turi pakankamai žodžių
         if (currentPage.length > 0) {
-            pages.push(currentPage.join(''));
+            const lastPageWords = currentPage.join('\n\n').split(/\s+/).length;
+            if (lastPageWords >= this.minWordsPerPage) {
+                pages.push(currentPage.join('\n\n'));
+            } else if (pages.length > 0) {
+                // Jei paskutinis puslapis per trumpas, prijungiame jį prie ankstesnio
+                const lastPage = pages.pop();
+                pages.push(lastPage + '\n\n' + currentPage.join('\n\n'));
+            } else {
+                // Jei tai vienintelis puslapis, pridedame jį nepaisant ilgio
+                pages.push(currentPage.join('\n\n'));
+            }
         }
 
         return pages;
@@ -65,6 +82,7 @@ export class TextPaginator {
     previousPage() {
         return this.goToPage(this.currentPage - 1);
     }
+
     initializeSlider(container) {
         const slider = document.createElement('input');
         slider.type = 'range';
@@ -82,10 +100,9 @@ export class TextPaginator {
     }
 
     updateSlider() {
-		if (this.slider) {
-			this.slider.max = this.pages.length;
-			this.slider.value = this.currentPage;
-			console.log('Atnaujinamas slankiklis:', this.currentPage, 'iš', this.pages.length);
-		}
-	}
+        if (this.slider) {
+            this.slider.max = this.pages.length;
+            this.slider.value = this.currentPage;
+        }
+    }
 }
