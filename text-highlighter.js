@@ -135,6 +135,11 @@ export class TextHighlighter {
 				this.boundHandlePopup(e);
 			});
 
+            fragment.appendChild(span);
+
+            lastIndex = match.end;
+        }); 
+
 		if (lastIndex < text.length) {
 			fragment.appendChild(
 				document.createTextNode(text.slice(lastIndex))
