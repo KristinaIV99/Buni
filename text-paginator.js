@@ -1,6 +1,6 @@
 export class TextPaginator {
     constructor(options = {}) {
-        this.minWordsPerPage = 250;
+        this.minWordsPerPage = 250; // Minimalus žodžių skaičius puslapyje
         this.currentPage = 1;
         this.content = '';
         this.pages = [];
@@ -17,45 +17,27 @@ export class TextPaginator {
     }
 
     splitIntoPages(text) {
-        // Sukuriame DOM elementą iš HTML
-        const container = document.createElement('div');
-        container.innerHTML = text;
-        
-        // Renkame tik <p> elementus
-        const paragraphs = Array.from(container.getElementsByTagName('p'));
-        
+        // Skaidome į paragrafus (dviguba nauja eilutė)
+        const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim());
         const pages = [];
         let currentPage = [];
-        let currentPageWordCount = 0;
+        let wordCount = 0;
 
-        paragraphs.forEach(p => {
-            // Gauname pilną paragrafo HTML
-            const paragraphHtml = p.outerHTML;
-            // Skaičiuojame žodžius tik iš teksto turinio
-            const wordCount = p.textContent.trim().split(/\s+/).length;
-
-            // Jei puslapis tuščias, pridedam pirmą paragrafą
-            if (currentPage.length === 0) {
-                currentPage.push(paragraphHtml);
-                currentPageWordCount = wordCount;
-                return;
+        paragraphs.forEach(paragraph => {
+            const words = paragraph.trim().split(/\s+/).length;
+            
+            if (wordCount + words > this.minWordsPerPage && currentPage.length > 0) {
+                pages.push(currentPage.join('\n\n'));
+                currentPage = [];
+                wordCount = 0;
             }
-
-            // Jei dabartinis puslapis jau turi >= 250 žodžių, pradedame naują
-            if (currentPageWordCount >= this.minWordsPerPage) {
-                pages.push(currentPage.join(''));
-                currentPage = [paragraphHtml];
-                currentPageWordCount = wordCount;
-            } else {
-                // Kitaip pridedame prie esamo puslapio
-                currentPage.push(paragraphHtml);
-                currentPageWordCount += wordCount;
-            }
+            
+            currentPage.push(paragraph);
+            wordCount += words;
         });
 
-        // Pridedame paskutinį puslapį
         if (currentPage.length > 0) {
-            pages.push(currentPage.join(''));
+            pages.push(currentPage.join('\n\n'));
         }
 
         return pages;
@@ -105,6 +87,7 @@ export class TextPaginator {
         if (this.slider) {
             this.slider.max = this.pages.length;
             this.slider.value = this.currentPage;
+            console.log('Atnaujinamas slankiklis:', this.currentPage, 'iš', this.pages.length);
         }
     }
 }
