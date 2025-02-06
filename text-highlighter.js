@@ -9,7 +9,7 @@ export class TextHighlighter {
 
     async processText(text, html) {
         console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
-		
+    
 		try {
 			const { results } = await this.dictionaryManager.findInText(text);
 			const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -20,14 +20,7 @@ export class TextHighlighter {
 				paginationControls.remove();
 			}
 
-			this._processTextNodes(doc.body, results);
-
-			// Grąžiname puslapiavimo elementus
-			if (paginationControls) {
-				doc.body.appendChild(paginationControls);
-			}
-
-			// Surenkame žodžius ir frazes, rūšiuojame pagal ilgį
+			// Surenkame žodžius ir frazes
 			const patterns = {};
 			results.forEach(result => {
 				const pattern = result.pattern.toLowerCase();
@@ -36,18 +29,22 @@ export class TextHighlighter {
 						pattern: result.pattern,
 						type: result.type,
 						info: result.info,
-						length: pattern.length  // Pridedame ilgio informaciją
+						length: pattern.length
 					};
 				}
 			});
 
-			// Rūšiuojame patterns pagal ilgį (nuo ilgiausio iki trumpiausio)
+			// Rūšiuojame patterns
 			const sortedPatterns = Object.entries(patterns).sort((a, b) => b[1].length - a[1].length);
 			console.log('Surūšiuoti šablonai:', sortedPatterns);
 
-			// Pakeičiame tekstą HTML dokumente
-			const doc = new DOMParser().parseFromString(html, 'text/html');
+			// Apdorojame tekstą
 			this._processNode(doc.body, Object.fromEntries(sortedPatterns));
+
+			// Grąžiname puslapiavimo elementus
+			if (paginationControls) {
+				doc.body.appendChild(paginationControls);
+			}
 
 			return doc.body.innerHTML;
 		} catch (error) {
