@@ -491,28 +491,24 @@ hr {
 /* ==========================================================================
    ŽODŽIŲ ŽYMĖJIMAS
    ========================================================================== */
-.highlight-phrase {
-    background-color: rgba(255, 215, 0, 0.2);
-    border-bottom: 1px dotted #ffd700;
-    cursor: pointer;
-}
-
-.highlight-phrase:hover {
-    background-color: rgba(255, 215, 0, 0.3);
-}
-
 .highlight-word {
     background-color: rgba(33, 150, 243, 0.2);
-    border-bottom: 1px dotted #2196F3;
+    border-bottom: 2px solid rgba(33, 150, 243, 0.5);
     cursor: pointer;
+    padding: 2px 0;
 }
 
 .highlight-word:hover {
     background-color: rgba(33, 150, 243, 0.3);
 }
 
-/* Pašaliname nebereikalingas klases */
-.border-b.border-dotted.border-yellow-400,
-.border-b.border-dotted.border-blue-400 {
-    display: none;
+.highlight-phrase {
+    background-color: rgba(255, 215, 0, 0.2);
+    border-bottom: 2px solid rgba(255, 215, 0, 0.5);
+    cursor: pointer;
+    padding: 2px 0;
+}
+
+.highlight-phrase:hover {
+    background-color: rgba(255, 215, 0, 0.3);
 }
