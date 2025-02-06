@@ -17,20 +17,13 @@ export class TextPaginator {
     }
 
     splitIntoPages(text) {
-        // Išskaidome į paragrafus pagal HTML <p> tags
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = text;
-        const paragraphElements = tempDiv.getElementsByTagName('p');
-        const paragraphs = Array.from(paragraphElements).map(p => p.outerHTML);
-
+        const blocks = text.split(/(?<=\n\n)/); // Skaidome tekstą į blokus (paragrafus), išsaugant tuščias eilutes
         const pages = [];
         let currentPage = [];
         let wordCount = 0;
 
-        paragraphs.forEach(paragraph => {
-            // Išvalome HTML žymes žodžių skaičiavimui
-            const cleanText = paragraph.replace(/<[^>]*>/g, '');
-            const words = cleanText.trim().split(/\s+/).length;
+        blocks.forEach(block => {
+            const words = block.trim().split(/\s+/).length;
             
             if (wordCount + words > this.wordsPerPage && currentPage.length > 0) {
                 pages.push(currentPage.join(''));
@@ -38,7 +31,7 @@ export class TextPaginator {
                 wordCount = 0;
             }
             
-            currentPage.push(paragraph);
+            currentPage.push(block);
             wordCount += words;
         });
 
