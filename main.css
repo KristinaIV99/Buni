@@ -433,7 +433,7 @@ hr {
 .word-info-popup {
     position: fixed;
     background: var(--background-light);
-    border: 1px solid #eee;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     padding: 12px;
@@ -442,37 +442,47 @@ hr {
     font-size: 14px;
 }
 
-.popup-title {
+.word-info-title {
     font-weight: bold;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 8px;
     margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.meaning-item {
-    padding: 8px 0;
-    border-top: 1px solid #eee;
-}
-
-.kalbos-dalis {
-    color: #666;
+.word-info-type {
     font-size: 12px;
-    margin-bottom: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.word-info-type.phrase {
+    background: rgba(255, 215, 0, 0.2);
+}
+
+.word-info-type.word {
+    background: rgba(33, 150, 243, 0.2);
+}
+
+.word-info-grid {
+    display: grid;
+    gap: 4px;
+}
+
+.word-info-label {
+    font-weight: bold;
 }
 
 @media (prefers-color-scheme: dark) {
     .word-info-popup {
         background: var(--background-dark);
-        border-color: #444;
+        border-color: var(--border-dark);
     }
     
-    .popup-title,
-    .meaning-item {
-        border-color: #444;
-    }
-    
-    .kalbos-dalis {
-        color: #aaa;
+    .word-info-title {
+        border-color: var(--border-dark);
     }
 }
 /* ==========================================================================
