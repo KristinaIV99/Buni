@@ -68,6 +68,13 @@ class App {
 			
 		this.paginationControls.style.display = 'none';
 		document.body.appendChild(this.paginationControls);
+
+		document.addEventListener('click', (e) => {
+			const popup = document.querySelector('.word-info-popup');
+			if (popup && !e.target.closest('.word-info-popup') && !e.target.closest('.highlight-word') && !e.target.closest('.highlight-phrase')) {
+				popup.remove();
+			}
+		});
 		
 		console.log(`${this.APP_NAME} UI elementai sėkmingai inicializuoti`);
 	}
