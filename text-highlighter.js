@@ -59,7 +59,7 @@ export class TextHighlighter {
 
     _highlightWords(text, words) {
 		const wordBoundaryRegex = /[\s.,!?;:'"„"\(\)\[\]{}<>\/\-—–]/;
-    
+		
 		function isWordBoundary(char) {
 			return !char || wordBoundaryRegex.test(char);
 		}
@@ -89,88 +89,37 @@ export class TextHighlighter {
 			}
 		});
 
-        // Rūšiuojame ir filtruojame persidengimus
-        matches.sort((a, b) => a.start - b.start);
-        const filteredMatches = this._filterOverlappingMatches(matches);
+		// Rūšiuojame ir filtruojame persidengimus
+		matches.sort((a, b) => a.start - b.start);
+		const filteredMatches = this._filterOverlappingMatches(matches);
 
-        // Kuriame fragmentą
-        const fragment = document.createDocumentFragment();
-        filteredMatches.forEach(match => {
-            if (match.start > lastIndex) {
-                fragment.appendChild(
-                    document.createTextNode(text.slice(lastIndex, match.start))
-                );
-            }
-
-            const span = document.createElement('span');
-            span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
-            span.textContent = match.word;
-            span.dataset.info = JSON.stringify(match.info);
-            span.addEventListener('click', this.boundHandlePopup);
-            fragment.appendChild(span);
-
-            lastIndex = match.end;
-        });
-
-        if (lastIndex < text.length) {
-            fragment.appendChild(
-                document.createTextNode(text.slice(lastIndex))
-            );
-        }
-
-        return fragment;
-    }
-
-    _filterOverlappingMatches(matches) {
-        return matches.filter((match, index) => {
-            return !matches.some((otherMatch, otherIndex) => {
-                return otherIndex < index && 
-                       otherMatch.start <= match.start && 
-                       otherMatch.end >= match.end;
-            });
-        });
-    }
-
-    _createHighlightedFragment(text, matches) {
-		console.log('Kuriamas fragmentas tekstui:', text, 'su matches:', matches);
-		
+		// Kuriame fragmentą
 		const fragment = document.createDocumentFragment();
 		let lastIndex = 0;
 
-		// Rūšiuojame matches pagal pradžios poziciją
-		matches.sort((a, b) => a.start - b.start);
-
-		matches.forEach(match => {
-			// Pridedame tekstą prieš match
+		filteredMatches.forEach(match => {
 			if (match.start > lastIndex) {
-				const textBefore = text.slice(lastIndex, match.start);
-				fragment.appendChild(document.createTextNode(textBefore));
-				console.log('Pridėtas tekstas prieš:', textBefore);
+				fragment.appendChild(
+					document.createTextNode(text.slice(lastIndex, match.start))
+				);
 			}
 
-			// Kuriame highlight elementą
 			const span = document.createElement('span');
 			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
-			span.textContent = text.slice(match.start, match.end);
+			span.textContent = match.word;
 			span.dataset.info = JSON.stringify(match.info);
 			span.addEventListener('click', this.boundHandlePopup);
-
-			console.log('Sukurtas highlight elementas:', {
-				text: span.textContent,
-				class: span.className
-			});
-
 			fragment.appendChild(span);
+
 			lastIndex = match.end;
 		});
 
-		// Pridedame likusį tekstą
 		if (lastIndex < text.length) {
-			const textAfter = text.slice(lastIndex);
-			fragment.appendChild(document.createTextNode(textAfter));
-		console.log('Pridėtas tekstas po:', textAfter);
+			fragment.appendChild(
+				document.createTextNode(text.slice(lastIndex))
+			);
 		}
-	
+
 		return fragment;
 	}
 
