@@ -173,44 +173,51 @@ export class TextHighlighter {
 	}
 
     _handlePopup(event) {
+		console.log('1. Event triggered:', event);
 		event.stopPropagation();
 		this._removeAllPopups();
 
-		const info = JSON.parse(event.target.dataset.info);
-		const popup = document.createElement('div');
-		popup.className = 'word-info-popup';
-
-		popup.innerHTML = `
-			<div class="word-info-title">
-				<span>${info.text}</span>
-				<span class="word-info-type ${info.type}">
-					${info.type === 'phrase' ? 'Frazė' : 'Žodis'}
-				</span>
-			</div>
-			<div class="word-info-grid">
-				<div><span class="word-info-label">Vertimas:</span> ${info.vertimas}</div>
-				<div><span class="word-info-label">Kalbos dalis:</span> ${info["kalbos dalis"]}</div>
-				<div><span class="word-info-label">Bazinė forma:</span> ${info["bazinė forma"]}</div>
-				<div><span class="word-info-label">Bazės vertimas:</span> ${info["bazė vertimas"]}</div>
-				<div><span class="word-info-label">CERF:</span> ${info.CERF}</div>
-				${info.related?.length ? `
-					<div class="word-info-related">
-						<div class="word-info-label">Susiję:</div>
-						${info.related.map(r => `<div>${r.pattern} (${r.type})</div>`).join('')}
-					</div>
-				` : ''}
-			</div>
-		`;
-
-		const rect = event.target.getBoundingClientRect();
-		popup.style.left = `${window.scrollX + rect.left}px`;
-		popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
-    
-		document.body.appendChild(popup);
-		this.activePopup = popup;
-		this._adjustPopupPosition(popup);
-
-		setTimeout(() => document.addEventListener('click', this._handleDocumentClick.bind(this)), 0);
+		try {
+			console.log('2. Dataset info:', event.target.dataset.info);
+			const info = JSON.parse(event.target.dataset.info);
+			console.log('3. Parsed info:', info);
+			
+			const popup = document.createElement('div');
+			console.log('4. Popup created');
+			popup.className = 'word-info-popup';
+			popup.innerHTML = `
+				<div class="word-info-title">
+					<span>${info.text}</span>
+					<span class="word-info-type ${info.type}">
+						${info.type === 'phrase' ? 'Frazė' : 'Žodis'}
+					</span>
+				</div>
+				<div class="word-info-grid">
+					<div><span class="word-info-label">Vertimas:</span> ${info.vertimas}</div>
+					<div><span class="word-info-label">Kalbos dalis:</span> ${info["kalbos dalis"]}</div>
+					<div><span class="word-info-label">Bazinė forma:</span> ${info["bazinė forma"]}</div>
+					<div><span class="word-info-label">Bazės vertimas:</span> ${info["bazė vertimas"]}</div>
+					<div><span class="word-info-label">CERF:</span> ${info.CERF}</div>
+					${info.related?.length ? `
+						<div class="word-info-related">
+							<div class="word-info-label">Susiję:</div>
+							${info.related.map(r => `<div>${r.pattern} (${r.type})</div>`).join('')}
+						</div>
+					` : ''}
+				</div>
+			`;
+			const rect = event.target.getBoundingClientRect();
+			popup.style.left = `${window.scrollX + rect.left}px`;
+			popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
+			
+			document.body.appendChild(popup);
+			console.log('5. Popup added to document');
+			this.activePopup = popup;
+			this._adjustPopupPosition(popup);
+			setTimeout(() => document.addEventListener('click', this._handleDocumentClick.bind(this)), 0);
+		} catch (error) {
+			console.error('Error in popup:', error);
+		}
 	}
 
     _adjustPopupPosition(popup) {
