@@ -117,38 +117,54 @@ class AhoCorasick {
 		}
 
 		const matches = [];
+		const words = this._splitIntoWords(text);
 		
 		// Pirma ieškome frazių
 		console.log('[AhoCorasick] Ieškome frazių...');
 		const phrases = Array.from(this.patterns.entries())
 			.filter(([_, data]) => data.type === 'phrase')
-			.map(([pattern]) => pattern);
+			.map(([pattern, data]) => ({ pattern, data }));
 		
-		console.log('Rastos frazės:', phrases);
-		
-		// Po to ieškome žodžių
-		console.log('[AhoCorasick] Ieškome žodžių...');
-		const words = this._splitIntoWords(text);
-	
+		console.log('Rastos frazės šablonai:', phrases);
+
+		// Jungiame žodžius į tekstą frazių paieškai
+		let fullText = '';
+		let offset = 0;
+		const positions = new Map(); // saugome žodžių pozicijas
+
+		words.forEach(({ word, start }) => {
+			fullText += word + ' ';
+			positions.set(offset, start);
+			offset += word.length + 1;
+		});
+
+		// Ieškome frazių
+		phrases.forEach(({ pattern, data }) => {
+			let index = 0;
+			const lowerText = fullText.toLowerCase();
+			
+			while ((index = lowerText.indexOf(pattern, index)) !== -1) {
+				// Randame tikrąją poziciją tekste
+				const realStart = Array.from(positions.entries())
+					.find(([pos, _]) => pos <= index)?.[1] || 0;
+				
+				matches.push({
+					pattern,
+					start: realStart,
+					end: realStart + pattern.length,
+					text: pattern,
+					outputs: [data],
+					type: 'phrase'
+				});
+				
+				index += pattern.length;
+			}
+		});
+
+		// Tada ieškome žodžių
 		for (const { word, start } of words) {
 			if (word.length < 1) continue;
-			
-			// Tikriname frazes
-			for (const phrase of phrases) {
-				const lowerWord = word.toLowerCase();
-				if (lowerWord.includes(phrase)) {
-					console.log(`[AhoCorasick] Rasta frazė: "${phrase}" žodyje "${word}"`);
-					matches.push({
-						pattern: phrase,
-						start: start,
-						end: start + word.length,
-						text: word,
-						outputs: [this.patterns.get(phrase).data]
-					});
-				}
-			}
 
-			// Tikriname žodžius
 			let currentNode = this.root;
 			const lowerWord = word.toLowerCase();
 
@@ -165,7 +181,8 @@ class AhoCorasick {
 			}
 		}
 
-		return matches;
+		console.log('Rasti visi atitimenys prieš filtravimą:', matches);
+		return this._filterOverlappingMatches(matches);
 	}
 
 	_addMatches(currentNode, word, startPosition, currentPosition, matches) {
