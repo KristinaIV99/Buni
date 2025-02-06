@@ -8,34 +8,39 @@ export class TextHighlighter {
 
     async processText(text, html) {
         console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
-        
-        try {
-            const { results } = await this.dictionaryManager.findInText(text);
-            console.log('Rasti žodžiai:', results);
+		
+		try {
+			const { results } = await this.dictionaryManager.findInText(text);
+			console.log('Rasti žodžiai ir frazės:', results);
 
-            // Surenkame visus žodžius
-            const words = {};
-            results.forEach(result => {
-                const word = result.pattern.toLowerCase();
-                if (!words[word]) {
-                    words[word] = {
-                        pattern: result.pattern,
-                        type: result.type,
-                        info: result.info
-                    };
-                }
-            });
+			// Surenkame žodžius ir frazes, rūšiuojame pagal ilgį
+			const patterns = {};
+			results.forEach(result => {
+				const pattern = result.pattern.toLowerCase();
+				if (!patterns[pattern]) {
+					patterns[pattern] = {
+						pattern: result.pattern,
+						type: result.type,
+						info: result.info,
+						length: pattern.length  // Pridedame ilgio informaciją
+					};
+				}
+			});
 
-            // Pakeičiame tekstą HTML dokumente
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            this._processNode(doc.body, words);
+			// Rūšiuojame patterns pagal ilgį (nuo ilgiausio iki trumpiausio)
+			const sortedPatterns = Object.entries(patterns).sort((a, b) => b[1].length - a[1].length);
+			console.log('Surūšiuoti šablonai:', sortedPatterns);
 
-            return doc.body.innerHTML;
-        } catch (error) {
-            console.error('Klaida žymint tekstą:', error);
-            return html;
-        }
-    }
+			// Pakeičiame tekstą HTML dokumente
+			const doc = new DOMParser().parseFromString(html, 'text/html');
+			this._processNode(doc.body, Object.fromEntries(sortedPatterns));
+
+			return doc.body.innerHTML;
+		} catch (error) {
+			console.error('Klaida žymint tekstą:', error);
+			return html;
+		}
+	}
 
     _processNode(node, words) {
         if (node.nodeType === Node.TEXT_NODE) {
