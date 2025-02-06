@@ -18,7 +18,7 @@ export class TextPaginator {
 
     splitIntoPages(text) {
         // Skaidome pagal paragrafus vietoj taškų
-        const paragraphs = text.match(/[^>]+(<\/p>|<\/h[1-6]>)/g) || [];
+        const sentences = text.split(/\n\s*\n/) || [];
         const pages = [];
         let currentPage = [];
         let wordCount = 0;
