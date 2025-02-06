@@ -314,27 +314,27 @@ class AhoCorasick {
     }
 
     _isFullWord(text, start, end) {
-        const prevChar = start > 0 ? text[start - 1] : ' ';
-        const nextChar = end < text.length ? text[end] : ' ';
-        return this.wordBoundaryRegex.test(prevChar) && 
-               this.wordBoundaryRegex.test(nextChar);
-    }
+        console.log('Tikriname žodžio ribas:', {
+			text: text.slice(start, end),
+			prieš: start > 0 ? text[start - 1] : ' ',
+			po: end < text.length ? text[end] : ' ',
+			pilnasKontekstas: text.slice(Math.max(0, start - 10), Math.min(text.length, end + 10))
+		});
 
-    getStats() {
-        return {
-            patternCount: this.patternCount,
-            isReady: this.ready,
-            patterns: Array.from(this.patterns.keys())
-        };
-    }
-
-    clear() {
-        console.log('[AhoCorasick] Valomas medis');
-        this.root = this.createNode();
-        this.ready = false;
-        this.patternCount = 0;
-        this.patterns.clear();
-    }
+		const prevChar = start > 0 ? text[start - 1] : ' ';
+		const nextChar = end < text.length ? text[end] : ' ';
+		
+		// Pakeičiame frazių patikrinimą
+		if (text.slice(start, end).includes(' ')) {
+			// Jei tai frazė (turi tarpų), tikriname tik pradžią ir pabaigą
+			return this.wordBoundaryRegex.test(prevChar) && 
+				this.wordBoundaryRegex.test(nextChar);
+		}
+    
+		// Jei tai žodis (be tarpų), tikriname griežčiau
+		return this.wordBoundaryRegex.test(prevChar) && 
+			this.wordBoundaryRegex.test(nextChar);
+	}
 }
 
 export { AhoCorasick };
