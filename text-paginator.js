@@ -17,70 +17,45 @@ export class TextPaginator {
     }
 
     splitIntoPages(text) {
-        // Konvertuojame HTML į paragrafus
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = text;
+        // Sukuriame DOM elementą iš HTML
+        const container = document.createElement('div');
+        container.innerHTML = text;
         
-        // Surandame visus <p> elementus arba teksto blokus
-        const paragraphs = [];
-        const walker = document.createTreeWalker(
-            tempDiv,
-            NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
-            {
-                acceptNode: function(node) {
-                    // Priimame tik paragrafus arba teksto mazgus, kurie turi ne tuščią tekstą
-                    if ((node.nodeType === Node.ELEMENT_NODE && node.tagName === 'P') ||
-                        (node.nodeType === Node.TEXT_NODE && node.textContent.trim())) {
-                        return NodeFilter.FILTER_ACCEPT;
-                    }
-                    return NodeFilter.FILTER_SKIP;
-                }
-            }
-        );
-
-        let currentNode;
-        while (currentNode = walker.nextNode()) {
-            if (currentNode.nodeType === Node.TEXT_NODE) {
-                const text = currentNode.textContent.trim();
-                if (text) {
-                    paragraphs.push(text);
-                }
-            } else if (currentNode.tagName === 'P') {
-                paragraphs.push(currentNode.outerHTML);
-            }
-        }
-
+        // Renkame tik <p> elementus
+        const paragraphs = Array.from(container.getElementsByTagName('p'));
+        
         const pages = [];
         let currentPage = [];
         let currentPageWordCount = 0;
 
-        for (let i = 0; i < paragraphs.length; i++) {
-            const paragraph = paragraphs[i];
-            // Išvalome HTML žymes skaičiuojant žodžius
-            const cleanText = paragraph.replace(/<[^>]*>/g, '');
-            const paragraphWordCount = cleanText.trim().split(/\s+/).length;
+        paragraphs.forEach(p => {
+            // Gauname pilną paragrafo HTML
+            const paragraphHtml = p.outerHTML;
+            // Skaičiuojame žodžius tik iš teksto turinio
+            const wordCount = p.textContent.trim().split(/\s+/).length;
 
-            // Jei dabartinis puslapis tuščias, pridedame paragrafą nepriklausomai nuo jo ilgio
+            // Jei puslapis tuščias, pridedam pirmą paragrafą
             if (currentPage.length === 0) {
-                currentPage.push(paragraph);
-                currentPageWordCount = paragraphWordCount;
-                continue;
+                currentPage.push(paragraphHtml);
+                currentPageWordCount = wordCount;
+                return;
             }
 
-            // Jei pridėjus šį paragrafą viršysime minimalų žodžių skaičių ir dabartinis puslapis jau turi >= 250 žodžių
+            // Jei dabartinis puslapis jau turi >= 250 žodžių, pradedame naują
             if (currentPageWordCount >= this.minWordsPerPage) {
-                pages.push(currentPage.join('\n'));
-                currentPage = [paragraph];
-                currentPageWordCount = paragraphWordCount;
+                pages.push(currentPage.join(''));
+                currentPage = [paragraphHtml];
+                currentPageWordCount = wordCount;
             } else {
-                currentPage.push(paragraph);
-                currentPageWordCount += paragraphWordCount;
+                // Kitaip pridedame prie esamo puslapio
+                currentPage.push(paragraphHtml);
+                currentPageWordCount += wordCount;
             }
-        }
+        });
 
         // Pridedame paskutinį puslapį
         if (currentPage.length > 0) {
-            pages.push(currentPage.join('\n'));
+            pages.push(currentPage.join(''));
         }
 
         return pages;
