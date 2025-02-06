@@ -4,6 +4,7 @@ export class TextHighlighter {
         this.dictionaryManager = dictionaryManager;
         this.boundHandlePopup = this._handlePopup.bind(this);
         this.activePopup = null;
+		document.addEventListener('click', this._handleDocumentClick.bind(this));
     }
 
     async processText(text, html) {
@@ -184,6 +185,8 @@ export class TextHighlighter {
 		document.body.appendChild(popup);
 		this.activePopup = popup;
 		this._adjustPopupPosition(popup);
+
+		document.addEventListener('click', this._handleDocumentClick.bind(this));
 	}
 
     _adjustPopupPosition(popup) {
