@@ -17,14 +17,14 @@ export class TextPaginator {
     }
 
     splitIntoPages(text) {
-        // Skaidome pagal paragrafus vietoj taškų
-        const sentences = text.split(/\n\s*\n/) || [];
+        // Skaidome pagal tuščias eilutes (paragrafus)
+        const paragraphs = text.split(/\n\s*\n/) || [];
         const pages = [];
         let currentPage = [];
         let wordCount = 0;
 
-        sentences.forEach(sentence => {
-            const words = sentence.trim().split(/\s+/).length;
+        paragraphs.forEach(paragraph => {
+            const words = paragraph.trim().split(/\s+/).length;
             
             if (wordCount + words > this.wordsPerPage && currentPage.length > 0) {
                 pages.push(currentPage.join(''));
