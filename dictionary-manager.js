@@ -101,53 +101,63 @@ export class DictionaryManager {
 	}
 
     _processSearchResults(matches) {
-        const processed = new Map();
+		console.log('Apdorojami matches:', matches);
+		const processed = new Map();
 
-        for (const match of matches) {
-            const mainPattern = match.pattern;
-            const outputs = match.outputs || [];
+		for (const match of matches) {
+			if (!match.outputs || !match.outputs[0]) {
+				console.warn('Neteisingas match formatas:', match);
+				continue;
+			}
 
-            outputs.forEach(output => {
-                const key = `${output.type}_${mainPattern}`;
-                
-                if (!processed.has(key)) {
-                    processed.set(key, {
-                        pattern: mainPattern,
-                        type: output.type,
-                        info: this._extractWordInfo(output),
-                        positions: [],
-                        related: new Set()
-                    });
-                }
+			const output = match.outputs[0];
+			const key = `${output.type}_${match.pattern}`;
+			
+			console.log('Apdorojamas match:', {
+				pattern: match.pattern,
+				type: output.type,
+				text: match.text
+			});
 
-                const entry = processed.get(key);
-                
-                // Pridedame poziciją
-                entry.positions.push({
-                    start: match.start,
-                    end: match.end,
-                    text: match.text
-                });
+			if (!processed.has(key)) {
+				processed.set(key, {
+					pattern: match.pattern,
+					type: output.type,
+					info: this._extractWordInfo(output),
+					positions: [],
+					length: match.pattern.length, // Pridedame ilgį
+					related: new Set()
+				});
+			}
 
-                // Pridedame susijusius šablonus
-                if (match.related) {
-                    match.related.forEach(relatedPattern => {
-                        if (relatedPattern !== mainPattern) {
-                            const relatedInfo = this._findPatternInfo(relatedPattern);
-                            if (relatedInfo) {
-                                entry.related.add(JSON.stringify(relatedInfo));
-                            }
-                        }
-                    });
-                }
-            });
-        }
+			const entry = processed.get(key);
+			entry.positions.push({
+				start: match.start,
+				end: match.end,
+				text: match.text
+			});
 
-        return Array.from(processed.values()).map(entry => ({
-            ...entry,
-            related: Array.from(entry.related).map(r => JSON.parse(r))
-        }));
-    }
+			// Išsaugome susijusius šablonus
+			if (match.related) {
+				match.related.forEach(relatedPattern => {
+					if (relatedPattern !== match.pattern) {
+						const relatedInfo = this._findPatternInfo(relatedPattern);
+						if (relatedInfo) {
+							entry.related.add(JSON.stringify(relatedInfo));
+						}
+					}
+				});
+			}
+		}
+
+		// Rūšiuojame pagal ilgį (ilgiausios frazės pirma)
+		return Array.from(processed.values())
+			.sort((a, b) => b.length - a.length)
+			.map(entry => ({
+				...entry,
+				related: Array.from(entry.related).map(r => JSON.parse(r))
+			}));
+	}
 
     _findPatternInfo(pattern) {
         const matches = Array.from(this.dictionaries.values())
