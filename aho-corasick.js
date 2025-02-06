@@ -119,70 +119,35 @@ class AhoCorasick {
 
     search(text) {
 		console.log('[AhoCorasick] Pradedama paieška tekste');
-		
 		const matches = [];
 		const allText = text.toLowerCase();
 		
-		// Pirma ieškome frazių (ilgiausios pirma)
-		const phrases = Array.from(this.patterns.entries())
-			.filter(([_, data]) => data.data.type === 'phrase')  // Pataisyta vieta - data.data.type
-			.sort((a, b) => b[0].length - a[0].length);
-		
-		console.log('Frazių šablonai:', phrases);
-		
-		for (const [phrase, data] of phrases) {
+		// Surūšiuojame visus šablonus pagal ilgį (ilgiausi pirma)
+		const allPatterns = Array.from(this.patterns.entries())
+			.sort((a, b) => b[0].length - a[0].length);  // Rūšiuojame pagal ilgį
+			
+		console.log('Šablonai pagal ilgį:', allPatterns.map(([pattern, _]) => pattern));
+
+		// Ieškome visų šablonų (ir frazių, ir žodžių)
+		for (const [pattern, data] of allPatterns) {
 			let index = 0;
-			while ((index = allText.indexOf(phrase, index)) !== -1) {
-				// Patikriname ar prieš ir po frazės yra tarpai/skyrikliai
-				if (this._isFullWord(text, index, index + phrase.length)) {
-					console.log(`Rasta frazė "${phrase}" pozicijoje ${index}`);
+			while ((index = allText.indexOf(pattern, index)) !== -1) {
+				// Patikriname ar tai pilnas žodis/frazė
+				if (this._isFullWord(text, index, index + pattern.length)) {
+					console.log(`Rastas šablonas "${pattern}" (${data.data.type}) pozicijoje ${index}`);
 					matches.push({
-						pattern: phrase,
+						pattern: pattern,
 						start: index,
-						end: index + phrase.length,
-						text: text.slice(index, index + phrase.length),
+						end: index + pattern.length,
+						text: text.slice(index, index + pattern.length),
 						outputs: [data.data],
-						type: 'phrase'  // Aiškiai nurodome tipą
+						type: data.data.type
 					});
 				}
 				index += 1;
 			}
 		}
-		
-		// Tada ieškome žodžių
-		const words = this._splitIntoWords(text);
-		for (const { word, start } of words) {
-			if (word.length < 1) continue;
-			
-			let currentNode = this.root;
-			const lowerWord = word.toLowerCase();
 
-			for (let i = 0; i < lowerWord.length; i++) {
-				const char = lowerWord[i];
-			while (currentNode !== this.root && !currentNode.next.has(char)) {
-					currentNode = currentNode.fail;
-				}
-				currentNode = currentNode.next.get(char) || this.root;
-
-				if (currentNode.outputs.length > 0) {
-					for (const output of currentNode.outputs) {
-						const pattern = output.pattern;
-						if (this._isFullWord(word, 0, pattern.length)) {
-							matches.push({
-								pattern: pattern,
-								start: start,
-								end: start + pattern.length,
-								text: word.slice(0, pattern.length),
-								outputs: [output],
-								type: output.type || 'word'  // Nurodome tipą
-							});
-						}
-					}
-				}
-			}
-		}
-
-		console.log('Rasti atitimenys prieš filtravimą:', matches);
 		return this._filterOverlappingMatches(matches);
 	}
 
