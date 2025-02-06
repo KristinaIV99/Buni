@@ -17,13 +17,16 @@ export class TextPaginator {
     }
 
     splitIntoPages(text) {
-        const blocks = text.split(/(?<=\n\n)/); // Skaidome tekstą į blokus (paragrafus), išsaugant tuščias eilutes
+        // Skaidome pagal paragrafus vietoj taškų
+        const paragraphs = text.match(/[^>]+(<\/p>|<\/h[1-6]>)/g) || [];
         const pages = [];
         let currentPage = [];
         let wordCount = 0;
 
-        blocks.forEach(block => {
-            const words = block.trim().split(/\s+/).length;
+        paragraphs.forEach(paragraph => {
+            // Pašaliname HTML žymes žodžių skaičiavimui
+            const plainText = paragraph.replace(/<[^>]*>/g, '');
+            const words = plainText.trim().split(/\s+/).length;
             
             if (wordCount + words > this.wordsPerPage && currentPage.length > 0) {
                 pages.push(currentPage.join(''));
@@ -31,7 +34,7 @@ export class TextPaginator {
                 wordCount = 0;
             }
             
-            currentPage.push(block);
+            currentPage.push(paragraph);
             wordCount += words;
         });
 
