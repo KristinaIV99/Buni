@@ -265,47 +265,57 @@ class AhoCorasick {
         return matches;
     }
 
-    _filterOverlappingMatches(matches) {
-        // Rūšiuojame pagal pradžios poziciją ir ilgį
-        matches.sort((a, b) => {
-            if (a.start === b.start) {
-                return b.pattern.length - a.pattern.length;
-            }
-            return a.start - b.start;
-        });
+	_filterOverlappingMatches(matches) {
+		if (!matches || !Array.isArray(matches)) {
+			console.warn('Neteisingi matches:', matches);
+			return [];
+		}
 
-        const filtered = [];
-        const usedPositions = new Set();
+		// Rūšiuojame pagal pradžios poziciją ir ilgį
+		matches.sort((a, b) => {
+			if (a.start === b.start) {
+				return b.pattern.length - a.pattern.length;
+			}
+			return a.start - b.start;
+		});
 
-        for (const match of matches) {
-            let hasOverlap = false;
+		const filtered = [];
+		const usedPositions = new Set();
 
-            // Tikriname ar pozicijos neužimtos
-            for (let pos = match.start; pos < match.end; pos++) {
-                if (usedPositions.has(pos)) {
-                    hasOverlap = true;
-                    break;
-                }
-            }
+		for (const match of matches) {
+			if (!match.start || !match.end) {
+				console.warn('Neteisingas match formatas:', match);
+				continue;
+			}
 
-            if (!hasOverlap) {
-                filtered.push(match);
-                // Pažymime pozicijas kaip užimtas
-                for (let pos = match.start; pos < match.end; pos++) {
-                    usedPositions.add(pos);
-                }
-            } else {
-                // Išsaugome kaip susijusį šabloną
-                const overlappingMatch = filtered.find(f => 
-                    f.start <= match.start && f.end >= match.end);
-                if (overlappingMatch) {
-                    overlappingMatch.related.push(match.pattern);
-                }
-            }
-        }
+			let hasOverlap = false;
 
-        return filtered;
-    }
+			// Tikriname ar pozicijos neužimtos
+			for (let pos = match.start; pos < match.end; pos++) {
+				if (usedPositions.has(pos)) {
+					hasOverlap = true;
+					break;
+			}
+			}
+
+			if (!hasOverlap) {
+				filtered.push(match);
+				// Pažymime pozicijas kaip užimtas
+				for (let pos = match.start; pos < match.end; pos++) {
+					usedPositions.add(pos);
+				}
+			} else {
+				// Išsaugome kaip susijusį šabloną
+				const overlappingMatch = filtered.find(f => 
+					f.start <= match.start && f.end >= match.end);
+				if (overlappingMatch && overlappingMatch.related) {
+					overlappingMatch.related.push(match.pattern);
+				}
+			}
+		}
+
+		return filtered;
+	}
 
     _splitIntoWords(text) {
         const words = [];
