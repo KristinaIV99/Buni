@@ -337,22 +337,40 @@ class AhoCorasick {
     }
 
     _isFullWord(text, start, end) {
-		const specialMarkers = ['_', '*'];  // Teksto žymėjimo simboliai
-		
-		let prevChar = start > 0 ? text[start - 1] : ' ';
-		let nextChar = end < text.length ? text[end] : ' ';
-		
-		// Ignoruojame teksto žymėjimo simbolius
-		if (specialMarkers.includes(prevChar)) {
-			// Žiūrime dar vieną simbolį atgal
-			prevChar = start > 1 ? text[start - 2] : ' ';
+		// Debug informacija
+		const context = {
+			before: text.slice(Math.max(0, start - 10), start),
+			word: text.slice(start, end),
+			after: text.slice(end, Math.min(text.length, end + 10))
+		};
+		console.log('Tikriname kontekstą:', context);
+
+		// Tikriname prieš
+		let isValidStart = true;
+		if (start > 0) {
+			const beforeChar = text[start - 1];
+			// Leidžiame tik jei prieš yra tarpas, naujos eilutės simbolis arba _
+			isValidStart = beforeChar === ' ' || beforeChar === '\n' || beforeChar === '_';
 		}
-		if (specialMarkers.includes(nextChar)) {
-			// Žiūrime dar vieną simbolį į priekį
-			nextChar = end + 1 < text.length ? text[end + 1] : ' ';
+
+		// Tikriname po
+		let isValidEnd = true;
+		if (end < text.length) {
+			const afterChar = text[end];
+			// Leidžiame tik jei po yra tarpas, naujos eilutės simbolis, skyrybos ženklas arba _
+			isValidEnd = afterChar === ' ' || afterChar === '\n' || 
+						afterChar === '_' || afterChar === '.' || 
+						afterChar === ',' || afterChar === '-' ||
+						afterChar === '!' || afterChar === '?';
 		}
-		
-		return this.wordBoundaryRegex.test(prevChar) && this.wordBoundaryRegex.test(nextChar);
+
+		console.log('Validacija:', {
+			start: isValidStart,
+			end: isValidEnd,
+			result: isValidStart && isValidEnd
+		});
+
+		return isValidStart && isValidEnd;
 	}
 }
 
