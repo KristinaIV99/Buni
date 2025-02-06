@@ -44,24 +44,29 @@ export class TextHighlighter {
 	}
 
     _processNode(node, words) {
-        if (node.nodeType === Node.TEXT_NODE) {
-            const text = node.textContent;
-            const newNode = this._highlightWords(text, words);
-            if (newNode) {
-                node.parentNode.replaceChild(newNode, node);
-            }
-        } else {
-            // Praleidiame jei tai yra script arba style elementas
-            if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') {
-                return;
-            }
-            
-            // Rekursyviai einame per visus vaikinius elementus
-            Array.from(node.childNodes).forEach(child => {
-                this._processNode(child, words);
-            });
-        }
-    }
+		if (node.nodeType === Node.TEXT_NODE && !this._isInPaginationControls(node)) {
+			const text = node.textContent;
+			const newNode = this._highlightWords(text, words);
+			if (newNode) {
+				node.parentNode.replaceChild(newNode, node);
+			}
+		} else if (node.childNodes && !node.classList?.contains('pagination-controls')) {
+			Array.from(node.childNodes).forEach(child => {
+				this._processNode(child, words);
+			});
+		}
+	}
+
+	_isInPaginationControls(node) {
+		let current = node;
+		while (current) {
+			if (current.classList?.contains('pagination-controls')) {
+				return true;
+			}
+			current = current.parentNode;
+		}
+		return false;
+	}
 
     _highlightWords(text, words) {
 		const wordBoundaryRegex = /[\s.,!?;:'"„"\(\)\[\]{}<>\/\-—–]/;
