@@ -8,63 +8,73 @@ export class TextHighlighter {
     }
 
     async processText(text, html) {
-        console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
+		console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
 		console.log('Pradinis HTML:', html);
 
 		const { results } = await this.dictionaryManager.findInText(text);
 		console.log('Žymėjimo rezultatai:', results);
 
 		const doc = new DOMParser().parseFromString(html, 'text/html');
-		const walker = document.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+		const walker = document.createTreeWalker(
+			doc.body,
+			NodeFilter.SHOW_TEXT,
+			{
+				acceptNode: function(node) {
+					// Ignoruojame tuščius teksto nodes
+					return node.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+				}
+			}
+		);
+
 		let offset = 0;
 		let node;
 
 		while ((node = walker.nextNode())) {
-			console.log('Tikrinamas node:', {
-				text: node.textContent,
-				offset: offset,
-				length: node.textContent.length
-			});
+			const nodeText = node.textContent;
+			console.log('Apdorojamas tekstas:', nodeText, 'offset:', offset);
 
-			const nodeMatches = this._findMatchesInNode(results, offset, node.textContent.length);
-			console.log('Rasti matches šiam node:', nodeMatches);
-
+			const nodeMatches = this._findMatchesInNode(results, offset, nodeText.length);
+			
 			if (nodeMatches.length > 0) {
-				const fragment = this._createHighlightedFragment(node.textContent, nodeMatches);
-				console.log('Sukurtas fragmentas:', fragment.innerHTML);  // Papildomas logging
+				const fragment = this._createHighlightedFragment(nodeText, nodeMatches);
 				node.parentNode.replaceChild(fragment, node);
 			}
-			offset += node.textContent.length;
+			
+			offset += nodeText.length;
 		}
-		const finalHtml = doc.body.innerHTML;                      // Išsaugom galutinį HTML
-		console.log('Galutinis HTML:', finalHtml);                 // Papildomas logging
+
+		const finalHtml = doc.body.innerHTML;
+		console.log('Galutinis HTML:', finalHtml);
 		return finalHtml;
 	}
 
     _findMatchesInNode(results, offset, nodeLength) {
+		console.log('Ieškoma atitikmenų node, offset:', offset, 'length:', nodeLength);
+		
 		if (!Array.isArray(results)) {
-			console.log('Results is not an array:', results);
+			console.warn('Results nėra masyvas:', results);
 			return [];
 		}
 
 		const nodeMatches = [];
 		for (const result of results) {
-			console.log('Processing result:', result);
-			
-			if (!result || !result.positions) {
-				console.warn('Invalid result structure:', result);
+			// Tikriname ar rezultatas turi visus reikalingus laukus
+			if (!result || !result.positions || !Array.isArray(result.positions)) {
+				console.warn('Neteisingas rezultato formatas:', result);
 				continue;
 			}
 
+			// Einame per visas pozicijas
 			for (const pos of result.positions) {
 				const start = pos.start - offset;
 				const end = pos.end - offset;
 
+				// Tikriname ar pozicija patenka į šį node
 				if (start < nodeLength && end > 0) {
-					console.log('Found match:', {
+					console.log('Rastas atitikmuo node:', {
+						word: pos.text,
 						start,
 						end,
-						text: pos.text,
 						type: result.type
 					});
 
@@ -77,14 +87,14 @@ export class TextHighlighter {
 							...result.info,
 							text: pos.text,
 							type: result.type,
-							related: result.related
+							related: result.related || []
 						}
 					});
 				}
 			}
 		}
-		
-		return this._filterOverlappingMatches(nodeMatches);
+	
+	return this._filterOverlappingMatches(nodeMatches);
 	}
 
     _filterOverlappingMatches(matches) {
@@ -103,32 +113,45 @@ export class TextHighlighter {
     }
 
     _createHighlightedFragment(text, matches) {
-        const fragment = document.createDocumentFragment();
+		console.log('Kuriamas fragmentas tekstui:', text, 'su matches:', matches);
+		
+		const fragment = document.createDocumentFragment();
 		let lastIndex = 0;
 
+		// Rūšiuojame matches pagal pradžios poziciją
+		matches.sort((a, b) => a.start - b.start);
+
 		matches.forEach(match => {
+			// Pridedame tekstą prieš match
 			if (match.start > lastIndex) {
-				fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.start)));
+				const textBefore = text.slice(lastIndex, match.start);
+				fragment.appendChild(document.createTextNode(textBefore));
+				console.log('Pridėtas tekstas prieš:', textBefore);
 			}
 
+			// Kuriame highlight elementą
 			const span = document.createElement('span');
-			// Ryškesnis žymėjimas
-			span.className = match.type === 'phrase' 
-				? 'highlight-phrase'
-				: 'highlight-word';
-			
+			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
 			span.textContent = text.slice(match.start, match.end);
 			span.dataset.info = JSON.stringify(match.info);
 			span.addEventListener('click', this.boundHandlePopup);
-			
+
+			console.log('Sukurtas highlight elementas:', {
+				text: span.textContent,
+				class: span.className
+			});
+
 			fragment.appendChild(span);
 			lastIndex = match.end;
 		});
 
+		// Pridedame likusį tekstą
 		if (lastIndex < text.length) {
-			fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+			const textAfter = text.slice(lastIndex);
+			fragment.appendChild(document.createTextNode(textAfter));
+		console.log('Pridėtas tekstas po:', textAfter);
 		}
-
+	
 		return fragment;
 	}
 
