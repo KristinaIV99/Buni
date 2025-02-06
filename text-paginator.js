@@ -17,27 +17,27 @@ export class TextPaginator {
     }
 
     splitIntoPages(text) {
-        // Skaidome pagal tuščias eilutes (paragrafus)
-        const paragraphs = text.split(/\n\s*\n/) || [];
+        // Skaidome į pastraipas
+        const pastraipos = text.split(/\n\s*\n/) || [];
         const pages = [];
         let currentPage = [];
         let wordCount = 0;
 
-        paragraphs.forEach(paragraph => {
-            const words = paragraph.trim().split(/\s+/).length;
+        pastraipos.forEach(pastraipa => {
+            const words = pastraipa.trim().split(/\s+/).length;
             
             if (wordCount + words > this.wordsPerPage && currentPage.length > 0) {
-                pages.push(currentPage.join(''));
+                pages.push(currentPage.join('\n\n'));
                 currentPage = [];
                 wordCount = 0;
             }
             
-            currentPage.push(paragraph);
+            currentPage.push(pastraipa);
             wordCount += words;
         });
 
         if (currentPage.length > 0) {
-            pages.push(currentPage.join(''));
+            pages.push(currentPage.join('\n\n'));
         }
 
         return pages;
