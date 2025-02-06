@@ -1,6 +1,6 @@
 export class TextPaginator {
     constructor(options = {}) {
-        this.wordsPerPage = options.wordsPerPage || 350;
+        this.minWordsPerPage = 300; // Minimalus žodžių skaičius puslapyje
         this.currentPage = 1;
         this.content = '';
         this.pages = [];
@@ -17,25 +17,35 @@ export class TextPaginator {
     }
 
     splitIntoPages(text) {
-        // Pakeičiame tik šią eilutę - skaidome pagal pastraipas, ne taškus
         const sentences = text.match(/[^\n]+/g) || [];
         const pages = [];
         let currentPage = [];
         let wordCount = 0;
+        let nextPageWords = 0;
 
-        sentences.forEach(sentence => {
+        for(let i = 0; i < sentences.length; i++) {
+            const sentence = sentences[i];
             const words = sentence.trim().split(/\s+/).length;
             
-            if (wordCount + words > this.wordsPerPage && currentPage.length > 0) {
-                pages.push(currentPage.join(''));
-                currentPage = [];
-                wordCount = 0;
+            // Jei dabartinis puslapis tuščias, pridedame pirmą pastraipą
+            if (currentPage.length === 0) {
+                currentPage.push(sentence);
+                wordCount = words;
+                continue;
             }
-            
-            currentPage.push(sentence);
-            wordCount += words;
-        });
 
+            // Patikriname ar pridėjus šią pastraipą jau viršysime minimalų žodžių skaičių
+            if (wordCount >= this.minWordsPerPage) {
+                pages.push(currentPage.join(''));
+                currentPage = [sentence];
+                wordCount = words;
+            } else {
+                currentPage.push(sentence);
+                wordCount += words;
+            }
+        }
+
+        // Pridedame paskutinį puslapį
         if (currentPage.length > 0) {
             pages.push(currentPage.join(''));
         }
