@@ -12,7 +12,20 @@ export class TextHighlighter {
 		
 		try {
 			const { results } = await this.dictionaryManager.findInText(text);
-			console.log('Rasti žodžiai ir frazės:', results);
+			const doc = new DOMParser().parseFromString(html, 'text/html');
+
+			// Saugome puslapiavimo elementus
+			const paginationControls = doc.querySelector('.pagination-controls');
+			if (paginationControls) {
+				paginationControls.remove();
+			}
+
+			this._processTextNodes(doc.body, results);
+
+			// Grąžiname puslapiavimo elementus
+			if (paginationControls) {
+				doc.body.appendChild(paginationControls);
+			}
 
 			// Surenkame žodžius ir frazes, rūšiuojame pagal ilgį
 			const patterns = {};
@@ -167,23 +180,28 @@ export class TextHighlighter {
 		this._removeAllPopups();
 
 		const info = JSON.parse(event.target.dataset.info);
-		console.log('Info objektas:', info); // Naujas log
-
 		const popup = document.createElement('div');
 		popup.className = 'word-info-popup';
+
 		popup.innerHTML = `
 			<div class="word-info-title">
-				<span>${info.text || info.pattern || info.word}</span>
+				<span>${info.text}</span>
 				<span class="word-info-type ${info.type}">
 					${info.type === 'phrase' ? 'Frazė' : 'Žodis'}
 				</span>
 			</div>
 			<div class="word-info-grid">
-				<div><span class="word-info-label">Vertimas:</span> ${info.vertimas || '-'}</div>
-				<div><span class="word-info-label">Kalbos dalis:</span> ${info["kalbos dalis"] || '-'}</div>
-				<div><span class="word-info-label">Bazinė forma:</span> ${info["bazinė forma"] || '-'}</div>
-				<div><span class="word-info-label">Bazės vertimas:</span> ${info["bazė vertimas"] || '-'}</div>
-				<div><span class="word-info-label">CERF:</span> ${info.CERF || '-'}</div>
+				<div><span class="word-info-label">Vertimas:</span> ${info.vertimas}</div>
+				<div><span class="word-info-label">Kalbos dalis:</span> ${info["kalbos dalis"]}</div>
+				<div><span class="word-info-label">Bazinė forma:</span> ${info["bazinė forma"]}</div>
+				<div><span class="word-info-label">Bazės vertimas:</span> ${info["bazė vertimas"]}</div>
+				<div><span class="word-info-label">CERF:</span> ${info.CERF}</div>
+				${info.related?.length ? `
+					<div class="word-info-related">
+						<div class="word-info-label">Susiję:</div>
+						${info.related.map(r => `<div>${r.pattern} (${r.type})</div>`).join('')}
+					</div>
+				` : ''}
 			</div>
 		`;
 
@@ -194,7 +212,8 @@ export class TextHighlighter {
 		document.body.appendChild(popup);
 		this.activePopup = popup;
 		this._adjustPopupPosition(popup);
-		document.addEventListener('click', this._handleDocumentClick.bind(this));
+
+		setTimeout(() => document.addEventListener('click', this._handleDocumentClick.bind(this)), 0);
 	}
 
     _adjustPopupPosition(popup) {
