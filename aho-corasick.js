@@ -110,14 +110,45 @@ class AhoCorasick {
     }
 
     search(text) {
-        if (!this.ready) throw new Error('Reikia iškviesti buildFailureLinks()');
+		console.log('[AhoCorasick] Pradedama paieška tekste');
+		
+		if (!this.ready) {
+			throw new Error('Reikia iškviesti buildFailureLinks()');
+		}
 
 		const matches = [];
+		
+		// Pirma ieškome frazių
+		console.log('[AhoCorasick] Ieškome frazių...');
+		const phrases = Array.from(this.patterns.entries())
+			.filter(([_, data]) => data.type === 'phrase')
+			.map(([pattern]) => pattern);
+		
+		console.log('Rastos frazės:', phrases);
+		
+		// Po to ieškome žodžių
+		console.log('[AhoCorasick] Ieškome žodžių...');
 		const words = this._splitIntoWords(text);
-
+	
 		for (const { word, start } of words) {
 			if (word.length < 1) continue;
 			
+			// Tikriname frazes
+			for (const phrase of phrases) {
+				const lowerWord = word.toLowerCase();
+				if (lowerWord.includes(phrase)) {
+					console.log(`[AhoCorasick] Rasta frazė: "${phrase}" žodyje "${word}"`);
+					matches.push({
+						pattern: phrase,
+						start: start,
+						end: start + word.length,
+						text: word,
+						outputs: [this.patterns.get(phrase).data]
+					});
+				}
+			}
+
+			// Tikriname žodžius
 			let currentNode = this.root;
 			const lowerWord = word.toLowerCase();
 
@@ -134,7 +165,7 @@ class AhoCorasick {
 			}
 		}
 
-		return this._filterOverlappingMatches(matches);
+		return matches;
 	}
 
 	_addMatches(currentNode, word, startPosition, currentPosition, matches) {
