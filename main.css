@@ -475,6 +475,19 @@ hr {
     font-weight: bold;
 }
 
+.word-info-popup {
+    position: absolute; /* pakeisti į absolute vietoj fixed */
+    min-width: 200px;
+    border: 1px solid #ddd;
+    --border-color: #ddd;
+    --border-dark: #444;
+}
+
+.highlight-word, .highlight-phrase {
+    position: relative;
+    transition: background-color 0.2s;
+}
+
 @media (prefers-color-scheme: dark) {
     .word-info-popup {
         background: var(--background-dark);
