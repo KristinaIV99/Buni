@@ -1,6 +1,6 @@
 export class TextPaginator {
     constructor(options = {}) {
-        this.minWordsPerPage = 250; // Minimalus žodžių skaičius puslapyje
+        this.wordsPerPage = options.wordsPerPage || 350;
         this.currentPage = 1;
         this.content = '';
         this.pages = [];
@@ -17,17 +17,23 @@ export class TextPaginator {
     }
 
     splitIntoPages(text) {
-        // Skaidome į paragrafus (dviguba nauja eilutė)
-        const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim());
+        // Išskaidome į paragrafus pagal HTML <p> tags
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = text;
+        const paragraphElements = tempDiv.getElementsByTagName('p');
+        const paragraphs = Array.from(paragraphElements).map(p => p.outerHTML);
+
         const pages = [];
         let currentPage = [];
         let wordCount = 0;
 
         paragraphs.forEach(paragraph => {
-            const words = paragraph.trim().split(/\s+/).length;
+            // Išvalome HTML žymes žodžių skaičiavimui
+            const cleanText = paragraph.replace(/<[^>]*>/g, '');
+            const words = cleanText.trim().split(/\s+/).length;
             
-            if (wordCount + words > this.minWordsPerPage && currentPage.length > 0) {
-                pages.push(currentPage.join('\n\n'));
+            if (wordCount + words > this.wordsPerPage && currentPage.length > 0) {
+                pages.push(currentPage.join(''));
                 currentPage = [];
                 wordCount = 0;
             }
@@ -37,7 +43,7 @@ export class TextPaginator {
         });
 
         if (currentPage.length > 0) {
-            pages.push(currentPage.join('\n\n'));
+            pages.push(currentPage.join(''));
         }
 
         return pages;
