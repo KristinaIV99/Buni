@@ -1,3 +1,4 @@
+
 class AhoCorasick {
     constructor() {
         this.root = this.createNode();
@@ -336,23 +337,22 @@ class AhoCorasick {
     }
 
     _isFullWord(text, start, end) {
-		console.log('Tikriname žodžio ribas:', {
-			text: text.slice(start, end),
-			prieš: start > 0 ? text[start - 1] : ' ',
-			po: end < text.length ? text[end] : ' ',
-			pilnasKontekstas: text.slice(Math.max(0, start - 10), Math.min(text.length, end + 10))
-		});
-
-		const prevChar = start > 0 ? text[start - 1] : ' ';
-		const nextChar = end < text.length ? text[end] : ' ';
+		const specialMarkers = ['_', '*'];  // Teksto žymėjimo simboliai
 		
-		// Ignoruoti '_' ir kitus specialius žymėjimus
-		const isWordBoundary = char => {
-			if (char === '_') return false;  // Ignoruojame italiko žymes
-			return !char || this.wordBoundaryRegex.test(char);
-		};
+		let prevChar = start > 0 ? text[start - 1] : ' ';
+		let nextChar = end < text.length ? text[end] : ' ';
 		
-		return isWordBoundary(prevChar) && isWordBoundary(nextChar);
+		// Ignoruojame teksto žymėjimo simbolius
+		if (specialMarkers.includes(prevChar)) {
+			// Žiūrime dar vieną simbolį atgal
+			prevChar = start > 1 ? text[start - 2] : ' ';
+		}
+		if (specialMarkers.includes(nextChar)) {
+			// Žiūrime dar vieną simbolį į priekį
+			nextChar = end + 1 < text.length ? text[end + 1] : ' ';
+		}
+		
+		return this.wordBoundaryRegex.test(prevChar) && this.wordBoundaryRegex.test(nextChar);
 	}
 }
 
