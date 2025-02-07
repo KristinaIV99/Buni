@@ -126,16 +126,16 @@ export class TextHighlighter {
 			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
 			span.textContent = match.word;
 			span.dataset.info = JSON.stringify(match.info);
+
+			// Naujas event listener
+			span.addEventListener('click', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				console.log('Click event fired');
+				console.log('Data:', span.dataset.info);
+				this._handlePopup(e);
+			}, true);
 			
-			// Pakeista event listener'io dalis
-			const self = this;
-			span.onclick = function(e) {
-				console.log('Žodis paspaustas');
-				console.log('Event:', e);
-				console.log('Dataset:', this.dataset.info);
-				self._handlePopup(e);
-			};
-        
 			fragment.appendChild(span);
 			lastIndex = match.end;
 		});
