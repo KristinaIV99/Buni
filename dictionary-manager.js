@@ -75,15 +75,21 @@ export class DictionaryManager {
 
     async findInText(text) {
         console.log(`${this.MANAGER_NAME} Pradedama teksto analizė, teksto ilgis:`, text.length);
-    
+
 		try {
-			// Pirma ieškom frazių (ilgesnių)
 			const matches = this.searcher.search(text);
-			console.log('Rasti atitimenys:', matches);
-			
+			console.log('Pilni atitimenys:', matches);
+        
 			const results = matches.map(match => {
-				const info = this._extractWordInfo(match.outputs[0]);
-				console.log('Apdorotas info:', info);  // Pridėtas log
+				const wordInfo = {
+					...match.outputs[0],
+					text: match.text,  // Pridedame rastą tekstą
+					pattern: match.pattern // Pridedame šabloną
+				};
+				
+				const info = this._extractWordInfo(wordInfo);
+				console.log('Apdorotas info:', info);
+				
 				return {
 					pattern: match.pattern,
 					type: match.outputs[0].type,
@@ -179,17 +185,21 @@ export class DictionaryManager {
     }
 
     _extractWordInfo(data) {
-        return {
-            text: data.originalKey?.split('_')[0] || data.pattern || data.baseWord, // Pridėtas text laukas
+        const text = data.originalKey?.split('_')[0] || data.pattern || data.baseWord || data.word || '';
+		console.log('Extracting info from:', data); // Debug
+		return {
+			text: text,  // Žodžio tekstas
+			originalText: data.text || text,  // Originalus tekstas
 			vertimas: data.vertimas || '-',
 			"kalbos dalis": data["kalbos dalis"] || '-',
 			"bazinė forma": data["bazinė forma"] || data.baseWord || '-',
 			"bazė vertimas": data["bazė vertimas"] || '-',
 			CERF: data.CERF || '-',
 			type: data.type || 'word',
-			source: data.source
-        };
-    }
+			pattern: data.pattern || text, // Pridėta pattern reikšmė
+		source: data.source
+		};
+	}
 
     _validateDictionaryEntry(key, data) {
         if (!key || typeof key !== 'string') {
