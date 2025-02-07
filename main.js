@@ -231,6 +231,8 @@ class App {
 
 		 // Tekstas su žymėjimais
 		const highlightedHtml = await this.textHighlighter.processText(this.currentText, html);
+		console.log('Pažymėtas tekstas:', highlightedHtml.slice(0, 200));
+		
 		const contentDiv = document.createElement('div');
 		contentDiv.className = 'paginated-content';
 		contentDiv.innerHTML = highlightedHtml;
@@ -238,6 +240,8 @@ class App {
 		div.appendChild(contentDiv);
 		
 		const pageData = this.paginator.setContent(contentDiv.innerHTML);
+		 console.log('Puslapiavimo duomenys:', pageData);
+
 		contentDiv.innerHTML = pageData.content;
 		
 		this.content.replaceChildren(div);
