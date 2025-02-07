@@ -130,11 +130,11 @@ export class TextHighlighter {
 			span.dataset.info = JSON.stringify({
 				text: match.word,
 				type: match.type,
-				vertimas: match.vertimas,
-				"kalbos dalis": match["kalbos dalis"],
-				"bazinė forma": match["bazinė forma"],
-				"bazė vertimas": match["bazė vertimas"],
-				CERF: match.CERF
+				vertimas: match.vertimas || match.info?.vertimas,
+				"kalbos dalis": match["kalbos dalis"] || match.info?.["kalbos dalis"],
+				"bazinė forma": match["bazinė forma"] || match.info?.["bazinė forma"],
+				"bazė vertimas": match["bazė vertimas"] || match.info?.["bazė vertimas"],
+				CERF: match.CERF || match.info?.CERF
 			});
 
 			span.addEventListener('click', (e) => {
@@ -187,16 +187,19 @@ export class TextHighlighter {
 		console.log('Dataset:', event.target.dataset);
 		
 		event.stopPropagation();
-		event.preventDefault(); // Pridėta
+		event.preventDefault();
 		this._removeAllPopups();
 
 		try {
-			const info = JSON.parse(event.target.dataset.info);
+			const data = event.target.dataset.info;
+			console.log('Raw data:', data);
+			// Pakeičiame HTML entities į normalius simbolius
+			const info = JSON.parse(data.replace(/&quot;/g, '"'));
 			console.log('Parsed info:', info);
 			
 			const popup = document.createElement('div');
 			popup.className = 'word-info-popup';
-
+			
 			// Pridėkime log'ą prieš innerHTML
 			console.log('Info objektas prieš render:', {
 				text: info.text,
