@@ -54,6 +54,8 @@ export class TextHighlighter {
 	}
 
     _processNode(node, words) {
+		console.log('Processing node:', node.nodeType, node.textContent?.slice(0, 50));
+		
 		if (node.nodeType === Node.TEXT_NODE && !this._isInPaginationControls(node)) {
 			const text = node.textContent;
 			const newNode = this._highlightWords(text, words);
