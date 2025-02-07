@@ -81,17 +81,21 @@ export class DictionaryManager {
 			const matches = this.searcher.search(text);
 			console.log('Rasti atitimenys:', matches);
 			
-			const results = matches.map(match => ({
-				pattern: match.pattern,
-				type: match.outputs[0].type,
-				info: this._extractWordInfo(match.outputs[0]),
-				positions: [{
-					start: match.start,
-					end: match.end,
-					text: match.text
-				}],
-				related: match.related || []
-			}));
+			const results = matches.map(match => {
+				const info = this._extractWordInfo(match.outputs[0]);
+				console.log('Apdorotas info:', info);  // Pridėtas log
+				return {
+					pattern: match.pattern,
+					type: match.outputs[0].type,
+					info: info,
+					positions: [{
+						start: match.start,
+						end: match.end,
+						text: match.text
+					}],
+					related: match.related || []
+				};
+			});
 
 			return { results };
 		} catch (error) {
@@ -176,13 +180,14 @@ export class DictionaryManager {
 
     _extractWordInfo(data) {
         return {
-            vertimas: data.vertimas || '-',
-            "kalbos dalis": data["kalbos dalis"] || '-',
-            "bazinė forma": data["bazinė forma"] || data.baseWord || '-',
-            "bazė vertimas": data["bazė vertimas"] || '-',
-            CERF: data.CERF || '-',
-            type: data.type,
-            source: data.source
+            text: data.originalKey?.split('_')[0] || data.pattern || data.baseWord, // Pridėtas text laukas
+			vertimas: data.vertimas || '-',
+			"kalbos dalis": data["kalbos dalis"] || '-',
+			"bazinė forma": data["bazinė forma"] || data.baseWord || '-',
+			"bazė vertimas": data["bazė vertimas"] || '-',
+			CERF: data.CERF || '-',
+			type: data.type || 'word',
+			source: data.source
         };
     }
 
