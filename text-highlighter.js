@@ -97,7 +97,6 @@ export class TextHighlighter {
 			const lowerText = text.toLowerCase();
 			
 			while ((index = lowerText.indexOf(word, index)) !== -1) {
-				// Tikriname ar tai pilnas žodis
 				if (isFullWord(text, index, index + word.length)) {
 					matches.push({
 						start: index,
@@ -106,15 +105,13 @@ export class TextHighlighter {
 						...words[word]
 					});
 				}
-				index += 1; // Ieškome toliau nuo sekančios pozicijos
+				index += 1;
 			}
 		});
 
-		// Rūšiuojame ir filtruojame persidengimus
 		matches.sort((a, b) => a.start - b.start);
 		const filteredMatches = this._filterOverlappingMatches(matches);
 
-		// Kuriame fragmentą
 		const fragment = document.createDocumentFragment();
 		let lastIndex = 0;
 
@@ -129,21 +126,19 @@ export class TextHighlighter {
 			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
 			span.textContent = match.word;
 			span.dataset.info = JSON.stringify(match.info);
-			console.log('Pridedamas span:', span);
 			
-			// Pakeičiame event listener'į
-			span.onclick = (e) => {
+			// Pakeista event listener'io dalis
+			const self = this;
+			span.onclick = function(e) {
 				console.log('Žodis paspaustas');
 				console.log('Event:', e);
-				console.log('Target:', e.target);
-				console.log('Dataset:', e.target.dataset);
-				this._handlePopup(e);
+				console.log('Dataset:', this.dataset.info);
+				self._handlePopup(e);
 			};
-
-            fragment.appendChild(span);
-
-            lastIndex = match.end;
-        }); 
+        
+			fragment.appendChild(span);
+			lastIndex = match.end;
+		});
 
 		if (lastIndex < text.length) {
 			fragment.appendChild(
