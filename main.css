@@ -432,11 +432,12 @@ hr {
    ========================================================================== */
 .word-info-popup {
     position: absolute;
-    background: var(--background-light);
-    border: 1px solid var(--border-color);
+    background: var(--background-light, white);
+    color: var(--text-light, #333);
+    border: 1px solid #ccc;
     border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    padding: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    padding: 10px;
     z-index: 9999;
     min-width: 200px;
     max-width: 300px;
@@ -445,6 +446,9 @@ hr {
     --border-dark: #444;
     display: block !important;
     pointer-events: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    animation: fadeIn 0.2s ease-in-out;
 }
 
 .word-info-title {
@@ -480,6 +484,17 @@ hr {
     font-weight: bold;
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* ==========================================================================
    ŽODŽIŲ ŽYMĖJIMAS
    ========================================================================== */
@@ -490,6 +505,7 @@ hr {
     padding: 2px;
     border-radius: 2px;
     user-select: none;
+    z-index: 1;
 }
 
 .highlight-word {
@@ -512,11 +528,21 @@ hr {
 
 @media (prefers-color-scheme: dark) {
     .word-info-popup {
-        background: var(--background-dark);
-        border-color: var(--border-dark);
+        background: var(--background-dark, #1a1a1a);
+        color: var(--text-dark, #e0e0e0);
+        border-color: var(--border-dark, #444);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
     
     .word-info-title {
-        border-color: var(--border-dark);
+        border-color: var(--border-dark, #444);
+    }
+
+   .word-info-type.word {
+        background: rgba(33, 150, 243, 0.15);
+    }
+
+    .word-info-type.phrase {
+        background: rgba(255, 215, 0, 0.15);
     }
 }
