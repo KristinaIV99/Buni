@@ -79,7 +79,6 @@ export class TextHighlighter {
 	}
 
     _highlightWords(text, words) {
-		console.log('Starting _highlightWords with:', { text, words });  // Pridėti debug log
 		const wordBoundaryRegex = /[\s.,!?;:'"„"\(\)\[\]{}<>\/\-—–]/;
 		
 		function isWordBoundary(char) {
@@ -126,12 +125,7 @@ export class TextHighlighter {
 			const span = document.createElement('span');
 			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
 			span.textContent = match.word;
-			
-			// Debug log prieš sukuriant dataset
-			console.log('Creating span for word:', match.word, 'with info:', match);
-			
-			// Pakeiskime kaip formuojame info objektą
-			const info = {
+			span.dataset.info = JSON.stringify({
 				text: match.word,
 				type: match.type,
 				vertimas: match.vertimas,
@@ -139,15 +133,10 @@ export class TextHighlighter {
 				"bazinė forma": match["bazinė forma"],
 				"bazė vertimas": match["bazė vertimas"],
 				CERF: match.CERF
-			};
-			
-			span.dataset.info = JSON.stringify(info);
-			
-			// Pridėkime tiesioginį click handler
+			});
+
 			span.addEventListener('click', (e) => {
-				console.log('Span clicked:', span.textContent);
-				console.log('Info:', span.dataset.info);
-				e.preventDefault();
+			e.preventDefault();
 				e.stopPropagation();
 				this._handlePopup(e);
 			});
@@ -155,6 +144,12 @@ export class TextHighlighter {
 			fragment.appendChild(span);
 			lastIndex = match.end;
 		});
+
+		if (lastIndex < text.length) {
+			fragment.appendChild(
+				document.createTextNode(text.slice(lastIndex))
+			);
+		}
 
 		return fragment;
 	}
