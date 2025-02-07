@@ -443,6 +443,8 @@ hr {
     font-size: 14px;
     --border-color: #ddd;
     --border-dark: #444;
+    display: block !important;
+    pointer-events: auto !important;
 }
 
 .word-info-title {
@@ -478,9 +480,34 @@ hr {
     font-weight: bold;
 }
 
+/* ==========================================================================
+   ŽODŽIŲ ŽYMĖJIMAS
+   ========================================================================== */
 .highlight-word, .highlight-phrase {
     position: relative;
     transition: background-color 0.2s;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 2px;
+    user-select: none;
+}
+
+.highlight-word {
+    background-color: rgba(33, 150, 243, 0.2);
+    border-bottom: 2px solid rgba(33, 150, 243, 0.5);
+}
+
+.highlight-word:hover {
+    background-color: rgba(33, 150, 243, 0.3);
+}
+
+.highlight-phrase {
+    background-color: rgba(255, 215, 0, 0.2);
+    border-bottom: 2px solid rgba(255, 215, 0, 0.5);
+}
+
+.highlight-phrase:hover {
+    background-color: rgba(255, 215, 0, 0.3);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -492,30 +519,4 @@ hr {
     .word-info-title {
         border-color: var(--border-dark);
     }
-}
-/* ==========================================================================
-   ŽODŽIŲ ŽYMĖJIMAS
-   ========================================================================== */
-.highlight-word {
-    background-color: rgba(33, 150, 243, 0.2);
-    border-bottom: 2px solid rgba(33, 150, 243, 0.5);
-    cursor: pointer;
-    padding: 2px;
-    border-radius: 2px;
-}
-
-.highlight-word:hover {
-    background-color: rgba(33, 150, 243, 0.3);
-}
-
-.highlight-phrase {
-    background-color: rgba(255, 215, 0, 0.2);
-    border-bottom: 2px solid rgba(255, 215, 0, 0.5);
-    cursor: pointer;
-    padding: 2px;
-    border-radius: 2px;
-}
-
-.highlight-phrase:hover {
-    background-color: rgba(255, 215, 0, 0.3);
 }
