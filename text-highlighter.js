@@ -130,10 +130,15 @@ export class TextHighlighter {
 			span.textContent = match.word;
 			span.dataset.info = JSON.stringify(match.info);
 			console.log('Pridedamas span:', span);
-			span.addEventListener('click', (e) => {
-				console.log('Span paspaustas');
-				this.boundHandlePopup(e);
-			});
+			
+			// Pakeičiame event listener'į
+			span.onclick = (e) => {
+				console.log('Žodis paspaustas');
+				console.log('Event:', e);
+				console.log('Target:', e.target);
+				console.log('Dataset:', e.target.dataset);
+				this._handlePopup(e);
+			};
 
             fragment.appendChild(span);
 
