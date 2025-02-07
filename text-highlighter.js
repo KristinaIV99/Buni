@@ -125,19 +125,27 @@ export class TextHighlighter {
 			const span = document.createElement('span');
 			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
 			span.textContent = match.word;
-			span.dataset.info = JSON.stringify(match.info);
-
-			// Naujas event listener
-			span.addEventListener('click', (e) => {
+			span.dataset.info = JSON.stringify({
+				text: match.word,
+				type: match.type,
+				vertimas: match.vertimas,
+				"kalbos dalis": match["kalbos dalis"],
+				"bazinė forma": match["bazinė forma"],
+				"bazė vertimas": match["bazė vertimas"],
+				CERF: match.CERF
+			});
+			
+			const self = this;
+			span.onclick = function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-				console.log('Click event fired');
-				console.log('Data:', span.dataset.info);
-				this._handlePopup(e);
-			}, true);
-			
-			fragment.appendChild(span);
-			lastIndex = match.end;
+				console.log('Žodis paspaustas:', this.textContent);
+				console.log('Info:', this.dataset.info);
+				self._handlePopup(e);
+			};
+
+			fragment.appendChild(span); // Buvo praleista ši eilutė
+			lastIndex = match.end; // Buvo praleista ši eilutė
 		});
 
 		if (lastIndex < text.length) {
@@ -175,18 +183,29 @@ export class TextHighlighter {
 	}
 
     _handlePopup(event) {
-		console.log('1. Event triggered:', event);
+		console.log('Popup event:', event);
+		console.log('Target:', event.target);
+		console.log('Dataset:', event.target.dataset);
+		
 		event.stopPropagation();
+		event.preventDefault(); // Pridėta
 		this._removeAllPopups();
 
 		try {
-			console.log('2. Dataset info:', event.target.dataset.info);
 			const info = JSON.parse(event.target.dataset.info);
-			console.log('3. Parsed info:', info);
+			console.log('Parsed info:', info);
 			
 			const popup = document.createElement('div');
-			console.log('4. Popup created');
 			popup.className = 'word-info-popup';
+
+			// Pridėkime log'ą prieš innerHTML
+			console.log('Info objektas prieš render:', {
+				text: info.text,
+				type: info.type,
+				vertimas: info.vertimas,
+				"kalbos dalis": info["kalbos dalis"]
+			});
+
 			popup.innerHTML = `
 				<div class="word-info-title">
 					<span>${info.text}</span>
@@ -209,16 +228,27 @@ export class TextHighlighter {
 				</div>
 			`;
 			const rect = event.target.getBoundingClientRect();
+			console.log('Element position:', rect);
+
 			popup.style.left = `${window.scrollX + rect.left}px`;
 			popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
 			
 			document.body.appendChild(popup);
-			console.log('5. Popup added to document');
+			console.log('Popup added, checking visibility:', {
+				display: popup.style.display,
+				visibility: popup.style.visibility,
+				zIndex: popup.style.zIndex,
+				position: popup.style.position
+			});
+
 			this.activePopup = popup;
 			this._adjustPopupPosition(popup);
-			setTimeout(() => document.addEventListener('click', this._handleDocumentClick.bind(this)), 0);
+
+			// Pakeistas timeout į immediate event listener
+			document.addEventListener('click', this._handleDocumentClick.bind(this));
 		} catch (error) {
 			console.error('Error in popup:', error);
+			console.error('Stack:', error.stack);
 		}
 	}
 
