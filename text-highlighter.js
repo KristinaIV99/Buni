@@ -4,8 +4,17 @@ export class TextHighlighter {
         this.dictionaryManager = dictionaryManager;
         this.boundHandlePopup = this._handlePopup.bind(this);
         this.activePopup = null;
-		document.addEventListener('click', this._handleDocumentClick.bind(this));
-    }
+		this.activePopup = null;
+
+		// Pridedame globalų event listener
+		document.addEventListener('click', (e) => {
+			const target = e.target.closest('.highlight-word, .highlight-phrase');
+			if (target) {
+				console.log('Clicked on word:', target);
+				this._handlePopup(e);
+			}
+		});
+	}
 
     async processText(text, html) {
         console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
@@ -135,12 +144,6 @@ export class TextHighlighter {
 				"bazinė forma": match["bazinė forma"] || match.info?.["bazinė forma"],
 				"bazė vertimas": match["bazė vertimas"] || match.info?.["bazė vertimas"],
 				CERF: match.CERF || match.info?.CERF
-			});
-
-			span.addEventListener('click', (e) => {
-			e.preventDefault();
-				e.stopPropagation();
-				this._handlePopup(e);
 			});
 
 			fragment.appendChild(span);
