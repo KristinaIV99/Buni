@@ -203,13 +203,16 @@ export class TextHighlighter {
 			const popup = document.createElement('div');
 			popup.className = 'word-info-popup';
 			
-			// Pridėkime log'ą prieš innerHTML
-			console.log('Info objektas prieš render:', {
-				text: info.text,
-				type: info.type,
-				vertimas: info.vertimas,
-				"kalbos dalis": info["kalbos dalis"]
-			});
+			// Pridedame tiesiogiai stilius
+			popup.style.cssText = `
+				position: absolute;
+				z-index: 9999;
+				display: block;
+				visibility: visible;
+				opacity: 1;
+				background: white;
+				box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+			`;
 
 			popup.innerHTML = `
 				<div class="word-info-title">
@@ -233,24 +236,20 @@ export class TextHighlighter {
 				</div>
 			`;
 			const rect = event.target.getBoundingClientRect();
-			console.log('Element position:', rect);
-
 			popup.style.left = `${window.scrollX + rect.left}px`;
 			popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
 			
 			document.body.appendChild(popup);
-			console.log('Popup added, checking visibility:', {
-				display: popup.style.display,
-				visibility: popup.style.visibility,
-				zIndex: popup.style.zIndex,
-				position: popup.style.position
-			});
-
 			this.activePopup = popup;
 			this._adjustPopupPosition(popup);
 
-			// Pakeistas timeout į immediate event listener
-			document.addEventListener('click', this._handleDocumentClick.bind(this));
+			// Pakeičiame į tiesioginį event listener
+			document.addEventListener('click', (e) => {
+				if (!popup.contains(e.target) && !event.target.contains(e.target)) {
+					popup.remove();
+				}
+			});
+
 		} catch (error) {
 			console.error('Error in popup:', error);
 			console.error('Stack:', error.stack);
