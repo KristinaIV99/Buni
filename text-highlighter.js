@@ -210,8 +210,15 @@ export class TextHighlighter {
 				display: block;
 				visibility: visible;
 				opacity: 1;
-				background: white;
+				background: var(--background-light, white);
+				color: var(--text-light, black);
 				box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+
+				@media (prefers-color-scheme: dark) {
+					background: var(--background-dark, #1a1a1a);
+					color: var(--text-dark, #e0e0e0);
+					box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+				}
 			`;
 
 			popup.innerHTML = `
