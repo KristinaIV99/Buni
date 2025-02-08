@@ -17,41 +17,44 @@ export class TextPaginator {
     }
 
     splitIntoPages(text) {
-        const sentences = text.match(/[^\n]+/g) || [];
-        const pages = [];
-        let currentPage = [];
-        let wordCount = 0;
-        let nextPageWords = 0;
+		// Pašaliname HTML žymes skaičiuojant žodžius
+		const stripHtml = (html) => {
+			const tmp = document.createElement('div');
+			tmp.innerHTML = html;
+			return tmp.textContent || tmp.innerText || '';
+		};
 
-        for(let i = 0; i < sentences.length; i++) {
-            const sentence = sentences[i];
-            const words = sentence.trim().split(/\s+/).length;
-            
-            // Jei dabartinis puslapis tuščias, pridedame pirmą pastraipą
-            if (currentPage.length === 0) {
-                currentPage.push(sentence);
-                wordCount = words;
-                continue;
-            }
+		const sentences = text.match(/[^\n]+/g) || [];
+		const pages = [];
+		let currentPage = [];
+		let wordCount = 0;
 
-            // Patikriname ar pridėjus šią pastraipą jau viršysime minimalų žodžių skaičių
-            if (wordCount >= this.minWordsPerPage) {
-                pages.push(currentPage.join(''));
-                currentPage = [sentence];
-                wordCount = words;
-            } else {
-                currentPage.push(sentence);
-                wordCount += words;
-            }
-        }
+		for(let i = 0; i < sentences.length; i++) {
+			const sentence = sentences[i];
+			const plainText = stripHtml(sentence);
+			const words = plainText.trim().split(/\s+/).length;
+			
+			if (currentPage.length === 0) {
+				currentPage.push(sentence);
+				wordCount = words;
+				continue;
+			}
 
-        // Pridedame paskutinį puslapį
-        if (currentPage.length > 0) {
-            pages.push(currentPage.join(''));
-        }
+			if (wordCount >= this.minWordsPerPage) {
+				pages.push(currentPage.join(''));
+				currentPage = [sentence];
+				wordCount = words;
+			} else {
+				currentPage.push(sentence);
+				wordCount += words;
+			}
+		}
 
-        return pages;
-    }
+		if (currentPage.length > 0) {
+			pages.push(currentPage.join(''));
+		}
+		return pages;
+	}
 
     getCurrentPageContent() {
         return {
