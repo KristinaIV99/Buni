@@ -185,21 +185,38 @@ export class DictionaryManager {
     }
 
     _extractWordInfo(data) {
-		const baseWord = data.baseWord;
-		console.log('Ieškome visų reikšmių žodžiui:', baseWord);
-		
-		// Surenkame visas žodžio reikšmes
-		const allMeanings = Object.entries(this.dictionaries.get('words.json') || {})
-			.filter(([key, _]) => key.split('_')[0] === baseWord)
-			.map(([_, value]) => ({
-				vertimas: value.vertimas,
-				"kalbos dalis": value["kalbos dalis"],
-				"bazinė forma": value["bazinė forma"],
-				"bazė vertimas": value["bazė vertimas"],
-				CERF: value.CERF
+		console.log('Data received:', data);  // Debug
+		const baseWord = data.baseWord || data.pattern;
+		console.log('Base word:', baseWord);  // Debug
+
+		// Surenkame visas reikšmes tiesiai iš searcher patterns
+		const allMeanings = Array.from(this.searcher.patterns.values())
+			.filter(entry => {
+				console.log('Checking entry:', entry);  // Debug
+				return entry.pattern === baseWord;
+			})
+			.map(entry => ({
+				vertimas: entry.data.vertimas,
+				"kalbos dalis": entry.data["kalbos dalis"],
+				"bazinė forma": entry.data["bazinė forma"],
+				"bazė vertimas": entry.data["bazė vertimas"],
+				CERF: entry.data.CERF
 			}));
 
-		console.log('Rastos reikšmės:', allMeanings);
+		console.log('Found meanings:', allMeanings);  // Debug
+
+		if (allMeanings.length === 0) {
+			// Jei neradome reikšmių, naudojame originalius duomenis
+			return {
+				text: baseWord,
+				type: data.type,
+				vertimas: data.vertimas,
+				"kalbos dalis": data["kalbos dalis"],
+				"bazinė forma": data["bazinė forma"],
+				"bazė vertimas": data["bazė vertimas"],
+				CERF: data.CERF
+			};
+		}
 
 		return {
 			text: baseWord,
