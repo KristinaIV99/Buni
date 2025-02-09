@@ -80,21 +80,21 @@ export class DictionaryManager {
 		try {
 			const matches = this.searcher.search(text);
 			console.log('Pilni atitimenys:', matches);
-        
+		
 			const results = matches.map(match => {
-				const wordInfo = {
-					...match.outputs[0],
-					text: match.text,  // Pridedame rastą tekstą
-					pattern: match.pattern // Pridedame šabloną
-				};
-				
-				const info = this._extractWordInfo(wordInfo);
-				console.log('Apdorotas info:', info);
-				
+				console.log('Apdorojamas match:', match); // Debuginimui
 				return {
 					pattern: match.pattern,
 					type: match.outputs[0].type,
-					info: info,
+					info: {
+						meanings: match.outputs.map(output => ({
+							"vertimas": output.vertimas,
+							"kalbos dalis": output["kalbos dalis"],
+							"bazinė forma": output["bazinė forma"],
+							"bazė vertimas": output["bazė vertimas"],
+							"CERF": output.CERF
+						}))
+					},
 					positions: [{
 						start: match.start,
 						end: match.end,
