@@ -188,38 +188,28 @@ export class DictionaryManager {
 		const text = data.originalKey?.split('_')[0] || data.pattern || data.baseWord || data.word || '';
 		console.log('Looking for homonims of:', text);
 
+		// Modifikuojame kaip ieškome homonimų - ieškom pagal pattern bazinę dalį
 		const homonims = Array.from(this.searcher.patterns.values())
 			.filter(pattern => {
-				console.log('Pattern data:', pattern.data); // Debug visų pattern duomenų
-				// Saugesnis patikrinimas
-				const patternBase = pattern.data?.originalKey?.split('_')?.[0] || pattern.pattern;
-				console.log(`Comparing ${patternBase} with ${text}`); // Debug palyginimo
-				return patternBase?.toLowerCase() === text.toLowerCase(); // Case-insensitive palyginimas
+				const patternText = pattern.pattern;  // tiesiog pattern
+				console.log(`Checking pattern ${patternText} with ${text}`);
+				return patternText === text;
 			})
-			.map(pattern => ({
-				vertimas: pattern.data.vertimas || '-',
-				"kalbos dalis": pattern.data["kalbos dalis"] || '-',
-				"bazinė forma": pattern.data["bazinė forma"] || '-',
-				"bazė vertimas": pattern.data["bazė vertimas"] || '-',
-				CERF: pattern.data.CERF || '-'
-			}));
+			.map(pattern => pattern.data)  // imame visus data objektus
+			.filter(data => data);  // pašaliname undefined
 
-		console.log('Found homonims:', homonims); // Debug
+		console.log('Found ALL homonims:', homonims);
 
 		const result = {
-			text: text,
-			originalText: data.text || text,
+			text,
 			type: data.type || 'word',
-			pattern: data.pattern || text,
-			source: data.source
+			homonims: homonims
 		};
 
-		if (homonims.length > 1) {
-			result.homonims = homonims;
-		} else {
+		if (homonims.length <= 1) {
 			result.vertimas = data.vertimas || '-';
 			result["kalbos dalis"] = data["kalbos dalis"] || '-';
-			result["bazinė forma"] = data["bazinė forma"] || data.baseWord || '-';
+			result["bazinė forma"] = data["bazinė forma"] || '-';
 			result["bazė vertimas"] = data["bazė vertimas"] || '-';
 			result.CERF = data.CERF || '-';
 		}
