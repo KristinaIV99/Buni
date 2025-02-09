@@ -17,11 +17,13 @@ export class TextHighlighter {
 	}
 
     async processText(text, html) {
-        console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
-    
+		console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
+		
 		try {
 			const { results } = await this.dictionaryManager.findInText(text);
-			console.log('Results from findInText:', results);
+			console.log('Results from findInText:', results); // NAUJAS LOGAS
+
+			const doc = new DOMParser().parseFromString(html, 'text/html');
 
 			// Saugome puslapiavimo elementus
 			const paginationControls = doc.querySelector('.pagination-controls');
@@ -32,7 +34,7 @@ export class TextHighlighter {
 			// Surenkame žodžius ir frazes
 			const patterns = {};
 			results.forEach(result => {
-				console.log('Processing result:', result);
+				console.log('Processing result:', result); // NAUJAS LOGAS
 				const pattern = result.pattern.toLowerCase();
 				if (!patterns[pattern]) {
 					patterns[pattern] = {
