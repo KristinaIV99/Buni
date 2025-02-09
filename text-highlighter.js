@@ -148,7 +148,7 @@ export class TextHighlighter {
 				"bazinė forma": match["bazinė forma"] || match.info?.["bazinė forma"],
 				"bazė vertimas": match["bazė vertimas"] || match.info?.["bazė vertimas"],
 				CERF: match.CERF || match.info?.CERF,
-				homonims: match.info?.homonims
+				homonims: match.info?.homonims || []
 			});
 
 			fragment.appendChild(span);
