@@ -187,28 +187,22 @@ export class DictionaryManager {
     _extractWordInfo(data) {
 		const baseWord = data.originalKey?.split('_')[0];
 		console.log('Ieškome homonimų žodžiui:', baseWord);
-		
-		// Surenkame visas reikšmes iš žodyno pagal bazinį žodį
-		const allMeanings = Array.from(this.dictionaries.values())
-			.flatMap(dict => Object.entries(dict)) // visų žodynų įrašai
-			.filter(([key, value]) => {
-				const wordBase = key.split('_')[0];
-				console.log('Tikriname:', key, 'bazinis žodis:', wordBase);
-				return wordBase === baseWord;
+    
+		const allMeanings = Array.from(this.searcher.patterns.values())
+			.filter(pattern => {
+				const patternBase = pattern.data.originalKey?.split('_')[0];
+				console.log('Lyginame:', patternBase, 'su', baseWord);
+				return patternBase === baseWord;
 			})
-			.map(([key, value]) => {
-				console.log('Pridedame reikšmę iš:', key);
-				return {
-					vertimas: value.vertimas,
-					"kalbos dalis": value["kalbos dalis"],
-					"bazinė forma": value["bazinė forma"],
-					"bazė vertimas": value["bazė vertimas"],
-					CERF: value.CERF
-				};
-			});
+			.map(pattern => ({
+				vertimas: pattern.data.vertimas,
+				"kalbos dalis": pattern.data["kalbos dalis"],
+				"bazinė forma": pattern.data["bazinė forma"],
+				"bazė vertimas": pattern.data["bazė vertimas"],
+				CERF: pattern.data.CERF
+			}));
 
-	console.log('Rastos reikšmės:', allMeanings);
-
+		console.log('Rastos reikšmės:', allMeanings);
 		return {
 			text: baseWord,
 			type: data.type,
