@@ -139,11 +139,7 @@ export class TextHighlighter {
 			span.dataset.info = JSON.stringify({
 				text: match.word,
 				type: match.type,
-				vertimas: match.vertimas || match.info?.vertimas,
-				"kalbos dalis": match["kalbos dalis"] || match.info?.["kalbos dalis"],
-				"bazinė forma": match["bazinė forma"] || match.info?.["bazinė forma"],
-				"bazė vertimas": match["bazė vertimas"] || match.info?.["bazė vertimas"],
-				CERF: match.CERF || match.info?.CERF
+				meanings: match.info.meanings
 			});
 
 			fragment.appendChild(span);
@@ -196,14 +192,12 @@ export class TextHighlighter {
 		try {
 			const data = event.target.dataset.info;
 			console.log('Raw data:', data);
-			// Pakeičiame HTML entities į normalius simbolius
 			const info = JSON.parse(data.replace(/&quot;/g, '"'));
 			console.log('Parsed info:', info);
 			
 			const popup = document.createElement('div');
 			popup.className = 'word-info-popup';
 			
-			// Pridedame tiesiogiai stilius
 			popup.style.cssText = `
 				position: absolute;
 				z-index: 9999;
@@ -229,19 +223,20 @@ export class TextHighlighter {
 					</span>
 				</div>
 				<div class="word-info-grid">
-					<div><span class="word-info-label">Vertimas:</span> ${info.vertimas}</div>
-					<div><span class="word-info-label">Kalbos dalis:</span> ${info["kalbos dalis"]}</div>
-					<div><span class="word-info-label">Bazinė forma:</span> ${info["bazinė forma"]}</div>
-					<div><span class="word-info-label">Bazės vertimas:</span> ${info["bazė vertimas"]}</div>
-					<div><span class="word-info-label">CERF:</span> ${info.CERF}</div>
-					${info.related?.length ? `
-						<div class="word-info-related">
-							<div class="word-info-label">Susiję:</div>
-							${info.related.map(r => `<div>${r.pattern} (${r.type})</div>`).join('')}
+					${info.meanings.map((meaning, index) => `
+						<div class="meaning-item ${info.meanings.length > 1 ? 'multiple-meanings' : ''}">
+							${info.meanings.length > 1 ? 
+								`<div class="meaning-header">${index + 1}. reikšmė</div>` : ''}
+							<div><span class="word-info-label">Vertimas:</span> ${meaning.vertimas}</div>
+							<div><span class="word-info-label">Kalbos dalis:</span> ${meaning["kalbos dalis"]}</div>
+							<div><span class="word-info-label">Bazinė forma:</span> ${meaning["bazinė forma"]}</div>
+							<div><span class="word-info-label">Bazės vertimas:</span> ${meaning["bazė vertimas"]}</div>
+							<div><span class="word-info-label">CERF:</span> ${meaning.CERF}</div>
 						</div>
-					` : ''}
+					`).join('')}
 				</div>
 			`;
+
 			const rect = event.target.getBoundingClientRect();
 			popup.style.left = `${window.scrollX + rect.left}px`;
 			popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
@@ -250,7 +245,6 @@ export class TextHighlighter {
 			this.activePopup = popup;
 			this._adjustPopupPosition(popup);
 
-			// Pakeičiame į tiesioginį event listener
 			document.addEventListener('click', (e) => {
 				if (!popup.contains(e.target) && !event.target.contains(e.target)) {
 					popup.remove();
