@@ -143,11 +143,14 @@ export class TextHighlighter {
 			span.dataset.info = JSON.stringify({
 				text: match.word,
 				type: match.type,
-				vertimas: match.vertimas || match.info?.vertimas,
-				"kalbos dalis": match["kalbos dalis"] || match.info?.["kalbos dalis"],
-				"bazinė forma": match["bazinė forma"] || match.info?.["bazinė forma"],
-				"bazė vertimas": match["bazė vertimas"] || match.info?.["bazė vertimas"],
-				CERF: match.CERF || match.info?.CERF,
+				// Čia naudojame tiesiai iš match.info objekto
+				...match.info,  // Įtraukia visą info objektą, įskaitant homonimus
+				// Fallback'ai jei info nėra
+				vertimas: match.vertimas || match.info?.vertimas || '-',
+				"kalbos dalis": match["kalbos dalis"] || match.info?.["kalbos dalis"] || '-',
+				"bazinė forma": match["bazinė forma"] || match.info?.["bazinė forma"] || '-',
+				"bazė vertimas": match["bazė vertimas"] || match.info?.["bazė vertimas"] || '-',
+				CERF: match.CERF || match.info?.CERF || '-',
 				homonims: match.info?.homonims || []
 			});
 
