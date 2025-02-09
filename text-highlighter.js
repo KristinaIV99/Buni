@@ -137,33 +137,38 @@ export class TextHighlighter {
 				);
 			}
 
-			const span = document.createElement('span');
+			 const span = document.createElement('span');
 			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
 			span.textContent = match.word;
+
+			const mainInfo = match.info?.homonims?.[0] || {
+				vertimas: '-',
+				"kalbos dalis": '-',
+				"bazinė forma": '-',
+				"bazė vertimas": '-',
+				CERF: '-'
+			};
+
 			span.dataset.info = JSON.stringify({
 				text: match.word,
 				type: match.type,
-				// Čia naudojame tiesiai iš match.info objekto
-				...match.info,  // Įtraukia visą info objektą, įskaitant homonimus
-				// Fallback'ai jei info nėra
-				vertimas: match.vertimas || match.info?.vertimas || '-',
-				"kalbos dalis": match["kalbos dalis"] || match.info?.["kalbos dalis"] || '-',
-				"bazinė forma": match["bazinė forma"] || match.info?.["bazinė forma"] || '-',
-				"bazė vertimas": match["bazė vertimas"] || match.info?.["bazė vertimas"] || '-',
-				CERF: match.CERF || match.info?.CERF || '-',
+				vertimas: mainInfo.vertimas,
+				"kalbos dalis": mainInfo["kalbos dalis"],
+				"bazinė forma": mainInfo["bazinė forma"],
+				"bazė vertimas": mainInfo["bazė vertimas"],
+				CERF: mainInfo.CERF,
 				homonims: match.info?.homonims || []
 			});
-
+        
 			fragment.appendChild(span);
 			lastIndex = match.end;
-		});
+	});
 
 		if (lastIndex < text.length) {
 			fragment.appendChild(
 				document.createTextNode(text.slice(lastIndex))
 			);
 		}
-
 		return fragment;
 	}
 
