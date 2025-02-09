@@ -144,6 +144,7 @@ export class TextHighlighter {
 				"bazinė forma": match["bazinė forma"] || match.info?.["bazinė forma"],
 				"bazė vertimas": match["bazė vertimas"] || match.info?.["bazė vertimas"],
 				CERF: match.CERF || match.info?.CERF
+				homonims: match.info?.homonims
 			});
 
 			fragment.appendChild(span);
@@ -231,6 +232,7 @@ export class TextHighlighter {
 				<div class="word-info-grid">
 					${info.homonims.map((homonym, index) => `
 						<div class="homonym-item ${index > 0 ? 'border-top' : ''}">
+							<div class="homonym-header">Reikšmė ${index + 1}</div>
 							<div><span class="word-info-label">Kalbos dalis:</span> ${homonym["kalbos dalis"]}</div>
 							<div><span class="word-info-label">Vertimas:</span> ${homonym.vertimas}</div>
 							<div><span class="word-info-label">Bazinė forma:</span> ${homonym["bazinė forma"]}</div>
