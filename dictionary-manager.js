@@ -185,23 +185,18 @@ export class DictionaryManager {
     }
 
     _extractWordInfo(data) {
-		const baseWord = data.originalKey?.split('_')[0];
-		console.log('Ieškome homonimų žodžiui:', baseWord, 'iš:', data);
+		const baseWord = data.baseWord;
+		console.log('Ieškome visų reikšmių žodžiui:', baseWord);
 		
-		// DEBUG: spausdiname visus patterns
-		console.log('Visi patterns:', Array.from(this.searcher.patterns.entries()));
-
-		const allMeanings = Array.from(this.searcher.patterns.entries())
-			.filter(([key, pattern]) => {
-				console.log('Tikriname pattern:', key, pattern);
-				return key === baseWord;  // Tikriname pagal patį žodį
-			})
-			.map(([_, pattern]) => ({
-				vertimas: pattern.data.vertimas,
-				"kalbos dalis": pattern.data["kalbos dalis"],
-				"bazinė forma": pattern.data["bazinė forma"],
-				"bazė vertimas": pattern.data["bazė vertimas"],
-				CERF: pattern.data.CERF
+		// Surenkame visas žodžio reikšmes
+		const allMeanings = Object.entries(this.dictionaries.get('words.json') || {})
+			.filter(([key, _]) => key.split('_')[0] === baseWord)
+			.map(([_, value]) => ({
+				vertimas: value.vertimas,
+				"kalbos dalis": value["kalbos dalis"],
+				"bazinė forma": value["bazinė forma"],
+				"bazė vertimas": value["bazė vertimas"],
+				CERF: value.CERF
 			}));
 
 		console.log('Rastos reikšmės:', allMeanings);
@@ -325,7 +320,7 @@ export class DictionaryManager {
 	}
 
 	async loadDictionaries(files) {
-		this.searcher = new AhoCorasick(); // Naujas medis
+		this.searcher = new AhoCorasick();
 		
 		for (const file of files) {
 			const text = await this._readFileAsText(file);
@@ -335,20 +330,21 @@ export class DictionaryManager {
 			for (const [key, data] of Object.entries(dictionary)) {
 				if (!this._validateDictionaryEntry(key, data)) continue;
 				
-				const baseWord = key.split('_')[0];
-				const entry = { ...data, type, source: file.name, originalKey: key, baseWord };
-				this.searcher.addPattern(baseWord, entry);
+				const entry = {
+					...data,
+					fullKey: key,  // Saugome pilną raktą (pvz., "på_subst")
+					type,
+					source: file.name,
+					baseWord: key.split('_')[0]  // bazinis žodis (pvz., "på")
+				};
+				
+				// Pridedame į searcher pagal bazinį žodį
+				this.searcher.addPattern(entry.baseWord, entry);
 			}
 			
-			this.dictionaries.set(file.name, {
-				name: file.name,
-				type,
-				entries: Object.keys(dictionary).length,
-				timestamp: new Date()
-			});
+			this.dictionaries.set(file.name, dictionary);
 		}
 		
-		// Kuriame failure links TIK vieną kartą po visų žodynų įkėlimo
 		this.searcher.buildFailureLinks();
 	}
 }
