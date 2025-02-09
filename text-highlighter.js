@@ -17,12 +17,10 @@ export class TextHighlighter {
 	}
 
     async processText(text, html) {
-		console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
-		
+        console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
+    
 		try {
 			const { results } = await this.dictionaryManager.findInText(text);
-			console.log('Results from findInText:', results); // NAUJAS LOGAS
-
 			const doc = new DOMParser().parseFromString(html, 'text/html');
 
 			// Saugome puslapiavimo elementus
@@ -34,7 +32,6 @@ export class TextHighlighter {
 			// Surenkame žodžius ir frazes
 			const patterns = {};
 			results.forEach(result => {
-				console.log('Processing result:', result); // NAUJAS LOGAS
 				const pattern = result.pattern.toLowerCase();
 				if (!patterns[pattern]) {
 					patterns[pattern] = {
@@ -130,45 +127,35 @@ export class TextHighlighter {
 		let lastIndex = 0;
 
 		filteredMatches.forEach(match => {
-			console.log('Creating span for match:', match);
 			if (match.start > lastIndex) {
 				fragment.appendChild(
 					document.createTextNode(text.slice(lastIndex, match.start))
 				);
 			}
 
-			 const span = document.createElement('span');
+			const span = document.createElement('span');
 			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
 			span.textContent = match.word;
-
-			const mainInfo = match.info?.homonims?.[0] || {
-				vertimas: '-',
-				"kalbos dalis": '-',
-				"bazinė forma": '-',
-				"bazė vertimas": '-',
-				CERF: '-'
-			};
-
 			span.dataset.info = JSON.stringify({
 				text: match.word,
 				type: match.type,
-				vertimas: mainInfo.vertimas,
-				"kalbos dalis": mainInfo["kalbos dalis"],
-				"bazinė forma": mainInfo["bazinė forma"],
-				"bazė vertimas": mainInfo["bazė vertimas"],
-				CERF: mainInfo.CERF,
-				homonims: match.info?.homonims || []
+				vertimas: match.vertimas || match.info?.vertimas,
+				"kalbos dalis": match["kalbos dalis"] || match.info?.["kalbos dalis"],
+				"bazinė forma": match["bazinė forma"] || match.info?.["bazinė forma"],
+				"bazė vertimas": match["bazė vertimas"] || match.info?.["bazė vertimas"],
+				CERF: match.CERF || match.info?.CERF
 			});
-        
+
 			fragment.appendChild(span);
 			lastIndex = match.end;
-	});
+		});
 
 		if (lastIndex < text.length) {
 			fragment.appendChild(
 				document.createTextNode(text.slice(lastIndex))
 			);
 		}
+
 		return fragment;
 	}
 
@@ -234,26 +221,7 @@ export class TextHighlighter {
 				}
 			`;
 
-			const popupContent = info.homonims ? `
-				<div class="word-info-title">
-					<span>${info.text}</span>
-					<span class="word-info-type ${info.type}">
-						${info.type === 'phrase' ? 'Frazė' : 'Žodis'}
-					</span>
-				</div>
-				<div class="word-info-grid">
-					${info.homonims.map((homonym, index) => `
-						<div class="homonym-item ${index > 0 ? 'border-top' : ''}">
-							<div class="homonym-header">Reikšmė ${index + 1}</div>
-							<div><span class="word-info-label">Kalbos dalis:</span> ${homonym["kalbos dalis"]}</div>
-							<div><span class="word-info-label">Vertimas:</span> ${homonym.vertimas}</div>
-							<div><span class="word-info-label">Bazinė forma:</span> ${homonym["bazinė forma"]}</div>
-							<div><span class="word-info-label">Bazės vertimas:</span> ${homonym["bazė vertimas"]}</div>
-							<div><span class="word-info-label">CERF:</span> ${homonym.CERF}</div>
-						</div>
-					`).join('')}
-				</div>
-			` : `
+			popup.innerHTML = `
 				<div class="word-info-title">
 					<span>${info.text}</span>
 					<span class="word-info-type ${info.type}">
@@ -266,11 +234,14 @@ export class TextHighlighter {
 					<div><span class="word-info-label">Bazinė forma:</span> ${info["bazinė forma"]}</div>
 					<div><span class="word-info-label">Bazės vertimas:</span> ${info["bazė vertimas"]}</div>
 					<div><span class="word-info-label">CERF:</span> ${info.CERF}</div>
+					${info.related?.length ? `
+						<div class="word-info-related">
+							<div class="word-info-label">Susiję:</div>
+							${info.related.map(r => `<div>${r.pattern} (${r.type})</div>`).join('')}
+						</div>
+					` : ''}
 				</div>
 			`;
-
-			popup.innerHTML = popupContent;
-
 			const rect = event.target.getBoundingClientRect();
 			popup.style.left = `${window.scrollX + rect.left}px`;
 			popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
@@ -279,11 +250,13 @@ export class TextHighlighter {
 			this.activePopup = popup;
 			this._adjustPopupPosition(popup);
 
+			// Pakeičiame į tiesioginį event listener
 			document.addEventListener('click', (e) => {
 				if (!popup.contains(e.target) && !event.target.contains(e.target)) {
 					popup.remove();
 				}
 			});
+
 		} catch (error) {
 			console.error('Error in popup:', error);
 			console.error('Stack:', error.stack);
