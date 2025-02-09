@@ -136,17 +136,24 @@ export class TextHighlighter {
 			const span = document.createElement('span');
 			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
 			span.textContent = match.word;
-			// Pakeičiame info objektą, įtraukiant visus duomenis iš match.info
+			
+			// Patikriname ar yra info objektas ir jo turinys
+			console.log('Match info:', match.info); // Debuginimui
+			
+			// Sukuriame meanings masyvą
+			const meanings = match.info?.meanings || [{
+				"vertimas": match.info?.vertimas || '-',
+				"kalbos dalis": match.info?.["kalbos dalis"] || '-',
+				"bazinė forma": match.info?.["bazinė forma"] || '-',
+				"bazė vertimas": match.info?.["bazė vertimas"] || '-',
+				"CERF": match.info?.CERF || '-'
+			}];
+
+			// Perduodame į dataset
 			span.dataset.info = JSON.stringify({
 				text: match.word,
 				type: match.type,
-				meanings: match.info.meanings.map(meaning => ({
-					"vertimas": meaning.vertimas,
-					"kalbos dalis": meaning["kalbos dalis"],
-					"bazinė forma": meaning["bazinė forma"],
-					"bazė vertimas": meaning["bazė vertimas"],
-					"CERF": meaning.CERF
-				}))
+				meanings: meanings
 			});
 
 			fragment.appendChild(span);
