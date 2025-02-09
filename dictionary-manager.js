@@ -16,7 +16,7 @@ export class DictionaryManager {
     }
 
     async loadDictionary(file) {
-        const startTime = performance.now();
+         const startTime = performance.now();
 		console.log(`${this.MANAGER_NAME} Pradedamas žodyno įkėlimas:`, file.name);
 		
 		try {
@@ -27,6 +27,8 @@ export class DictionaryManager {
 
 			// Naujas būdas skaityti žodyną
 			for (const [word, meanings] of Object.entries(dictionary)) {
+				if (!this._validateDictionaryEntry(word, meanings)) continue;
+				
 				meanings.forEach(meaning => {
 					const entry = {
 						...meaning,
@@ -36,7 +38,7 @@ export class DictionaryManager {
 					};
 					
 					try {
-					this.searcher.addPattern(word, entry);
+						this.searcher.addPattern(word, entry);
 						entryCount++;
 					} catch (error) {
 						console.error(`Klaida pridedant šabloną ${word}:`, error);
@@ -221,20 +223,28 @@ export class DictionaryManager {
 
     _validateDictionaryEntry(key, data) {
         if (!key || typeof key !== 'string') {
-            console.warn(`${this.MANAGER_NAME} Neteisingas raktas:`, key);
-            return false;
-        }
+			console.warn(`${this.MANAGER_NAME} Neteisingas raktas:`, key);
+			return false;
+		}
 
-        const requiredFields = ['vertimas', 'kalbos dalis', 'bazinė forma'];
-        const missingFields = requiredFields.filter(field => !data[field]);
+		// Tikriname ar data yra masyvas
+		if (!Array.isArray(data)) {
+			console.warn(`${this.MANAGER_NAME} Neteisingas formatas, tikimasi masyvo:`, key);
+			return false;
+		}
 
-        if (missingFields.length > 0) {
-            console.warn(`${this.MANAGER_NAME} Trūksta laukų ${key}:`, missingFields);
-            return false;
-        }
+		// Tikriname kiekvieną reikšmę masyve
+		const requiredFields = ['vertimas', 'kalbos dalis', 'bazinė forma'];
+		for (const meaning of data) {
+			const missingFields = requiredFields.filter(field => !meaning[field]);
+			if (missingFields.length > 0) {
+				console.warn(`${this.MANAGER_NAME} Trūksta laukų ${key} reikšmėje:`, missingFields);
+				return false;
+			}
+		}
 
-        return true;
-    }
+		return true;
+	}
 
     _updateSearchStats(searchTime) {
         this.statistics.searchStats.totalSearches++;
