@@ -1,4 +1,3 @@
-
 class AhoCorasick {
     constructor() {
         this.root = this.createNode();
@@ -153,21 +152,23 @@ class AhoCorasick {
 
 				if (isValid) {
 					patternMatches++;
-					// Čia yra pagrindinis pakeitimas - perduodame visus duomenis
 					matches.push({
 						pattern: pattern,
 						start: index,
 						end: index + pattern.length,
 						text: text.slice(index, index + pattern.length),
-						outputs: Array.isArray(data.data) ? data.data : [data.data], // Svarbus pakeitimas
-						type: data.data.type,
-						contentsBefore: text.slice(Math.max(0, index - 10), index),
-						contentsAfter: text.slice(index + pattern.length, 
-							Math.min(text.length, index + pattern.length + 10))
+						outputs: [{
+							type: data.data.type,
+							"kalbos dalis": data.data["kalbos dalis"],
+							"vertimas": data.data.vertimas,
+							"bazinė forma": data.data["bazinė forma"],
+							"bazė vertimas": data.data["bazė vertimas"],
+							"CERF": data.data.CERF
+						}],
+						type: data.data.type
 					});
 
-					// Pridedame debug informaciją
-					console.log('Pridėtas match:', {
+					console.log('Pridėtas match su duomenimis:', {
 						pattern: pattern,
 						outputs: data.data
 					});
