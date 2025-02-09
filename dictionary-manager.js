@@ -17,61 +17,60 @@ export class DictionaryManager {
 
     async loadDictionary(file) {
         const startTime = performance.now();
-        console.log(`${this.MANAGER_NAME} Pradedamas žodyno įkėlimas:`, file.name);
-        
-        try {
-            const text = await this._readFileAsText(file);
-            const dictionary = this._parseJSON(text);
-            const type = file.name.includes('phrases') ? 'phrase' : 'word';
-            let entryCount = 0;
+		console.log(`${this.MANAGER_NAME} Pradedamas žodyno įkėlimas:`, file.name);
+		
+		try {
+			const text = await this._readFileAsText(file);
+			const dictionary = this._parseJSON(text);
+			const type = file.name.includes('phrases') ? 'phrase' : 'word';
+			let entryCount = 0;
 
-            for (const [key, data] of Object.entries(dictionary)) {
-                if (!this._validateDictionaryEntry(key, data)) continue;
+			// Naujas būdas skaityti žodyną
+			for (const [word, meanings] of Object.entries(dictionary)) {
+				meanings.forEach(meaning => {
+					const entry = {
+						...meaning,
+						type: type,
+						source: file.name,
+						originalKey: word
+					};
+					
+					try {
+					this.searcher.addPattern(word, entry);
+						entryCount++;
+					} catch (error) {
+						console.error(`Klaida pridedant šabloną ${word}:`, error);
+					}
+				});
+			}
 
-                const baseWord = key.split('_')[0];
-                const entry = {
-                    ...data,
-                    type,
-                    source: file.name,
-                    originalKey: key,
-                    baseWord
-                };
+			this.searcher.buildFailureLinks();
+			
+			this.statistics.totalEntries += entryCount;
+			this.statistics.loadedDictionaries++;
+			
+			this.dictionaries.set(file.name, {
+				name: file.name,
+				type,
+				entries: entryCount,
+				timestamp: new Date()
+		});
 
-                try {
-                    this.searcher.addPattern(baseWord, entry);
-                    entryCount++;
-                } catch (error) {
-                    console.error(`Klaida pridedant šabloną ${key}:`, error);
-                }
-            }
-
-            this.searcher.buildFailureLinks();
-            
-            this.statistics.totalEntries += entryCount;
-            this.statistics.loadedDictionaries++;
-            
-            this.dictionaries.set(file.name, {
-                name: file.name,
-                type,
-                entries: entryCount,
-                timestamp: new Date()
-            });
-
-            const loadTime = performance.now() - startTime;
-            console.log(`${this.MANAGER_NAME} Žodynas įkeltas per ${loadTime.toFixed(2)}ms`);
-            
-            return {
-                name: file.name,
-                type,
-                entries: entryCount,
-                loadTimeMs: loadTime
-            };
-            
-        } catch (error) {
-            console.error(`${this.MANAGER_NAME} Klaida įkeliant žodyną:`, error);
-            throw new Error(`Klaida įkeliant žodyną ${file.name}: ${error.message}`);
-        }
-    }
+			const loadTime = performance.now() - startTime;
+			console.log(`${this.MANAGER_NAME} Žodynas įkeltas per ${loadTime.toFixed(2)}ms`);
+			
+			return {
+				name: file.name,
+				type,
+				entries: entryCount,
+				loadTimeMs: loadTime
+			};
+			
+		} catch (error) {
+			console.error(`${this.MANAGER_NAME} Klaida įkeliant žodyną:`, error);
+			throw new Error(`Klaida įkeliant žodyną ${file.name}: ${error.message}`);
+		}
+	}
 
     async findInText(text) {
         console.log(`${this.MANAGER_NAME} Pradedama teksto analizė, teksto ilgis:`, text.length);
