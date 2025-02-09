@@ -185,38 +185,39 @@ export class DictionaryManager {
     }
 
     _extractWordInfo(data) {
-        const text = data.originalKey?.split('_')[0] || data.pattern || data.baseWord || data.word || '';
+		const text = data.originalKey?.split('_')[0] || data.pattern || data.baseWord || data.word || '';
+		const baseWord = data.base_word || data.baseWord;
 		console.log('Extracting info from:', data); // Debug
+
+		// Ieškome homonimų
+		const homonims = Array.from(this.searcher.patterns.values())
+			.filter(pattern => pattern.data.base_word === baseWord)
+			.map(pattern => ({
+				vertimas: pattern.data.vertimas || '-',
+				"kalbos dalis": pattern.data["kalbos dalis"] || '-',
+				"bazinė forma": pattern.data["bazinė forma"] || '-',
+				"bazė vertimas": pattern.data["bazė vertimas"] || '-',
+				CERF: pattern.data.CERF || '-'
+			}));
+
+		console.log('Found homonims:', homonims); // Debug
+
 		return {
-			text: text,  // Žodžio tekstas
-			originalText: data.text || text,  // Originalus tekstas
-			vertimas: data.vertimas || '-',
-			"kalbos dalis": data["kalbos dalis"] || '-',
-			"bazinė forma": data["bazinė forma"] || data.baseWord || '-',
-			"bazė vertimas": data["bazė vertimas"] || '-',
-			CERF: data.CERF || '-',
+			text: text,
+			originalText: data.text || text,
 			type: data.type || 'word',
-			pattern: data.pattern || text, // Pridėta pattern reikšmė
-		source: data.source
+			pattern: data.pattern || text,
+			source: data.source,
+			// Jei yra homonimų, pridedame juos
+			...(homonims.length > 1 ? { homonims } : {
+				vertimas: data.vertimas || '-',
+				"kalbos dalis": data["kalbos dalis"] || '-',
+				"bazinė forma": data["bazinė forma"] || data.baseWord || '-',
+				"bazė vertimas": data["bazė vertimas"] || '-',
+				CERF: data.CERF || '-'
+			})
 		};
 	}
-
-    _validateDictionaryEntry(key, data) {
-        if (!key || typeof key !== 'string') {
-            console.warn(`${this.MANAGER_NAME} Neteisingas raktas:`, key);
-            return false;
-        }
-
-        const requiredFields = ['vertimas', 'kalbos dalis', 'bazinė forma'];
-        const missingFields = requiredFields.filter(field => !data[field]);
-
-        if (missingFields.length > 0) {
-            console.warn(`${this.MANAGER_NAME} Trūksta laukų ${key}:`, missingFields);
-            return false;
-        }
-
-        return true;
-    }
 
     _updateSearchStats(searchTime) {
         this.statistics.searchStats.totalSearches++;
