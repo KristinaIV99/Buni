@@ -187,11 +187,16 @@ export class DictionaryManager {
     _extractWordInfo(data) {
 		const text = data.originalKey?.split('_')[0] || data.pattern || data.baseWord || data.word || '';
 		const baseWord = data.base_word || data.baseWord;
-		console.log('Extracting info from:', data); // Debug
+		console.log('Extracting info for word:', text);
+		console.log('Base word:', baseWord);
 
 		// Ieškome homonimų
 		const homonims = Array.from(this.searcher.patterns.values())
-			.filter(pattern => pattern.data.base_word === baseWord)
+			.filter(pattern => {
+				console.log('Checking pattern:', pattern);
+				console.log('Pattern base_word:', pattern.data.base_word);
+				return pattern.data.base_word === baseWord;
+			})
 			.map(pattern => ({
 				vertimas: pattern.data.vertimas || '-',
 				"kalbos dalis": pattern.data["kalbos dalis"] || '-',
@@ -200,7 +205,7 @@ export class DictionaryManager {
 				CERF: pattern.data.CERF || '-'
 			}));
 
-		console.log('Found homonims:', homonims); // Debug
+		console.log('Found homonims:', homonims);
 
 		return {
 			text: text,
