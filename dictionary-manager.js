@@ -313,6 +313,23 @@ export class DictionaryManager {
     return Object.fromEntries(words);
 }
 
+	_validateDictionaryEntry(key, data) {
+		if (!key || typeof key !== 'string') {
+			console.warn(`${this.MANAGER_NAME} Neteisingas raktas:`, key);
+			return false;
+		}
+
+		const requiredFields = ['vertimas', 'kalbos dalis', 'bazinė forma'];
+		const missingFields = requiredFields.filter(field => !data[field]);
+
+		if (missingFields.length > 0) {
+			console.warn(`${this.MANAGER_NAME} Trūksta laukų ${key}:`, missingFields);
+			return false;
+		}
+
+		return true;
+	}
+
 	async loadDictionaries(files) {
 		this.searcher = new AhoCorasick(); // Naujas medis
 		
