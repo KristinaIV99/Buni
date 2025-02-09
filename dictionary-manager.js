@@ -82,8 +82,7 @@ export class DictionaryManager {
 			console.log('Gauti matches iš searcher:', matches); // Debug informacija
 
 			const results = matches.map(match => {
-				console.log('Apdorojamas match:', match); // Debug informacija
-				
+				console.log('Apdorojamas match:', match); // Debug
 				return {
 					pattern: match.pattern,
 					type: match.type,
