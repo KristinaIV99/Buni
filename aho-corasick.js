@@ -45,7 +45,10 @@ class AhoCorasick {
 		// Saugome šabloną į bendrą sąrašą
 		this.patterns.set(normalizedPattern, {
 			pattern: normalizedPattern,
-			data: normalizedData,
+			data: {
+				...normalizedData,
+				originalKey: data.originalKey  // Pridėti originalKey
+			},
 			type: data.type,
 			length: normalizedPattern.length
 		});
