@@ -1,4 +1,3 @@
-
 import { AhoCorasick } from './aho-corasick.js';
 
 export class DictionaryManager {
@@ -186,29 +185,38 @@ export class DictionaryManager {
     }
 
     _extractWordInfo(data) {
-		console.log('Data received:', data);
-		const base_word = data.base_word;  // Imame būtent base_word
-		console.log('Looking for base_word:', base_word);
-
-		// Ieškome visų žodžių su tuo pačiu base_word
-		const allMeanings = Array.from(this.searcher.patterns.values())
-			.filter(entry => entry.data.base_word === base_word)  // Filtruojame pagal base_word
-			.map(entry => ({
-				vertimas: entry.data.vertimas,
-				"kalbos dalis": entry.data["kalbos dalis"],
-				"bazinė forma": entry.data["bazinė forma"],
-				"bazė vertimas": entry.data["bazė vertimas"],
-				CERF: entry.data.CERF
-			}));
-
-		console.log('Found meanings for base_word:', allMeanings);
-
+        const text = data.originalKey?.split('_')[0] || data.pattern || data.baseWord || data.word || '';
+		console.log('Extracting info from:', data); // Debug
 		return {
-			text: base_word,
-			type: data.type,
-			homonims: allMeanings
+			text: text,  // Žodžio tekstas
+			originalText: data.text || text,  // Originalus tekstas
+			vertimas: data.vertimas || '-',
+			"kalbos dalis": data["kalbos dalis"] || '-',
+			"bazinė forma": data["bazinė forma"] || data.baseWord || '-',
+			"bazė vertimas": data["bazė vertimas"] || '-',
+			CERF: data.CERF || '-',
+			type: data.type || 'word',
+			pattern: data.pattern || text, // Pridėta pattern reikšmė
+		source: data.source
 		};
 	}
+
+    _validateDictionaryEntry(key, data) {
+        if (!key || typeof key !== 'string') {
+            console.warn(`${this.MANAGER_NAME} Neteisingas raktas:`, key);
+            return false;
+        }
+
+        const requiredFields = ['vertimas', 'kalbos dalis', 'bazinė forma'];
+        const missingFields = requiredFields.filter(field => !data[field]);
+
+        if (missingFields.length > 0) {
+            console.warn(`${this.MANAGER_NAME} Trūksta laukų ${key}:`, missingFields);
+            return false;
+        }
+
+        return true;
+    }
 
     _updateSearchStats(searchTime) {
         this.statistics.searchStats.totalSearches++;
@@ -304,25 +312,8 @@ export class DictionaryManager {
     return Object.fromEntries(words);
 }
 
-	_validateDictionaryEntry(key, data) {
-		if (!key || typeof key !== 'string') {
-			console.warn(`${this.MANAGER_NAME} Neteisingas raktas:`, key);
-			return false;
-		}
-
-		const requiredFields = ['vertimas', 'kalbos dalis', 'bazinė forma'];
-		const missingFields = requiredFields.filter(field => !data[field]);
-
-		if (missingFields.length > 0) {
-			console.warn(`${this.MANAGER_NAME} Trūksta laukų ${key}:`, missingFields);
-			return false;
-		}
-
-		return true;
-	}
-
 	async loadDictionaries(files) {
-		this.searcher = new AhoCorasick();
+		this.searcher = new AhoCorasick(); // Naujas medis
 		
 		for (const file of files) {
 			const text = await this._readFileAsText(file);
@@ -332,21 +323,20 @@ export class DictionaryManager {
 			for (const [key, data] of Object.entries(dictionary)) {
 				if (!this._validateDictionaryEntry(key, data)) continue;
 				
-				const entry = {
-					...data,
-					fullKey: key,  // Saugome pilną raktą (pvz., "på_subst")
-					type,
-					source: file.name,
-					baseWord: key.split('_')[0]  // bazinis žodis (pvz., "på")
-				};
-				
-				// Pridedame į searcher pagal bazinį žodį
-				this.searcher.addPattern(entry.baseWord, entry);
+				const baseWord = key.split('_')[0];
+				const entry = { ...data, type, source: file.name, originalKey: key, baseWord };
+				this.searcher.addPattern(baseWord, entry);
 			}
 			
-			this.dictionaries.set(file.name, dictionary);
+			this.dictionaries.set(file.name, {
+				name: file.name,
+				type,
+				entries: Object.keys(dictionary).length,
+				timestamp: new Date()
+			});
 		}
 		
+		// Kuriame failure links TIK vieną kartą po visų žodynų įkėlimo
 		this.searcher.buildFailureLinks();
 	}
 }
