@@ -79,32 +79,34 @@ export class DictionaryManager {
 
 		try {
 			const matches = this.searcher.search(text);
-			console.log('Pilni atitimenys:', matches);
-		
+			console.log('Gauti matches iš searcher:', matches); // Debug informacija
+
 			const results = matches.map(match => {
-				console.log('Apdorojamas match:', match); // Debuginimui
+				console.log('Apdorojamas match:', match); // Debug informacija
+				
 				return {
 					pattern: match.pattern,
-					type: match.outputs[0].type,
+					type: match.type,
 					info: {
 						meanings: match.outputs.map(output => ({
-							"vertimas": output.vertimas,
-							"kalbos dalis": output["kalbos dalis"],
-							"bazinė forma": output["bazinė forma"],
-							"bazė vertimas": output["bazė vertimas"],
-							"CERF": output.CERF
+							"vertimas": output.vertimas || '-',
+							"kalbos dalis": output["kalbos dalis"] || '-',
+							"bazinė forma": output["bazinė forma"] || '-',
+							"bazė vertimas": output["bazė vertimas"] || '-',
+							"CERF": output.CERF || '-'
 						}))
 					},
 					positions: [{
 						start: match.start,
 						end: match.end,
 						text: match.text
-					}],
-					related: match.related || []
+					}]
 				};
 			});
 
+			console.log('Apdoroti results:', results); // Debug informacija
 			return { results };
+			
 		} catch (error) {
 			console.error(`${this.MANAGER_NAME} Klaida:`, error);
 			throw error;
