@@ -1,3 +1,4 @@
+
 import { AhoCorasick } from './aho-corasick.js';
 
 export class DictionaryManager {
@@ -185,16 +186,13 @@ export class DictionaryManager {
     }
 
     _extractWordInfo(data) {
-		console.log('Data received:', data);  // Debug
-		const baseWord = data.baseWord || data.pattern;
-		console.log('Base word:', baseWord);  // Debug
+		console.log('Data received:', data);
+		const base_word = data.base_word;  // Imame būtent base_word
+		console.log('Looking for base_word:', base_word);
 
-		// Surenkame visas reikšmes tiesiai iš searcher patterns
+		// Ieškome visų žodžių su tuo pačiu base_word
 		const allMeanings = Array.from(this.searcher.patterns.values())
-			.filter(entry => {
-				console.log('Checking entry:', entry);  // Debug
-				return entry.pattern === baseWord;
-			})
+			.filter(entry => entry.data.base_word === base_word)  // Filtruojame pagal base_word
 			.map(entry => ({
 				vertimas: entry.data.vertimas,
 				"kalbos dalis": entry.data["kalbos dalis"],
@@ -203,23 +201,10 @@ export class DictionaryManager {
 				CERF: entry.data.CERF
 			}));
 
-		console.log('Found meanings:', allMeanings);  // Debug
-
-		if (allMeanings.length === 0) {
-			// Jei neradome reikšmių, naudojame originalius duomenis
-			return {
-				text: baseWord,
-				type: data.type,
-				vertimas: data.vertimas,
-				"kalbos dalis": data["kalbos dalis"],
-				"bazinė forma": data["bazinė forma"],
-				"bazė vertimas": data["bazė vertimas"],
-				CERF: data.CERF
-			};
-		}
+		console.log('Found meanings for base_word:', allMeanings);
 
 		return {
-			text: baseWord,
+			text: base_word,
 			type: data.type,
 			homonims: allMeanings
 		};
