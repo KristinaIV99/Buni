@@ -186,15 +186,17 @@ export class DictionaryManager {
 
     _extractWordInfo(data) {
 		const baseWord = data.originalKey?.split('_')[0];
-		console.log('Ieškome homonimų žodžiui:', baseWord);
-    
-		const allMeanings = Array.from(this.searcher.patterns.values())
-			.filter(pattern => {
-				const patternBase = pattern.data.originalKey?.split('_')[0];
-				console.log('Lyginame:', patternBase, 'su', baseWord);
-				return patternBase === baseWord;
+		console.log('Ieškome homonimų žodžiui:', baseWord, 'iš:', data);
+		
+		// DEBUG: spausdiname visus patterns
+		console.log('Visi patterns:', Array.from(this.searcher.patterns.entries()));
+
+		const allMeanings = Array.from(this.searcher.patterns.entries())
+			.filter(([key, pattern]) => {
+				console.log('Tikriname pattern:', key, pattern);
+				return key === baseWord;  // Tikriname pagal patį žodį
 			})
-			.map(pattern => ({
+			.map(([_, pattern]) => ({
 				vertimas: pattern.data.vertimas,
 				"kalbos dalis": pattern.data["kalbos dalis"],
 				"bazinė forma": pattern.data["bazinė forma"],
@@ -203,6 +205,7 @@ export class DictionaryManager {
 			}));
 
 		console.log('Rastos reikšmės:', allMeanings);
+
 		return {
 			text: baseWord,
 			type: data.type,
