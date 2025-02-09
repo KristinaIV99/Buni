@@ -21,7 +21,7 @@ export class TextHighlighter {
     
 		try {
 			const { results } = await this.dictionaryManager.findInText(text);
-			const doc = new DOMParser().parseFromString(html, 'text/html');
+			console.log('Results from findInText:', results);
 
 			// Saugome puslapiavimo elementus
 			const paginationControls = doc.querySelector('.pagination-controls');
@@ -32,6 +32,7 @@ export class TextHighlighter {
 			// Surenkame žodžius ir frazes
 			const patterns = {};
 			results.forEach(result => {
+				console.log('Processing result:', result);
 				const pattern = result.pattern.toLowerCase();
 				if (!patterns[pattern]) {
 					patterns[pattern] = {
@@ -127,6 +128,7 @@ export class TextHighlighter {
 		let lastIndex = 0;
 
 		filteredMatches.forEach(match => {
+			console.log('Creating span for match:', match);
 			if (match.start > lastIndex) {
 				fragment.appendChild(
 					document.createTextNode(text.slice(lastIndex, match.start))
