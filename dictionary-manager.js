@@ -186,16 +186,13 @@ export class DictionaryManager {
 
     _extractWordInfo(data) {
 		const text = data.originalKey?.split('_')[0] || data.pattern || data.baseWord || data.word || '';
-		const baseWord = data.base_word || data.baseWord;
-		console.log('Extracting info for word:', text);
-		console.log('Base word:', baseWord);
+		const baseWord = text; // Svarbus pakeitimas - naudojame text kaip base_word
 
-		// Ieškome homonimų
+		// Ieškome homonimų pagal text, ne pagal base_word
 		const homonims = Array.from(this.searcher.patterns.values())
 			.filter(pattern => {
-				console.log('Checking pattern:', pattern);
-				console.log('Pattern base_word:', pattern.data.base_word);
-				return pattern.data.base_word === baseWord;
+				const patternText = pattern.data.originalKey?.split('_')[0] || pattern.pattern;
+				return patternText === text;
 			})
 			.map(pattern => ({
 				vertimas: pattern.data.vertimas || '-',
@@ -205,7 +202,7 @@ export class DictionaryManager {
 				CERF: pattern.data.CERF || '-'
 			}));
 
-		console.log('Found homonims:', homonims);
+		console.log(`Found ${homonims.length} homonims for ${text}`);
 
 		return {
 			text: text,
@@ -213,8 +210,8 @@ export class DictionaryManager {
 			type: data.type || 'word',
 			pattern: data.pattern || text,
 			source: data.source,
-			// Jei yra homonimų, pridedame juos
-			...(homonims.length > 1 ? { homonims } : {
+			homonims: homonims.length > 1 ? homonims : undefined,
+        .	..(homonims.length <= 1 && {
 				vertimas: data.vertimas || '-',
 				"kalbos dalis": data["kalbos dalis"] || '-',
 				"bazinė forma": data["bazinė forma"] || data.baseWord || '-',
