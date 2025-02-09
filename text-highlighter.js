@@ -222,7 +222,7 @@ export class TextHighlighter {
 				}
 			`;
 
-			popup.innerHTML = info.homonims ? `
+			const popupContent = info.homonims ? `
 				<div class="word-info-title">
 					<span>${info.text}</span>
 					<span class="word-info-type ${info.type}">
@@ -254,14 +254,11 @@ export class TextHighlighter {
 					<div><span class="word-info-label">Bazinė forma:</span> ${info["bazinė forma"]}</div>
 					<div><span class="word-info-label">Bazės vertimas:</span> ${info["bazė vertimas"]}</div>
 					<div><span class="word-info-label">CERF:</span> ${info.CERF}</div>
-					${info.related?.length ? `
-						<div class="word-info-related">
-							<div class="word-info-label">Susiję:</div>
-							${info.related.map(r => `<div>${r.pattern} (${r.type})</div>`).join('')}
-						</div>
-					` : ''}
 				</div>
 			`;
+
+			popup.innerHTML = popupContent;
+
 			const rect = event.target.getBoundingClientRect();
 			popup.style.left = `${window.scrollX + rect.left}px`;
 			popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
@@ -270,13 +267,11 @@ export class TextHighlighter {
 			this.activePopup = popup;
 			this._adjustPopupPosition(popup);
 
-			// Pakeičiame į tiesioginį event listener
 			document.addEventListener('click', (e) => {
 				if (!popup.contains(e.target) && !event.target.contains(e.target)) {
 					popup.remove();
 				}
 			});
-
 		} catch (error) {
 			console.error('Error in popup:', error);
 			console.error('Stack:', error.stack);
