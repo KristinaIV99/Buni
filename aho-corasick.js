@@ -124,7 +124,7 @@ class AhoCorasick {
 
 		const matches = [];
 		const allText = text.toLowerCase();
-    
+		
 		// Surūšiuojame visus šablonus pagal ilgį (ilgiausi pirma)
 		const allPatterns = Array.from(this.patterns.entries())
 			.sort((a, b) => b[0].length - a[0].length);
@@ -142,7 +142,8 @@ class AhoCorasick {
 			console.log(`\nIeškoma: "${pattern}" (${data.data.type})`);
 			
 			while ((index = allText.indexOf(pattern, index)) !== -1) {
-				const context = allText.slice(Math.max(0, index - 20), Math.min(allText.length, index + pattern.length + 20));
+				const context = allText.slice(Math.max(0, index - 20), 
+					Math.min(allText.length, index + pattern.length + 20));
 				console.log(`Rastas "${pattern}" pozicijoje ${index}`);
 				console.log(`Kontekstas: "...${context}..."`);
 				
@@ -152,15 +153,23 @@ class AhoCorasick {
 
 				if (isValid) {
 					patternMatches++;
+					// Čia yra pagrindinis pakeitimas - perduodame visus duomenis
 					matches.push({
 						pattern: pattern,
 						start: index,
 						end: index + pattern.length,
 						text: text.slice(index, index + pattern.length),
-						outputs: [data.data],
+						outputs: Array.isArray(data.data) ? data.data : [data.data], // Svarbus pakeitimas
 						type: data.data.type,
 						contentsBefore: text.slice(Math.max(0, index - 10), index),
-						contentsAfter: text.slice(index + pattern.length, Math.min(text.length, index + pattern.length + 10))
+						contentsAfter: text.slice(index + pattern.length, 
+							Math.min(text.length, index + pattern.length + 10))
+					});
+
+					// Pridedame debug informaciją
+					console.log('Pridėtas match:', {
+						pattern: pattern,
+						outputs: data.data
 					});
 				}
 				index += 1;
