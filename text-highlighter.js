@@ -136,10 +136,17 @@ export class TextHighlighter {
 			const span = document.createElement('span');
 			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
 			span.textContent = match.word;
+			// Pakeičiame info objektą, įtraukiant visus duomenis iš match.info
 			span.dataset.info = JSON.stringify({
 				text: match.word,
 				type: match.type,
-				meanings: match.info.meanings
+				meanings: match.info.meanings.map(meaning => ({
+					"vertimas": meaning.vertimas,
+					"kalbos dalis": meaning["kalbos dalis"],
+					"bazinė forma": meaning["bazinė forma"],
+					"bazė vertimas": meaning["bazė vertimas"],
+					"CERF": meaning.CERF
+				}))
 			});
 
 			fragment.appendChild(span);
@@ -227,11 +234,11 @@ export class TextHighlighter {
 						<div class="meaning-item ${info.meanings.length > 1 ? 'multiple-meanings' : ''}">
 							${info.meanings.length > 1 ? 
 								`<div class="meaning-header">${index + 1}. reikšmė</div>` : ''}
-							<div><span class="word-info-label">Vertimas:</span> ${meaning.vertimas}</div>
-							<div><span class="word-info-label">Kalbos dalis:</span> ${meaning["kalbos dalis"]}</div>
-							<div><span class="word-info-label">Bazinė forma:</span> ${meaning["bazinė forma"]}</div>
-							<div><span class="word-info-label">Bazės vertimas:</span> ${meaning["bazė vertimas"]}</div>
-							<div><span class="word-info-label">CERF:</span> ${meaning.CERF}</div>
+							<div><span class="word-info-label">Vertimas:</span> ${meaning.vertimas || '-'}</div>
+							<div><span class="word-info-label">Kalbos dalis:</span> ${meaning["kalbos dalis"] || '-'}</div>
+							<div><span class="word-info-label">Bazinė forma:</span> ${meaning["bazinė forma"] || '-'}</div>
+							<div><span class="word-info-label">Bazės vertimas:</span> ${meaning["bazė vertimas"] || '-'}</div>
+							<div><span class="word-info-label">CERF:</span> ${meaning.CERF || '-'}</div>
 						</div>
 					`).join('')}
 				</div>
