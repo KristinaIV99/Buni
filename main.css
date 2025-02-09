@@ -484,6 +484,14 @@ hr {
     font-weight: bold;
 }
 
+.homonym-item {
+    padding: 8px 0;
+}
+
+.border-top {
+    border-top: 1px solid var(--border-color, #ddd);
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
