@@ -186,13 +186,15 @@ export class DictionaryManager {
 
     _extractWordInfo(data) {
 		const text = data.originalKey?.split('_')[0] || data.pattern || data.baseWord || data.word || '';
-		const baseWord = text; // Svarbus pakeitimas - naudojame text kaip base_word
+		console.log('Looking for homonims of:', text);
 
-		// Ieškome homonimų pagal text, ne pagal base_word
 		const homonims = Array.from(this.searcher.patterns.values())
 			.filter(pattern => {
-				const patternText = pattern.data.originalKey?.split('_')[0] || pattern.pattern;
-				return patternText === text;
+				console.log('Pattern data:', pattern.data); // Debug visų pattern duomenų
+				// Saugesnis patikrinimas
+				const patternBase = pattern.data?.originalKey?.split('_')?.[0] || pattern.pattern;
+				console.log(`Comparing ${patternBase} with ${text}`); // Debug palyginimo
+				return patternBase?.toLowerCase() === text.toLowerCase(); // Case-insensitive palyginimas
 			})
 			.map(pattern => ({
 				vertimas: pattern.data.vertimas || '-',
@@ -202,7 +204,7 @@ export class DictionaryManager {
 				CERF: pattern.data.CERF || '-'
 			}));
 
-		console.log(`Found ${homonims.length} homonims for ${text}`);
+		console.log('Found homonims:', homonims); // Debug
 
 		const result = {
 			text: text,
