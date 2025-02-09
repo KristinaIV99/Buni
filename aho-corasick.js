@@ -21,7 +21,7 @@ class AhoCorasick {
 
     addPattern(pattern, data) {
 		console.log(`[AhoCorasick] Pridedamas šablonas:`, pattern, data);
-		
+    
 		if (this.ready) {
 			throw new Error('Negalima pridėti šablonų po buildFailureLinks()');
 		}
@@ -34,20 +34,29 @@ class AhoCorasick {
 			"bazinė forma": data["bazinė forma"],
 			"bazė vertimas": data["bazė vertimas"],
 			"CERF": data.CERF,
-			originalKey: data.originalKey,  // Pridedame originalKey
-			related: []
+			originalKey: data.originalKey
 		};
 
 		let node = this.root;
 		const normalizedPattern = pattern.toLowerCase().trim();
 		
-		// Saugome šabloną į bendrą sąrašą
-		this.patterns.set(normalizedPattern, {
-			pattern: normalizedPattern,
-			data: normalizedData,
-			type: data.type,
-			length: normalizedPattern.length
-		});
+		// Saugome šabloną į patterns Map
+		const existingPattern = this.patterns.get(normalizedPattern);
+		if (existingPattern) {
+			if (!existingPattern.data.meanings) {
+				existingPattern.data.meanings = [];
+			}
+			existingPattern.data.meanings.push(normalizedData);
+		} else {
+			this.patterns.set(normalizedPattern, {
+				pattern: normalizedPattern,
+				data: {
+					type: data.type,
+					meanings: [normalizedData]
+				},
+				length: normalizedPattern.length
+			});
+		}
 
 		// Kuriame medį
 		for (let i = 0; i < normalizedPattern.length; i++) {
@@ -157,14 +166,7 @@ class AhoCorasick {
 						start: index,
 						end: index + pattern.length,
 						text: text.slice(index, index + pattern.length),
-						outputs: [{
-							type: data.data.type,
-							"kalbos dalis": data.data["kalbos dalis"],
-							"vertimas": data.data.vertimas,
-							"bazinė forma": data.data["bazinė forma"],
-							"bazė vertimas": data.data["bazė vertimas"],
-							"CERF": data.data.CERF
-						}],
+						outputs: data.data.meanings,
 						type: data.data.type
 					});
 
