@@ -143,7 +143,7 @@ export class TextHighlighter {
 				"kalbos dalis": match["kalbos dalis"] || match.info?.["kalbos dalis"],
 				"bazinė forma": match["bazinė forma"] || match.info?.["bazinė forma"],
 				"bazė vertimas": match["bazė vertimas"] || match.info?.["bazė vertimas"],
-				CERF: match.CERF || match.info?.CERF
+				CERF: match.CERF || match.info?.CERF,
 				homonims: match.info?.homonims
 			});
 
