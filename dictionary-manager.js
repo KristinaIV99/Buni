@@ -184,19 +184,38 @@ export class DictionaryManager {
     }
 
     _extractWordInfo(data) {
-        const text = data.originalKey?.split('_')[0] || data.pattern || data.baseWord || data.word || '';
-		console.log('Extracting info from:', data); // Debug
+		const text = data.originalKey || data.pattern || '';
+		console.log('Extracting info from:', data);
+
+		// Surenkame visas žodžio reikšmes
+		const meanings = [];
+		if (data.originalKey) {
+			for (const [pattern, patternInfo] of this.searcher.patterns) {
+				if (patternInfo.data.originalKey === data.originalKey) {
+					meanings.push({
+						"kalbos dalis": patternInfo.data["kalbos dalis"],
+						"vertimas": patternInfo.data.vertimas,
+						"bazinė forma": patternInfo.data["bazinė forma"],
+						"bazė vertimas": patternInfo.data["bazė vertimas"],
+						"CERF": patternInfo.data.CERF
+					});
+				}
+			}
+		}
+
 		return {
-			text: text,  // Žodžio tekstas
-			originalText: data.text || text,  // Originalus tekstas
-			vertimas: data.vertimas || '-',
-			"kalbos dalis": data["kalbos dalis"] || '-',
-			"bazinė forma": data["bazinė forma"] || data.baseWord || '-',
-			"bazė vertimas": data["bazė vertimas"] || '-',
-			CERF: data.CERF || '-',
+			text: text,
+			originalText: data.text || text,
 			type: data.type || 'word',
-			pattern: data.pattern || text, // Pridėta pattern reikšmė
-		source: data.source
+			pattern: data.pattern || text,
+			source: data.source,
+			meanings: meanings.length > 0 ? meanings : [{
+				"kalbos dalis": data["kalbos dalis"] || '-',
+				"vertimas": data.vertimas || '-',
+				"bazinė forma": data["bazinė forma"] || '-',
+				"bazė vertimas": data["bazė vertimas"] || '-',
+				"CERF": data.CERF || '-'
+			}]
 		};
 	}
 
