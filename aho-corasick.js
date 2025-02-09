@@ -21,47 +21,41 @@ class AhoCorasick {
 
     addPattern(pattern, data) {
 		console.log(`[AhoCorasick] Pridedamas šablonas:`, pattern, data);
-    
+		
 		if (this.ready) {
 			throw new Error('Negalima pridėti šablonų po buildFailureLinks()');
 		}
 
-		// Suvienodiname duomenų struktūrą
-		const normalizedData = {
-			type: data.type,
-			"kalbos dalis": data["kalbos dalis"],
-			"vertimas": data.vertimas,
-			"bazinė forma": data["bazinė forma"],
-			"bazė vertimas": data["bazė vertimas"],
-			"CERF": data.CERF,
-			originalKey: data.originalKey
-		};
+		// Surenkame visas reikšmes iš data objekto
+		const meanings = [];
+		for (let i = 0; data[i]; i++) {
+			meanings.push({
+				type: data.type,
+				"kalbos dalis": data[i]["kalbos dalis"],
+				"vertimas": data[i].vertimas,
+				"bazinė forma": data[i]["bazinė forma"],
+				"bazė vertimas": data[i]["bazė vertimas"],
+				"CERF": data[i].CERF
+			});
+		}
 
 		let node = this.root;
 		const normalizedPattern = pattern.toLowerCase().trim();
 		
-		// Saugome šabloną į patterns Map
-		const existingPattern = this.patterns.get(normalizedPattern);
-		if (existingPattern) {
-			if (!existingPattern.data.meanings) {
-				existingPattern.data.meanings = [];
-			}
-			existingPattern.data.meanings.push(normalizedData);
-		} else {
-			this.patterns.set(normalizedPattern, {
-				pattern: normalizedPattern,
-				data: {
-					type: data.type,
-					meanings: [normalizedData]
-				},
-				length: normalizedPattern.length
-			});
-		}
+		// Saugome šabloną į bendrą sąrašą
+		this.patterns.set(normalizedPattern, {
+			pattern: normalizedPattern,
+			data: {
+				type: data.type,
+				meanings: meanings
+			},
+			type: data.type,
+			length: normalizedPattern.length
+		});
 
 		// Kuriame medį
 		for (let i = 0; i < normalizedPattern.length; i++) {
 			const char = normalizedPattern[i];
-			
 			if (!node.next.has(char)) {
 				const newNode = this.createNode();
 				newNode.depth = i + 1;
@@ -74,14 +68,10 @@ class AhoCorasick {
 		// Pažymime galutinį mazgą
 		node.isEnd = true;
 		node.pattern = normalizedPattern;
-		node.outputs.push({
-			pattern: normalizedPattern,
-			...normalizedData,
-			length: normalizedPattern.length
-		});
+		node.outputs = meanings;
 		
 		this.patternCount++;
-		console.log(`[AhoCorasick] Šablonas pridėtas, iš viso:`, this.patternCount);
+		console.log(`[AhoCorasick] Šablonas pridėtas su reikšmėmis:`, meanings);
 	}
 
     buildFailureLinks() {
