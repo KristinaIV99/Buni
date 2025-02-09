@@ -185,36 +185,35 @@ export class DictionaryManager {
     }
 
     _extractWordInfo(data) {
-		const text = data.originalKey?.split('_')[0] || data.pattern || data.baseWord || data.word || '';
-		console.log('Looking for homonims of:', text);
-
-		// Modifikuojame kaip ieškome homonimų - ieškom pagal pattern bazinę dalį
-		const homonims = Array.from(this.searcher.patterns.values())
-			.filter(pattern => {
-				const patternText = pattern.pattern;  // tiesiog pattern
-				console.log(`Checking pattern ${patternText} with ${text}`);
-				return patternText === text;
+		const baseWord = data.originalKey?.split('_')[0];
+		console.log('Ieškome homonimų žodžiui:', baseWord);
+		
+		// Surenkame visas reikšmes iš žodyno pagal bazinį žodį
+		const allMeanings = Array.from(this.dictionaries.values())
+			.flatMap(dict => Object.entries(dict)) // visų žodynų įrašai
+			.filter(([key, value]) => {
+				const wordBase = key.split('_')[0];
+				console.log('Tikriname:', key, 'bazinis žodis:', wordBase);
+				return wordBase === baseWord;
 			})
-			.map(pattern => pattern.data)  // imame visus data objektus
-			.filter(data => data);  // pašaliname undefined
+			.map(([key, value]) => {
+				console.log('Pridedame reikšmę iš:', key);
+				return {
+					vertimas: value.vertimas,
+					"kalbos dalis": value["kalbos dalis"],
+					"bazinė forma": value["bazinė forma"],
+					"bazė vertimas": value["bazė vertimas"],
+					CERF: value.CERF
+				};
+			});
 
-		console.log('Found ALL homonims:', homonims);
+	console.log('Rastos reikšmės:', allMeanings);
 
-		const result = {
-			text,
-			type: data.type || 'word',
-			homonims: homonims
+		return {
+			text: baseWord,
+			type: data.type,
+			homonims: allMeanings
 		};
-
-		if (homonims.length <= 1) {
-			result.vertimas = data.vertimas || '-';
-			result["kalbos dalis"] = data["kalbos dalis"] || '-';
-			result["bazinė forma"] = data["bazinė forma"] || '-';
-			result["bazė vertimas"] = data["bazė vertimas"] || '-';
-			result.CERF = data.CERF || '-';
-		}
-
-		return result;
 	}
 
     _updateSearchStats(searchTime) {
