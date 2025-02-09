@@ -35,8 +35,8 @@ class AhoCorasick {
 			"bazinė forma": data["bazinė forma"],
 			"bazė vertimas": data["bazė vertimas"],
 			"CERF": data.CERF,
-			"base_word": data.base_word || data["bazinė forma"], // Jei nėra base_word, naudojame bazinę formą
-			"related": []
+			originalKey: data.originalKey,  // Pridedame originalKey
+			related: []
 		};
 
 		let node = this.root;
