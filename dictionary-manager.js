@@ -204,21 +204,25 @@ export class DictionaryManager {
 
 		console.log(`Found ${homonims.length} homonims for ${text}`);
 
-		return {
+		const result = {
 			text: text,
 			originalText: data.text || text,
 			type: data.type || 'word',
 			pattern: data.pattern || text,
-			source: data.source,
-			homonims: homonims.length > 1 ? homonims : undefined,
-        .	..(homonims.length <= 1 && {
-				vertimas: data.vertimas || '-',
-				"kalbos dalis": data["kalbos dalis"] || '-',
-				"bazinė forma": data["bazinė forma"] || data.baseWord || '-',
-				"bazė vertimas": data["bazė vertimas"] || '-',
-				CERF: data.CERF || '-'
-			})
+			source: data.source
 		};
+
+		if (homonims.length > 1) {
+			result.homonims = homonims;
+		} else {
+			result.vertimas = data.vertimas || '-';
+			result["kalbos dalis"] = data["kalbos dalis"] || '-';
+			result["bazinė forma"] = data["bazinė forma"] || data.baseWord || '-';
+			result["bazė vertimas"] = data["bazė vertimas"] || '-';
+			result.CERF = data.CERF || '-';
+		}
+
+		return result;
 	}
 
     _updateSearchStats(searchTime) {
