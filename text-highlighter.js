@@ -221,7 +221,25 @@ export class TextHighlighter {
 				}
 			`;
 
-			popup.innerHTML = `
+			popup.innerHTML = info.homonims ? `
+				<div class="word-info-title">
+					<span>${info.text}</span>
+					<span class="word-info-type ${info.type}">
+						${info.type === 'phrase' ? 'Frazė' : 'Žodis'}
+					</span>
+				</div>
+				<div class="word-info-grid">
+					${info.homonims.map((homonym, index) => `
+						<div class="homonym-item ${index > 0 ? 'border-top' : ''}">
+							<div><span class="word-info-label">Kalbos dalis:</span> ${homonym["kalbos dalis"]}</div>
+							<div><span class="word-info-label">Vertimas:</span> ${homonym.vertimas}</div>
+							<div><span class="word-info-label">Bazinė forma:</span> ${homonym["bazinė forma"]}</div>
+							<div><span class="word-info-label">Bazės vertimas:</span> ${homonym["bazė vertimas"]}</div>
+							<div><span class="word-info-label">CERF:</span> ${homonym.CERF}</div>
+						</div>
+					`).join('')}
+				</div>
+			` : `
 				<div class="word-info-title">
 					<span>${info.text}</span>
 					<span class="word-info-type ${info.type}">
