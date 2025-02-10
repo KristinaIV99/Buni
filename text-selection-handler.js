@@ -22,19 +22,19 @@ class TextSelectionHandler {
     initializeSelectionListener() {
 		console.log(`${this.APP_NAME} Pridedamas teksto pažymėjimo klausytojas`);
 		
-		// Išjungiame standartinį žodžių su vertimu elgesį pažymėjimo metu
-		document.addEventListener('mousedown', (e) => {
+		// Pridedame click handler'į vertimo popupui
+		document.addEventListener('click', (e) => {
 			const target = e.target;
-			if (target.classList.contains('highlight-word') || 
-				target.classList.contains('highlight-phrase')) {
-				target.style.pointerEvents = 'none';
-				// Atstatyti po trumpo laiko, kad veiktų vertimo rodymas
-				setTimeout(() => {
-					target.style.pointerEvents = 'auto';
-				}, 500);
+			// Jei nėra aktyvaus pažymėjimo, leidžiame rodyti vertimo popupą
+			if ((target.classList.contains('highlight-word') || 
+				target.classList.contains('highlight-phrase')) && 
+				window.getSelection().toString().trim().length === 0) {
+				target.style.pointerEvents = 'auto';
+				return;
 			}
 		});
 
+		// Teksto pažymėjimo handler'is
 		document.addEventListener('selectionchange', () => {
 			const selection = window.getSelection();
 			if (selection.toString().trim().length > 0) {
@@ -43,22 +43,27 @@ class TextSelectionHandler {
 		});
 
 		// Mobiliems įrenginiams
+		let touchTimeout;
 		document.addEventListener('touchstart', (e) => {
 			const target = e.target;
-			if (target.classList.contains('highlight-word') || 
-				target.classList.contains('highlight-phrase')) {
-				target.style.pointerEvents = 'none';
-				setTimeout(() => {
-					target.style.pointerEvents = 'auto';
-				}, 500);
-			}
+			touchTimeout = setTimeout(() => {
+				if (target.classList.contains('highlight-word') || 
+					target.classList.contains('highlight-phrase')) {
+					target.style.pointerEvents = 'none';
+				}
+			}, 200); // Trumpas timeout, kad būtų galima atskirti tap nuo ilgo paspaudimo
 		});
 
 		document.addEventListener('touchend', () => {
+			clearTimeout(touchTimeout);
 			setTimeout(() => {
 				const selection = window.getSelection();
 				if (selection.toString().trim().length > 0) {
 					this.handleSelection(selection);
+				} else {
+					// Jei nėra pažymėjimo, grąžiname vertimo funkcionalumą
+					document.querySelectorAll('.highlight-word, .highlight-phrase')
+						.forEach(el => el.style.pointerEvents = 'auto');
 				}
 			}, 100);
 		});
