@@ -710,7 +710,7 @@ hr {
     }
 }
 /* ==========================================================================
-   TEKSTO ŽYMĖJIMAS
+   TEKSTO ŽYMĖJIMAS IR IŠSAUGOJIMAS
    ========================================================================== */
 /* Teksto pažymėjimo mygtukas */
 .selection-save-button {
@@ -728,17 +728,22 @@ hr {
     font-family: "Merriweather", Georgia, serif;
 }
 
-@media (hover: hover) {
-    .selection-save-button:hover {
-        background: var(--accent-color);
-        transform: translateY(-1px);
-        box-shadow: 0 3px 6px var(--shadow-light);
-    }
-}
-
-.selection-save-button:active {
-    transform: translateY(1px);
-    box-shadow: 0 1px 2px var(--shadow-light);
+/* Išsaugotų tekstų mygtukas */
+.view-saved-button {
+    position: fixed;
+    top: max(20px, env(safe-area-inset-top));
+    right: max(130px, env(safe-area-inset-right)); 
+    z-index: 1001;
+    background: var(--secondary-color);
+    color: var(--background-light);
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-family: "Merriweather", Georgia, serif;
+    cursor: pointer;
+    box-shadow: 0 2px 4px var(--shadow-light);
+    transition: all 0.2s ease;
 }
 
 /* Išsaugojimo patvirtinimo pranešimas */
@@ -756,6 +761,73 @@ hr {
     animation: slideIn 0.3s ease-out;
 }
 
+/* Modalinis langas */
+.saved-texts-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--background-light);
+    color: var(--text-light);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 4px 12px var(--shadow-dark);
+    z-index: 1003;
+    max-width: 80%;
+    max-height: 80vh;
+    overflow-y: auto;
+    font-family: "Merriweather", Georgia, serif;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(74, 70, 57, 0.5);
+    z-index: 1002;
+}
+
+.saved-texts-list {
+    margin-top: 10px;
+}
+
+.saved-text-item {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-light);
+}
+
+.modal-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-buttons button {
+    background: var(--secondary-color);
+    color: var(--background-light);
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Hover efektai */
+@media (hover: hover) {
+    .selection-save-button:hover {
+        background: var(--accent-color);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 6px var(--shadow-light);
+    }
+}
+
+/* Animacijos */
 @keyframes slideIn {
     from {
         transform: translateY(20px);
@@ -775,19 +847,31 @@ hr {
         color: var(--background-dark);
         box-shadow: 0 2px 4px var(--shadow-dark);
     }
-
-    .selection-save-button:hover {
-        box-shadow: 0 3px 6px var(--shadow-dark);
+    
+    .saved-texts-modal {
+        background: var(--background-dark);
+        color: var(--text-dark);
+        border-color: var(--border-dark);
+    }
+    
+    .saved-text-item {
+        border-color: var(--border-dark);
+        color: var(--text-dark);
     }
 }
 
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
-    .selection-save-button {
+    .selection-save-button,
+    .view-saved-button {
         padding: 6px 12px;
         font-size: 10px;
     }
-
+    
+    .view-saved-button {
+        right: 60px;
+    }
+    
     .save-confirmation {
         font-size: 12px;
         padding: 8px 16px;
