@@ -238,48 +238,54 @@ export class TextHighlighter {
 						<div class="meaning-block">
 							<div class="part-of-speech">${meaning["kalbos dalis"]}</div>
 							<div class="translation">${meaning.vertimas}</div>
-							<div class="base-form">${meaning["bazinė forma"]} - ${meaning["bazė vertimas"]}</div>
-							<div class="cerf">${meaning.CERF}</div>
+							<div class="base-form">
+								<span class="base-word">${info.text}</span> - ${meaning["bazė vertimas"]}
+							</div>
+							<div class="cerf">A1</div>
 						</div>
 					`).join('')}
 				</div>
 			`;
 
 			const rect = event.target.getBoundingClientRect();
-			popup.style.left = `${window.scrollX + rect.left}px`;
-			popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
-			
-			document.body.appendChild(popup);
-			this.activePopup = popup;
-			this._adjustPopupPosition(popup);
+            this._adjustPopupPosition(popup, rect); // Naudojame naują metodą
 
-			document.addEventListener('click', (e) => {
-				if (!popup.contains(e.target) && !event.target.contains(e.target)) {
-					popup.remove();
-				}
-			});
+            document.body.appendChild(popup);
+            this.activePopup = popup;
 
-		} catch (error) {
-			console.error('Error in popup:', error);
-			console.error('Stack:', error.stack);
-		}
-	}
+            document.addEventListener('click', (e) => {
+                if (!popup.contains(e.target) && !event.target.contains(e.target)) {
+                    popup.remove();
+                }
+            });
+
+        } catch (error) {
+            console.error('Error in popup:', error);
+            console.error('Stack:', error.stack);
+        }
+    }
 
     _adjustPopupPosition(popup) {
-        const rect = popup.getBoundingClientRect();
         const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-
-        // Horizontalus pozicionavimas
-        if (rect.right > viewportWidth) {
-            const overflow = rect.right - viewportWidth;
-            popup.style.left = `${parseInt(popup.style.left) - overflow - 10}px`;
+        const textContainer = document.querySelector('.text-content');
+        const textContainerRect = textContainer.getBoundingClientRect();
+        
+        // Nustatome pradinę poziciją
+        let left = window.scrollX + rect.left;
+        
+        // Jei popup išeina už teksto ribų į kairę
+        if (left < textContainerRect.left) {
+            left = textContainerRect.left;
         }
-
-        // Vertikalus pozicionavimas
-        if (rect.bottom > viewportHeight) {
-            popup.style.top = `${parseInt(popup.style.top) - rect.height - 25}px`;
+        
+        // Jei popup išeina už teksto ribų į dešinę
+        const popupRect = popup.getBoundingClientRect();
+        if (left + popupRect.width > textContainerRect.right) {
+            left = textContainerRect.right - popupRect.width;
         }
+        
+        popup.style.left = `${left}px`;
+        popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
     }
 
     _handleDocumentClick(event) {
