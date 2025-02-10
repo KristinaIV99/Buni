@@ -721,9 +721,10 @@ hr {
 /* Teksto pažymėjimo mygtukas */
 .selection-save-button {
     position: fixed;
-    bottom: 70px; /* Pakeltas nuo apačios, kad neužstotų puslapių navigacija */
+    bottom: auto; /* Pašaliname bottom pozicionavimą */
+    top: 50%; /* Pozicionuojame virš pažymėto teksto */
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -100px); /* Pakeliame aukščiau nei pažymėtas tekstas */
     background: var(--primary-color);
     color: var(--background-light);
     border: none;
@@ -732,7 +733,7 @@ hr {
     font-size: 12px;
     cursor: pointer;
     box-shadow: 0 2px 4px var(--shadow-light);
-    z-index: 1002;
+    z-index: 9999; /* Padidintas z-index, kad būtų virš sisteminės juostos */
     transition: all 0.2s ease;
     font-family: "Merriweather", Georgia, serif;
 }
