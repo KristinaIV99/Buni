@@ -877,3 +877,21 @@ hr {
         padding: 8px 16px;
     }
 }
+
+/* Išvalymo mygtukas */
+.clear-btn {
+    background: var(--error-color) !important;
+}
+
+.no-saved-texts {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary-light);
+    font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+    .no-saved-texts {
+        color: var(--text-secondary-dark);
+    }
+}
