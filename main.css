@@ -8,7 +8,7 @@
     --text-light: #333333;
     
     /* Tamsios temos spalvos */
-    --background-dark: #1a1a1a;
+    --background-dark: #B6B097;
     --text-dark: #999999;
     
     /* Funkcinės spalvos */
@@ -31,7 +31,7 @@ body {
 .text-content {
     background: var(--background-light);
     color: var(--text-light);
-    font-size: 18px;
+    font-size: 22px;
     line-height: 1.6;
     padding: 20px;
     padding-bottom: 80px;
@@ -433,7 +433,7 @@ hr {
 .word-info-popup {
     position: absolute;
     z-index: 9999;
-    background: #1a1a1a;
+    background: #B6B097;
     color: #e0e0e0;
     border-radius: 8px;
     padding: 12px;
@@ -507,7 +507,7 @@ hr {
 /* Tamsi tema */
 @media (prefers-color-scheme: dark) {
     .word-info-popup {
-        background: #1a1a1a;
+        background: #B6B097;
         color: #e0e0e0;
     }
     
@@ -562,7 +562,7 @@ hr {
 
 @media (prefers-color-scheme: dark) {
     .word-info-popup {
-        background: var(--background-dark, #1a1a1a);
+        background: var(--background-dark, #B6B097;);
         color: var(--text-dark, #e0e0e0);
         border-color: var(--border-dark, #444);
         box-shadow: 0 2px 8px rgba(0,0,0,0.3);
