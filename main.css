@@ -9,7 +9,7 @@
     
     /* Tamsios temos spalvos */
     --background-dark: #1a1a1a;
-    --text-dark: #cccccc;
+    --text-dark: #888888;
     
     /* Funkcinės spalvos */
     --primary-color: #2196F3;
@@ -471,11 +471,11 @@ hr {
 .part-of-speech {
     display: inline-block;
     font-style: italic;
-    background-color: rgba(33, 150, 243, 0.15);
-    color: #1565C0;
-    padding: 2px 8px;
+    background-color: rgba(33, 150, 243, 0.2);
+    color: #BBBBBB;
+    padding: 1px 2px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 10px;
     margin-bottom: 6px;
 }
 
@@ -483,7 +483,7 @@ hr {
     font-size: 16px;
     margin: 4px 0;
     text-align: left;
-    color: #AAAAAA;
+    color: #BBBBBB;
 }
 
 .base-form {
@@ -519,8 +519,8 @@ hr {
     }
     
     .part-of-speech {
-        background-color: #E3F2FD;
-        color: #1565C0;
+        background-color: rgba(33, 150, 243, 0.2);
+        color: #BBBBBB;
     }
     
     .base-form {
