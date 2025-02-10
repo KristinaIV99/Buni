@@ -230,24 +230,19 @@ export class TextHighlighter {
 			`;
 
 			popup.innerHTML = `
-				<div class="word-info-title">
-					<span>${info.text}</span>
-					<span class="word-info-type ${info.type}">
-						${info.type === 'phrase' ? 'Frazė' : 'Žodis'}
-					</span>
-				</div>
-				<div class="word-info-grid">
-					${info.meanings.map((meaning, index) => `
-						<div class="meaning-item ${info.meanings.length > 1 ? 'multiple-meanings' : ''}">
-							${info.meanings.length > 1 ? 
-								`<div class="meaning-header">${index + 1}. reikšmė</div>` : ''}
-							<div><span class="word-info-label">Vertimas:</span> ${meaning.vertimas || '-'}</div>
-							<div><span class="word-info-label">Kalbos dalis:</span> ${meaning["kalbos dalis"] || '-'}</div>
-							<div><span class="word-info-label">Bazinė forma:</span> ${meaning["bazinė forma"] || '-'}</div>
-							<div><span class="word-info-label">Bazės vertimas:</span> ${meaning["bazė vertimas"] || '-'}</div>
-							<div><span class="word-info-label">CERF:</span> ${meaning.CERF || '-'}</div>
-						</div>
-					`).join('')}
+				<div class="word-info-container">
+					<div class="word-text">${info.text}</div>
+					<div class="meanings-container">
+						${info.meanings.map((meaning, index) => `
+							${index > 0 ? '<div class="divider"></div>' : ''}
+							<div class="meaning-block">
+								<div class="kalbos-dalis-tag">${meaning["kalbos dalis"] || '-'}</div>
+								<div class="vertimas-main">${meaning.vertimas || '-'}</div>
+								<div class="base-form">${meaning["bazinė forma"] || '-'} - ${meaning["bazė vertimas"] || '-'}</div>
+								<div class="cerf-tag">CERF: ${meaning.CERF || '-'}</div>
+							</div>
+						`).join('')}
+					</div>
 				</div>
 			`;
 
