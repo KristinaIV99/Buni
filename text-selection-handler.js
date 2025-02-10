@@ -130,47 +130,42 @@ export class TextSelectionHandler {
     }
 
     showSaveButton(selection, selectedText, contextSentence) {
-        const oldButton = document.querySelector('.selection-save-button');
-        if (oldButton) oldButton.remove();
+		const oldButton = document.querySelector('.selection-save-button');
+		if (oldButton) oldButton.remove();
 
-        const range = selection.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
+		const range = selection.getRangeAt(0);
+		const rect = range.getBoundingClientRect();
 
-        const button = document.createElement('button');
-        button.className = 'selection-save-button';
-        button.textContent = 'Išsaugoti';
+		const button = document.createElement('button');
+		button.className = 'selection-save-button';
+		button.textContent = 'Išsaugoti';
 
-        // Pozicionuojame virš pažymėto teksto
-        const top = rect.top + window.scrollY - 40; // 40px virš teksto
-        const left = rect.left + (rect.width / 2) - 40; // Centruojame
+		// Pozicionuojame mygtuką virš pažymėto teksto
+		button.style.top = `${rect.top + window.scrollY - 50}px`; // 50px aukščiau teksto
 
-        button.style.position = 'absolute';
-        button.style.top = `${top}px`;
-        button.style.left = `${left}px`;
+		button.addEventListener('click', () => {
+			this.saveSelection(selectedText, contextSentence);
+			button.remove();
+			window.getSelection().removeAllRanges();
+		});
 
-        button.addEventListener('click', () => {
-            this.saveSelection(selectedText, contextSentence);
-            button.remove();
-            window.getSelection().removeAllRanges();
-        });
+		document.body.appendChild(button);
 
-        document.body.appendChild(button);
+		// Automatiškai paslepiame po 3 sekundžių
+		setTimeout(() => button.remove(), 3000);
+	}
 
-        // Automatiškai paslepiame po 3 sekundžių
-        setTimeout(() => button.remove(), 3000);
-    }
+		saveSelection(selectedText, contextSentence) {
+			const selection = {
+				text: selectedText,
+				context: contextSentence,
+				timestamp: new Date().toISOString()
+			};
 
-    saveSelection(selectedText, contextSentence) {
-        const selection = {
-            text: selectedText,
-            context: contextSentence,
-            timestamp: new Date().toISOString()
-        };
-
-        this.savedSelections.push(selection);
-        this.saveToStorage();
-        this.showSaveConfirmation();
-    }
+			this.savedSelections.push(selection);
+			this.saveToStorage();
+			this.showSaveConfirmation();
+		}
 
     loadFromStorage() {
         try {
