@@ -73,6 +73,7 @@ p {
         background: var(--background-dark);
         color: var(--text-dark);
     }
+}
 
 @media (max-width: 768px) {
     .text-content {
@@ -81,6 +82,7 @@ p {
         padding: 12px;
         max-width: 100%;
     }
+}
 
 /* ==========================================================================
    TARPAI IR SKYRIKLIAI
@@ -106,7 +108,7 @@ hr {
     hr {
         border-color: var(--border-dark);
     }
-
+}
 
 /* ==========================================================================
    PROGRESO INDIKATORIAI
@@ -679,7 +681,6 @@ hr {
 .highlight-word:hover, .highlight-phrase:hover {
     background-color: rgba(74, 70, 57, 0.2);
 }
-
 
 @media (prefers-color-scheme: dark) {
     .word-info-popup {
