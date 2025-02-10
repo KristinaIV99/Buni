@@ -198,21 +198,27 @@ hr {
     border-bottom: 1px solid var(--border-light);
     max-width: 600px;
     margin: 0 auto 10px auto;
+    position: relative; /* Pridėta pozicija */
+    z-index: 1000; /* Pridėtas z-index */
 }
 
 .stat-item {
     text-align: center;
+    flex: 1; /* Pridėta, kad elementai užimtų lygias dalis */
+    min-width: 0; /* Pridėta, kad būtų galima suspausti */
 }
 
 .stat-value {
     font-size: 14px;
     font-weight: 600;
     color: var(--primary-color);
+    white-space: nowrap; /* Pridėta, kad nesiskaidytų į eilutes */
 }
 
 .stat-label {
     color: var(--text-secondary-light);
     font-size: 10px;
+    white-space: nowrap; /* Pridėta, kad nesiskaidytų į eilutes */
 }
 
 /* Tamsi tema statistikai */
@@ -229,16 +235,16 @@ hr {
 @media (max-width: 768px) {
     .text-stats {
         padding: 8px;
-        gap: 10,px;
-        margin: margin: 0 auto 10px auto;
+        gap: 8px;
+        margin: 100px auto 10px auto;
     }
 
     .stat-value {
-        font-size: 14px;
+        font-size: 12px;
     }
 
     .stat-label {
-        font-size: 10px;
+        font-size: 9px;
     }
 }
 
@@ -715,6 +721,9 @@ hr {
 /* Teksto pažymėjimo mygtukas */
 .selection-save-button {
     position: fixed;
+    bottom: 70px; /* Pakeltas nuo apačios, kad neužstotų puslapių navigacija */
+    left: 50%;
+    transform: translateX(-50%);
     background: var(--primary-color);
     color: var(--background-light);
     border: none;
@@ -730,20 +739,80 @@ hr {
 
 /* Išsaugotų tekstų mygtukas */
 .view-saved-button {
+    /* Pozicionavimas */
     position: fixed;
-    top: max(20px, env(safe-area-inset-top));
-    right: max(130px, env(safe-area-inset-right)); 
+    top: max(70px, env(safe-area-inset-top)); /* Padidintas top, kad būtų po eksporto */
+    right: max(20px, env(safe-area-inset-right));
     z-index: 1001;
-    background: var(--secondary-color);
+
+    /* Išvaizda */
+    background: var(--primary-color);
     color: var(--background-light);
     border: none;
     border-radius: 4px;
-    padding: 8px 16px;
-    font-size: 12px;
-    font-family: "Merriweather", Georgia, serif;
-    cursor: pointer;
     box-shadow: 0 2px 4px var(--shadow-light);
+
+    /* Dydis ir tarpai */
+    width: 100px;
+    padding: 8px 16px;
+
+    /* Tekstas */
+    font-size: 12px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* Interaktyvumas */
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
     transition: all 0.2s ease;
+}
+
+/* Hover efektas (tik desktop) */
+@media (hover: hover) {
+    .view-saved-button:hover {
+        background: var(--accent-color);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 6px var(--shadow-light);
+    }
+}
+
+/* Aktyvus būsena */
+.view-saved-button:active {
+    background: var(--accent-color);
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px var(--shadow-light);
+}
+
+/* Tamsi tema */
+@media (prefers-color-scheme: dark) {
+    .view-saved-button {
+        color: var(--background-dark);
+        box-shadow: 0 2px 4px var(--shadow-dark);
+    }
+    .view-saved-button:hover {
+        box-shadow: 0 3px 6px var(--shadow-dark);
+    }
+}
+
+/* Mobilūs įrenginiai */
+@media (max-width: 768px) {
+    .view-saved-button {
+        width: 40px;
+        padding: 8px;
+        right: 10px;
+        font-size: 10px;
+    }
+}
+
+@supports (padding: max(0px)) {
+    .view-saved-button {
+        padding-top: max(8px, env(safe-area-inset-top));
+        top: max(66px, env(safe-area-inset-top)); /* 16px + 50px tarpas tarp mygtukų */
+        right: max(10px, env(safe-area-inset-right));
+    }
 }
 
 /* Išsaugojimo patvirtinimo pranešimas */
