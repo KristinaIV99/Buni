@@ -432,18 +432,17 @@ hr {
    ========================================================================== */
 .word-info-popup {
     position: absolute;
-    background: var(--background-light, white);
-    color: var(--text-light, #333);
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    padding: 10px;
     z-index: 9999;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     min-width: 200px;
-    max-width: 300px;
+    max-width: 280px;
     font-size: 14px;
-    --border-color: #ddd;
-    --border-dark: #444;
+    margin-top: 8px;
+    margin-left: -20px;
     display: block !important;
     pointer-events: auto !important;
     visibility: visible !important;
@@ -451,37 +450,53 @@ hr {
     animation: fadeIn 0.2s ease-in-out;
 }
 
-.word-info-title {
+.word-text {
+    font-size: 18px;
     font-weight: bold;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 8px;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 12px;
 }
 
-.word-info-type {
-    font-size: 12px;
-    padding: 2px 8px;
+.divider {
+    height: 1px;
+    background: #333;
+    margin: 8px 0;
+}
+
+.meaning-block {
+    padding: 6px 0;
+}
+
+.kalbos-dalis-tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 6px;
     border-radius: 4px;
+    background: #2c2c2c;
+    color: #888;
+    border: 1px solid #444;
+    margin-bottom: 4px;
 }
 
-.word-info-type.phrase {
-    background: rgba(255, 215, 0, 0.2);
-}
-
-.word-info-type.word {
-    background: rgba(33, 150, 243, 0.2);
-}
-
-.word-info-grid {
-    display: grid;
-    gap: 4px;
-}
-
-.word-info-label {
+.vertimas-main {
+    font-size: 16px;
     font-weight: bold;
+    color: #fff;
+    margin: 4px 0;
+}
+
+.base-form {
+    color: #888;
+    font-size: 13px;
+    margin: 2px 0;
+}
+
+.cerf-tag {
+    display: inline-block;
+    color: #64B5F6;
+    font-size: 12px;
+    margin-top: 4px;
 }
 
 @keyframes fadeIn {
@@ -492,46 +507,6 @@ hr {
     to {
         opacity: 1;
         transform: translateY(0);
-    }
-}
-
-/* Kelių reikšmių stiliai */
-.meaning-item {
-    padding: 8px;
-    margin: 4px 0;
-    border-radius: 4px;
-    background: rgba(0, 0, 0, 0.03);
-}
-
-.meaning-item.multiple-meanings {
-    border: 1px solid var(--border-color);
-}
-
-.meaning-header {
-    font-weight: bold;
-    color: var(--primary-color);
-    margin-bottom: 4px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.meaning-item div {
-    margin: 2px 0;
-    line-height: 1.4;
-}
-
-/* Tamsi tema kelioms reikšmėms */
-@media (prefers-color-scheme: dark) {
-    .meaning-item {
-        background: rgba(255, 255, 255, 0.05);
-    }
-    
-    .meaning-item.multiple-meanings {
-        border-color: var(--border-dark);
-    }
-    
-    .meaning-header {
-        border-color: var(--border-dark);
     }
 }
 
