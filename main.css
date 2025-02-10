@@ -433,83 +433,67 @@ hr {
 .word-info-popup {
     position: absolute;
     z-index: 9999;
-    /* Šviesi tema */
     background: #ffffff;
     color: #333333;
     border-radius: 8px;
-    padding: 12px;
+    padding: 12px 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     min-width: 200px;
     max-width: 280px;
-    font-size: 14px;
     margin-top: 8px;
     margin-left: -20px;
-    display: block !important;
-    pointer-events: auto !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    animation: fadeIn 0.2s ease-in-out;
-    border: 1px solid #eee;
 }
 
 .word-text {
     font-size: 18px;
     font-weight: bold;
-    color: #333333;
-    text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    text-align: left;
 }
 
-.divider {
-    height: 1px;
-    background: #eee;
+.thick-divider {
+    height: 2px;
+    background: #333;
     margin: 8px 0;
+    border: none;
 }
 
-.meaning-block {
-    padding: 6px 0;
+.thin-divider {
+    height: 1px;
+    background: #ddd;
+    margin: 12px 0;
+    border: none;
 }
 
-.kalbos-dalis-tag {
+.part-of-speech {
     display: inline-block;
-    font-size: 11px;
-    padding: 2px 6px;
+    font-style: italic;
+    background: rgba(33, 150, 243, 0.1);
+    color: #2196F3;
+    padding: 2px 8px;
     border-radius: 4px;
-    background: #f5f5f5;
-    color: #666;
-    border: 1px solid #ddd;
-    margin-bottom: 4px;
+    font-size: 12px;
+    margin-bottom: 6px;
 }
 
-.vertimas-main {
+.translation {
     font-size: 16px;
     font-weight: bold;
-    color: #333333;
     margin: 4px 0;
+    text-align: left;
 }
 
 .base-form {
     color: #666;
-    font-size: 13px;
-    margin: 2px 0;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 4px 0;
 }
 
-.cerf-tag {
-    display: inline-block;
+.cerf {
     color: #2196F3;
     font-size: 12px;
     margin-top: 4px;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 /* Tamsi tema */
@@ -517,34 +501,22 @@ hr {
     .word-info-popup {
         background: #1a1a1a;
         color: #e0e0e0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        border-color: #333;
     }
-
-    .word-text {
-        color: #fff;
+    
+    .thick-divider {
+        background: #444;
     }
-
-    .divider {
+    
+    .thin-divider {
         background: #333;
     }
-
-    .kalbos-dalis-tag {
-        background: #2c2c2c;
-        color: #888;
-        border-color: #444;
+    
+    .part-of-speech {
+        background: rgba(33, 150, 243, 0.15);
     }
-
-    .vertimas-main {
-        color: #fff;
-    }
-
+    
     .base-form {
         color: #888;
-    }
-
-    .cerf-tag {
-        color: #64B5F6;
     }
 }
 /* ==========================================================================
