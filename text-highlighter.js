@@ -212,21 +212,13 @@ export class TextHighlighter {
 			const popup = document.createElement('div');
 			popup.className = 'word-info-popup';
 			
+			// Baziniai stiliai, reikalingi popup veikimui
 			popup.style.cssText = `
 				position: absolute;
 				z-index: 9999;
 				display: block;
 				visibility: visible;
 				opacity: 1;
-				background: var(--background-light, white);
-				color: var(--text-light, black);
-				box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-
-				@media (prefers-color-scheme: dark) {
-					background: var(--background-dark, #1a1a1a);
-					color: var(--text-dark, #e0e0e0);
-					box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-				}
 			`;
 
 			popup.innerHTML = `
@@ -248,22 +240,21 @@ export class TextHighlighter {
 			`;
 
 			const rect = event.target.getBoundingClientRect();
-            this._adjustPopupPosition(popup, rect); // Naudojame naują metodą
+			document.body.appendChild(popup);
+			this.activePopup = popup;
+			this._adjustPopupPosition(popup, rect);
 
-            document.body.appendChild(popup);
-            this.activePopup = popup;
+			document.addEventListener('click', (e) => {
+				if (!popup.contains(e.target) && !event.target.contains(e.target)) {
+					popup.remove();
+				}
+			});
 
-            document.addEventListener('click', (e) => {
-                if (!popup.contains(e.target) && !event.target.contains(e.target)) {
-                    popup.remove();
-                }
-            });
-
-        } catch (error) {
-            console.error('Error in popup:', error);
-            console.error('Stack:', error.stack);
-        }
-    }
+		} catch (error) {
+			console.error('Error in popup:', error);
+			console.error('Stack:', error.stack);
+		}
+	
 
     _adjustPopupPosition(popup) {
         const viewportWidth = window.innerWidth;
