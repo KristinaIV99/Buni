@@ -239,10 +239,14 @@ export class TextHighlighter {
 				</div>
 			`;
 
+			const targetRect = event.target.getBoundingClientRect();
+			popup.style.left = `${window.scrollX + targetRect.left}px`;
+			popup.style.top = `${window.scrollY + targetRect.bottom + 5}px`;
+
 			const rect = event.target.getBoundingClientRect();
 			document.body.appendChild(popup);
 			this.activePopup = popup;
-			this._adjustPopupPosition(popup, rect);
+			this._adjustPopupPosition(popup);
 
 			document.addEventListener('click', (e) => {
 				if (!popup.contains(e.target) && !event.target.contains(e.target)) {
@@ -257,26 +261,20 @@ export class TextHighlighter {
 	}
 
     _adjustPopupPosition(popup) {
-        const viewportWidth = window.innerWidth;
-		const textContainer = document.querySelector('.text-content');
-		const textContainerRect = textContainer.getBoundingClientRect();
-		
-		// Nustatome pradinę poziciją
-		let left = window.scrollX + rect.left;
-		
-		// Jei popup išeina už teksto ribų į kairę
-		if (left < textContainerRect.left) {
-			left = textContainerRect.left;
+        const rect = popup.getBoundingClientRect();
+		const viewportWidth = window.innerWidth;
+		const viewportHeight = window.innerHeight;
+
+		// Horizontalus pozicionavimas
+		if (rect.right > viewportWidth) {
+			const overflow = rect.right - viewportWidth;
+			popup.style.left = `${parseInt(popup.style.left) - overflow - 10}px`;
 		}
-		
-		// Jei popup išeina už teksto ribų į dešinę
-		const popupRect = popup.getBoundingClientRect();
-		if (left + popupRect.width > textContainerRect.right) {
-			left = textContainerRect.right - popupRect.width;
+
+		// Vertikalus pozicionavimas
+		if (rect.bottom > viewportHeight) {
+			popup.style.top = `${parseInt(popup.style.top) - rect.height - 25}px`;
 		}
-		
-		popup.style.left = `${left}px`;
-		popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
 	}
 
     _handleDocumentClick(event) {
