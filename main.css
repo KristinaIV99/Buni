@@ -568,6 +568,7 @@ hr {
 .word-info-popup {
     position: absolute;
     z-index: 9999;
+    pointer-events: auto !important;
     background: var(--background-dark);
     color: var(--text-dark);
     border-radius: 8px;
@@ -678,7 +679,6 @@ hr {
     -moz-user-select: text !important;
     -ms-user-select: text !important;
     z-index: 1;
-    background-color: transparent;
 }
 
 .highlight-word, .highlight-phrase {
@@ -737,6 +737,7 @@ hr {
     cursor: pointer;
     box-shadow: 0 2px 4px var(--shadow-light);
     z-index: 9999; /* Padidintas z-index, kad būtų virš sisteminės juostos */
+    pointer-events: auto !important;
     transition: all 0.2s ease;
     font-family: "Merriweather", Georgia, serif;
 }
