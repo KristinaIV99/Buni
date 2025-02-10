@@ -145,18 +145,21 @@ export class TextSelectionHandler {
 
     exportSelections() {
         try {
-            const content = this.savedSelections.map(selection => (
-                `Tekstas: ${selection.text}\n` +
-                `Kontekstas: ${selection.context}\n` +
-                `Data: ${new Date(selection.timestamp).toLocaleString('lt-LT')}\n\n`
-            )).join('---\n');
+            const content = this.savedSelections.map(selection => {
+                // Pašaliname tarpus iš pradžios ir galo
+                const text = selection.text.trim();
+                const context = selection.context.trim();
+                
+                // Suformatuojame eilutę: žodis, tabuliacija, sakinys ir naujos eilutės simbolis
+                return `${text}\t${context}\n`;
+            }).join('');
 
-            const blob = new Blob([content], { type: 'text/plain' });
+            const blob = new Blob([content], { type: 'text/plain; charset=utf-8' });
             const url = URL.createObjectURL(blob);
             
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'išsaugoti-tekstai.txt';
+            a.download = 'zodziai_sakiniai.txt';
             a.click();
             
             URL.revokeObjectURL(url);
