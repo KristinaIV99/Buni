@@ -22,15 +22,21 @@ export class TextSelectionHandler {
         modal.innerHTML = `
             <h3>Išsaugoti tekstai</h3>
             <div class="saved-texts-list">
-                ${this.savedSelections.map(selection => `
-                    <div class="saved-text-item">
-                        <strong>${selection.text}</strong>
-                        <p>${selection.context}</p>
-                    </div>
-                `).join('')}
+                ${this.savedSelections.length === 0 ? 
+                    '<div class="no-saved-texts">Nėra išsaugotų tekstų</div>' :
+                    this.savedSelections.map(selection => `
+                        <div class="saved-text-item">
+                            <strong>${selection.text}</strong>
+                            <p>${selection.context}</p>
+                        </div>
+                    `).join('')
+                }
             </div>
             <div class="modal-buttons">
-                <button class="download-btn">Atsisiųsti</button>
+                ${this.savedSelections.length > 0 ? `
+                    <button class="clear-btn">Išvalyti viską</button>
+                    <button class="download-btn">Atsisiųsti</button>
+                ` : ''}
                 <button class="close-btn">Uždaryti</button>
             </div>
         `;
@@ -45,9 +51,24 @@ export class TextSelectionHandler {
             overlay.remove();
         });
         
-        modal.querySelector('.download-btn').addEventListener('click', () => {
-            this.exportSelections();
-        });
+        const downloadBtn = modal.querySelector('.download-btn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => {
+                this.exportSelections();
+            });
+        }
+
+        const clearBtn = modal.querySelector('.clear-btn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                if (confirm('Ar tikrai norite ištrinti visus išsaugotus tekstus?')) {
+                    this.clearAllSelections();
+                    modal.remove();
+                    overlay.remove();
+                    this.showSaveConfirmation('Visi tekstai ištrinti');
+                }
+            });
+        }
         
         overlay.addEventListener('click', () => {
             modal.remove();
@@ -172,16 +193,21 @@ export class TextSelectionHandler {
         }
     }
 
-    showSaveConfirmation() {
+    showSaveConfirmation(message = 'Tekstas išsaugotas!') {
         const confirmation = document.createElement('div');
         confirmation.className = 'save-confirmation';
-        confirmation.textContent = 'Tekstas išsaugotas!';
+        confirmation.textContent = message;
         document.body.appendChild(confirmation);
 
         setTimeout(() => {
             confirmation.style.opacity = '0';
             setTimeout(() => confirmation.remove(), 300);
         }, 2000);
+    }
+
+    clearAllSelections() {
+        this.savedSelections = [];
+        this.saveToStorage();
     }
 
     showError(message) {
