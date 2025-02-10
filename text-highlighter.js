@@ -232,17 +232,16 @@ export class TextHighlighter {
 			popup.innerHTML = `
 				<div class="word-info-container">
 					<div class="word-text">${info.text}</div>
-					<div class="meanings-container">
-						${info.meanings.map((meaning, index) => `
-							${index > 0 ? '<div class="divider"></div>' : ''}
-							<div class="meaning-block">
-								<div class="kalbos-dalis-tag">${meaning["kalbos dalis"] || '-'}</div>
-								<div class="vertimas-main">${meaning.vertimas || '-'}</div>
-								<div class="base-form">${meaning["bazinė forma"] || '-'} - ${meaning["bazė vertimas"] || '-'}</div>
-								<div class="cerf-tag">CERF: ${meaning.CERF || '-'}</div>
-							</div>
-						`).join('')}
-					</div>
+					<hr class="thick-divider">
+					${info.meanings.map((meaning, index) => `
+						${index > 0 ? '<hr class="thin-divider">' : ''}
+						<div class="meaning-block">
+							<div class="part-of-speech">${meaning["kalbos dalis"]}</div>
+							<div class="translation">${meaning.vertimas}</div>
+							<div class="base-form">${meaning["bazinė forma"]} - ${meaning["bazė vertimas"]}</div>
+							<div class="cerf">${meaning.CERF}</div>
+						</div>
+					`).join('')}
 				</div>
 			`;
 
