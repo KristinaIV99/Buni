@@ -709,3 +709,87 @@ hr {
         background-color: rgba(79, 99, 70, 0.2);  /* tamsesnė versija */
     }
 }
+/* ==========================================================================
+   TEKSTO ŽYMĖJIMAS
+   ========================================================================== */
+/* Teksto pažymėjimo mygtukas */
+.selection-save-button {
+    position: fixed;
+    background: var(--primary-color);
+    color: var(--background-light);
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px var(--shadow-light);
+    z-index: 1002;
+    transition: all 0.2s ease;
+    font-family: "Merriweather", Georgia, serif;
+}
+
+@media (hover: hover) {
+    .selection-save-button:hover {
+        background: var(--accent-color);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 6px var(--shadow-light);
+    }
+}
+
+.selection-save-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px var(--shadow-light);
+}
+
+/* Išsaugojimo patvirtinimo pranešimas */
+.save-confirmation {
+    position: fixed;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    right: max(20px, env(safe-area-inset-right));
+    background: var(--primary-color);
+    color: var(--background-light);
+    padding: 10px 20px;
+    border-radius: 4px;
+    z-index: 1002;
+    font-size: 14px;
+    box-shadow: 0 2px 4px var(--shadow-light);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Tamsi tema */
+@media (prefers-color-scheme: dark) {
+    .selection-save-button,
+    .save-confirmation {
+        background: var(--primary-color);
+        color: var(--background-dark);
+        box-shadow: 0 2px 4px var(--shadow-dark);
+    }
+
+    .selection-save-button:hover {
+        box-shadow: 0 3px 6px var(--shadow-dark);
+    }
+}
+
+/* Mobilūs įrenginiai */
+@media (max-width: 768px) {
+    .selection-save-button {
+        padding: 6px 12px;
+        font-size: 10px;
+    }
+
+    .save-confirmation {
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+}
