@@ -12,6 +12,16 @@ export class TextSelectionHandler {
                 this.handleSelection(selection);
             }
         });
+
+        // Papildomas klausytojas mobiliam pažymėjimui
+        document.addEventListener('touchend', () => {
+            setTimeout(() => {
+                const selection = window.getSelection();
+                if (selection.toString().trim().length > 0) {
+                    this.handleSelection(selection);
+                }
+            }, 100);
+        });
     }
 
     handleSelection(selection) {
@@ -24,24 +34,28 @@ export class TextSelectionHandler {
 
     extractContextSentence(selection) {
         const range = selection.getRangeAt(0);
-        const startNode = range.startContainer;
+        let node = range.startContainer;
         
-        // Gauname tekstą iš tėvinio elemento
-        let fullText = startNode.textContent;
-        if (!fullText) {
-            fullText = startNode.parentElement.textContent;
+        // Ieškome artimiausio elemento su tekstu
+        while (node && (!node.textContent || node.textContent.trim().length === 0)) {
+            node = node.parentNode;
         }
-
-        // Ieškome sakinio ribų
-        const sentences = fullText.match(/[^.!?]+[.!?]+/g) || [fullText];
         
-        // Randame sakinį, kuriame yra pažymėtas tekstas
+        if (!node) return selection.toString();
+        
+        const fullText = node.textContent;
         const selectedText = selection.toString();
-        return sentences.find(sentence => sentence.includes(selectedText)) || selectedText;
+        
+        // Ištraukiame pilną sakinį
+        const sentenceRegex = /[^.!?]+[.!?]+/g;
+        const sentences = fullText.match(sentenceRegex) || [fullText];
+        
+        return sentences.find(sentence => 
+            sentence.includes(selectedText.trim())
+        ) || selectedText;
     }
 
     showSaveButton(selection, selectedText, contextSentence) {
-        // Pašaliname seną mygtuką, jei toks yra
         const oldButton = document.querySelector('.selection-save-button');
         if (oldButton) oldButton.remove();
 
@@ -51,18 +65,24 @@ export class TextSelectionHandler {
         const button = document.createElement('button');
         button.className = 'selection-save-button';
         button.textContent = 'Išsaugoti';
-        button.style.position = 'fixed';
-        button.style.left = `${rect.left + window.scrollX + (rect.width / 2)}px`;
-        button.style.top = `${rect.top + window.scrollY - 30}px`;
+
+        // Pozicionuojame virš pažymėto teksto
+        const top = rect.top + window.scrollY - 40; // 40px virš teksto
+        const left = rect.left + (rect.width / 2) - 40; // Centruojame
+
+        button.style.position = 'absolute';
+        button.style.top = `${top}px`;
+        button.style.left = `${left}px`;
 
         button.addEventListener('click', () => {
             this.saveSelection(selectedText, contextSentence);
             button.remove();
+            window.getSelection().removeAllRanges();
         });
 
         document.body.appendChild(button);
 
-        // Automatiškai paslepiame mygtuką po 3 sekundžių
+        // Automatiškai paslepiame po 3 sekundžių
         setTimeout(() => button.remove(), 3000);
     }
 
@@ -79,12 +99,24 @@ export class TextSelectionHandler {
     }
 
     loadFromStorage() {
-        const saved = localStorage.getItem(this.STORAGE_KEY);
-        return saved ? JSON.parse(saved) : [];
+        try {
+            const saved = localStorage.getItem(this.STORAGE_KEY);
+            return saved ? JSON.parse(saved) : [];
+        } catch (error) {
+            console.error('Klaida nuskaitant išsaugotus tekstus:', error);
+            return [];
+        }
     }
 
     saveToStorage() {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.savedSelections));
+        try {
+            localStorage.setItem(this.STORAGE_KEY, 
+                JSON.stringify(this.savedSelections)
+            );
+        } catch (error) {
+            console.error('Klaida išsaugant tekstus:', error);
+            this.showError('Nepavyko išsaugoti teksto');
+        }
     }
 
     showSaveConfirmation() {
@@ -93,27 +125,44 @@ export class TextSelectionHandler {
         confirmation.textContent = 'Tekstas išsaugotas!';
         document.body.appendChild(confirmation);
 
-        setTimeout(() => confirmation.remove(), 2000);
+        setTimeout(() => {
+            confirmation.style.opacity = '0';
+            setTimeout(() => confirmation.remove(), 300);
+        }, 2000);
     }
 
-    // Metodai eksportui ir peržiūrai
+    showError(message) {
+        const error = document.createElement('div');
+        error.className = 'error';
+        error.textContent = message;
+        document.body.appendChild(error);
+        setTimeout(() => error.remove(), 3000);
+    }
+
     getAllSelections() {
         return this.savedSelections;
     }
 
     exportSelections() {
-        const content = this.savedSelections.map(selection => 
-            `Tekstas: ${selection.text}\nKontekstas: ${selection.context}\nData: ${new Date(selection.timestamp).toLocaleString()}\n\n`
-        ).join('---\n');
+        try {
+            const content = this.savedSelections.map(selection => (
+                `Tekstas: ${selection.text}\n` +
+                `Kontekstas: ${selection.context}\n` +
+                `Data: ${new Date(selection.timestamp).toLocaleString('lt-LT')}\n\n`
+            )).join('---\n');
 
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'išsaugoti-tekstai.txt';
-        a.click();
-        
-        URL.revokeObjectURL(url);
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'išsaugoti-tekstai.txt';
+            a.click();
+            
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Klaida eksportuojant tekstus:', error);
+            this.showError('Nepavyko eksportuoti tekstų');
+        }
     }
 }
