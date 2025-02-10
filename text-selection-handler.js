@@ -20,23 +20,49 @@ class TextSelectionHandler {
     }
 
     initializeSelectionListener() {
-        console.log(`${this.APP_NAME} Pridedamas teksto pažymėjimo klausytojas`);
-        document.addEventListener('selectionchange', () => {
-            const selection = window.getSelection();
-            if (selection.toString().trim().length > 0) {
-                this.handleSelection(selection);
-            }
-        });
+		console.log(`${this.APP_NAME} Pridedamas teksto pažymėjimo klausytojas`);
+		
+		// Išjungiame standartinį žodžių su vertimu elgesį pažymėjimo metu
+		document.addEventListener('mousedown', (e) => {
+			const target = e.target;
+			if (target.classList.contains('highlight-word') || 
+				target.classList.contains('highlight-phrase')) {
+				target.style.pointerEvents = 'none';
+				// Atstatyti po trumpo laiko, kad veiktų vertimo rodymas
+				setTimeout(() => {
+					target.style.pointerEvents = 'auto';
+				}, 500);
+			}
+		});
 
-        document.addEventListener('touchend', () => {
-            setTimeout(() => {
-                const selection = window.getSelection();
-                if (selection.toString().trim().length > 0) {
-                    this.handleSelection(selection);
-                }
-            }, 100);
-        });
-    }
+		document.addEventListener('selectionchange', () => {
+			const selection = window.getSelection();
+			if (selection.toString().trim().length > 0) {
+				this.handleSelection(selection);
+			}
+		});
+
+		// Mobiliems įrenginiams
+		document.addEventListener('touchstart', (e) => {
+			const target = e.target;
+			if (target.classList.contains('highlight-word') || 
+				target.classList.contains('highlight-phrase')) {
+				target.style.pointerEvents = 'none';
+				setTimeout(() => {
+					target.style.pointerEvents = 'auto';
+				}, 500);
+			}
+		});
+
+		document.addEventListener('touchend', () => {
+			setTimeout(() => {
+				const selection = window.getSelection();
+				if (selection.toString().trim().length > 0) {
+					this.handleSelection(selection);
+				}
+			}, 100);
+		});
+	}
 
     handleSelection(selection) {
         const selectedText = selection.toString().trim();
