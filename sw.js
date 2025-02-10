@@ -18,6 +18,7 @@ const STATIC_ASSETS = [
   './vendor/marked.esm.js',   
   './vendor/purify.es.mjs',
   './text-highlighter.js',
+  './text-selection-handler.js',
   './words.json',
   './phrases.json'
 ];
