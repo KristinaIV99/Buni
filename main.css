@@ -9,7 +9,7 @@
     
     /* Tamsios temos spalvos */
     --background-dark: #1a1a1a;
-    --text-dark: #e0e0e0;
+    --text-dark: #cccccc;
     
     /* Funkcinės spalvos */
     --primary-color: #2196F3;
@@ -471,8 +471,8 @@ hr {
 .part-of-speech {
     display: inline-block;
     font-style: italic;
-    background: rgba(33, 150, 243, 0.1);
-    color: #2196F3;
+    background-color: rgba(33, 150, 243, 0.15);
+    color: #1565C0;
     padding: 2px 8px;
     border-radius: 4px;
     font-size: 12px;
@@ -481,10 +481,9 @@ hr {
 
 .translation {
     font-size: 16px;
-    font-weight: bold;
     margin: 4px 0;
     text-align: left;
-    color: #888;
+    color: #AAAAAA;
 }
 
 .base-form {
@@ -512,7 +511,7 @@ hr {
     }
     
     .thick-divider {
-        background: #444;
+        background: #2196F3;
     }
     
     .thin-divider {
@@ -520,7 +519,8 @@ hr {
     }
     
     .part-of-speech {
-        background: rgba(33, 150, 243, 0.15);
+        background-color: #E3F2FD;
+        color: #1565C0;
     }
     
     .base-form {
