@@ -4,8 +4,8 @@
     "description": "Programėlė skirta skaityti ir mokytis švedų kalbos",
     "start_url": "./index.html",
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#2196f3",
+    "background_color": "#E8E3D5",
+    "theme_color": "#E8E3D5",
     "icons": [
         {
             "src": "./icons/icon-192x192.png",
