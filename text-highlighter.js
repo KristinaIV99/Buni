@@ -254,30 +254,30 @@ export class TextHighlighter {
 			console.error('Error in popup:', error);
 			console.error('Stack:', error.stack);
 		}
-	
+	}
 
     _adjustPopupPosition(popup) {
         const viewportWidth = window.innerWidth;
-        const textContainer = document.querySelector('.text-content');
-        const textContainerRect = textContainer.getBoundingClientRect();
-        
-        // Nustatome pradinę poziciją
-        let left = window.scrollX + rect.left;
-        
-        // Jei popup išeina už teksto ribų į kairę
-        if (left < textContainerRect.left) {
-            left = textContainerRect.left;
-        }
-        
-        // Jei popup išeina už teksto ribų į dešinę
-        const popupRect = popup.getBoundingClientRect();
-        if (left + popupRect.width > textContainerRect.right) {
-            left = textContainerRect.right - popupRect.width;
-        }
-        
-        popup.style.left = `${left}px`;
-        popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
-    }
+		const textContainer = document.querySelector('.text-content');
+		const textContainerRect = textContainer.getBoundingClientRect();
+		
+		// Nustatome pradinę poziciją
+		let left = window.scrollX + rect.left;
+		
+		// Jei popup išeina už teksto ribų į kairę
+		if (left < textContainerRect.left) {
+			left = textContainerRect.left;
+		}
+		
+		// Jei popup išeina už teksto ribų į dešinę
+		const popupRect = popup.getBoundingClientRect();
+		if (left + popupRect.width > textContainerRect.right) {
+			left = textContainerRect.right - popupRect.width;
+		}
+		
+		popup.style.left = `${left}px`;
+		popup.style.top = `${window.scrollY + rect.bottom + 5}px`;
+	}
 
     _handleDocumentClick(event) {
         if (this.activePopup && !event.target.closest('.word-info-popup')) {
