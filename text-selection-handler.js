@@ -3,6 +3,59 @@ export class TextSelectionHandler {
         this.STORAGE_KEY = 'savedSelections';
         this.initializeSelectionListener();
         this.savedSelections = this.loadFromStorage();
+        this.initializeViewButton();
+    }
+
+    initializeViewButton() {
+        const viewButton = document.getElementById('savedTextsButton');
+        if (viewButton) {
+            viewButton.addEventListener('click', () => this.showSavedTextsModal());
+        }
+    }
+
+    showSavedTextsModal() {
+        // Sukuriame modalinį langą
+        const modal = document.createElement('div');
+        modal.className = 'saved-texts-modal';
+        
+        // Pridedame turinį
+        modal.innerHTML = `
+            <h3>Išsaugoti tekstai</h3>
+            <div class="saved-texts-list">
+                ${this.savedSelections.map(selection => `
+                    <div class="saved-text-item">
+                        <strong>${selection.text}</strong>
+                        <p>${selection.context}</p>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="modal-buttons">
+                <button class="download-btn">Atsisiųsti</button>
+                <button class="close-btn">Uždaryti</button>
+            </div>
+        `;
+
+        // Pridedame overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        
+        // Pridedame event listener'ius
+        modal.querySelector('.close-btn').addEventListener('click', () => {
+            modal.remove();
+            overlay.remove();
+        });
+        
+        modal.querySelector('.download-btn').addEventListener('click', () => {
+            this.exportSelections();
+        });
+        
+        overlay.addEventListener('click', () => {
+            modal.remove();
+            overlay.remove();
+        });
+
+        document.body.appendChild(overlay);
+        document.body.appendChild(modal);
     }
 
     initializeSelectionListener() {
