@@ -7,6 +7,7 @@ import { TextStatistics } from './text-statistics.js';
 import { UnknownWordsExporter } from './unknown-words-exporter.js';
 import { TextPaginator } from './text-paginator.js';
 import { TextHighlighter } from './text-highlighter.js';
+import { TextSelectionHandler } from './text-selection-handler.js';
 
 class App {
     constructor() {
@@ -21,6 +22,7 @@ class App {
             onPageChange: (pageData) => this.updatePageContent(pageData)
         });
         this.textHighlighter = new TextHighlighter(this.dictionaryManager);
+	this.textSelectionHandler = new TextSelectionHandler();
         
         this.isProcessing = false;
         this.currentText = '';
