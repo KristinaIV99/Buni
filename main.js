@@ -141,25 +141,31 @@ class App {
 	}
 
     saveLastPage(pageNumber) {
-        localStorage.setItem('lastPageNumber', pageNumber);
-        localStorage.setItem('lastFileName', this.currentFileName);
-        
-        // Išsaugome atnaujintą būseną
-        if (this.currentText) {
-            this.stateManager.saveBookState({
-                text: this.currentText,
-                fileName: this.currentFileName,
-                lastPage: this.paginator.getCurrentPage()
-            });
-        }
-    }
+		// Išsaugome naują būseną su atnaujintu puslapiu
+		this.stateManager.saveBookState({
+			text: this.currentText,
+			fileName: this.currentFileName,
+			lastPage: pageNumber,
+			highlights: this.textHighlighter.saveHighlights()
+		});
+		console.log(`${this.APP_NAME} Išsaugotas puslapis:`, pageNumber);
+	}
 
     getLastPage() {
-        return {
-            pageNumber: parseInt(localStorage.getItem('lastPageNumber')) || 1,
-            fileName: localStorage.getItem('lastFileName')
-        };
-    }
+		// Patikriname ar yra išsaugota būsena
+		const savedState = this.stateManager.loadBookState();
+		if (savedState && savedState.fileName === this.currentFileName) {
+			return {
+				pageNumber: savedState.lastPage || 1,
+				fileName: savedState.fileName
+			};
+		}
+		// Jei nėra išsaugotos būsenos, grąžiname numatytuosius
+		return {
+			pageNumber: 1,
+			fileName: ''
+		};
+	}
 
     async initializeBookState() {
 		const savedState = this.stateManager.loadBookState();
