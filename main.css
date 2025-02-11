@@ -317,11 +317,14 @@ hr {
     .export-button {
         position: fixed;
         top: 5px;
-        right: 45px;
-        width: 35px;
-        height: 35px;
+        right: 5px;
+        width: 30px;
+        height: 30px;
         padding: 0;
-        min-width: 35px;
+        min-width: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }
 
@@ -409,14 +412,17 @@ hr {
     .file-input-wrapper {
         top: 5px;
         left: 5px;
-        width: 35px;
+        width: 30px;
     }
     
     .file-input-text {
-        width: 35px;
-        height: 35px;
+        width: 30px;
+        height: 30px;
         font-size: 10px;
         padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }
 
@@ -876,11 +882,14 @@ hr {
     .view-saved-button {
         position: fixed;
         top: 5px;
-        right: 5px;
-        width: 35px;
-        height: 35px;
+        right: 40px; /* 5px nuo eksporto mygtuko */
+        width: 30px;
+        height: 30px;
         padding: 0;
-        min-width: 35px;
+        min-width: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
 file-input-wrapper {
