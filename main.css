@@ -235,8 +235,8 @@ hr {
 
 @media (max-width: 768px) {
     .text-stats {
-        margin-top: 55px; /* Padidintas tarpas nuo viršaus po mygtukais */
-        padding: 6px;
+        margin-top: 45px; /* Tarpas po mygtukais */
+        padding: 5px;
         font-size: 10px;
     }
 
@@ -315,10 +315,13 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .export-button {
-        width: 40px;
-        padding: 8px;
-        right: 10px;
-        font-size: 10px;
+        position: fixed;
+        top: 5px;
+        right: 45px;
+        width: 35px;
+        height: 35px;
+        padding: 0;
+        min-width: 35px;
     }
 }
 
@@ -404,16 +407,16 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .file-input-wrapper {
-        top: 10px;
-        left: 10px;
+        top: 5px;
+        left: 5px;
         width: 35px;
-        height: 35px;
     }
     
     .file-input-text {
         width: 35px;
         height: 35px;
         font-size: 10px;
+        padding: 0;
     }
 }
 
@@ -870,22 +873,14 @@ hr {
 
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
-    .export-button, .view-saved-button {
-        top: 10px;
-        right: 50px; /* Tarpas nuo žodyno mygtuko */
-        width: 35px;
-        height: 35px;
-        padding: 8px;
-        font-size: 10px;
-    }
-
     .view-saved-button {
-        top: 10px;
-        right: 10px;
+        position: fixed;
+        top: 5px;
+        right: 5px;
         width: 35px;
         height: 35px;
-        padding: 8px;
-        font-size: 10px;
+        padding: 0;
+        min-width: 35px;
     }
 
 file-input-wrapper {
