@@ -9,11 +9,18 @@ export class TextPaginator {
         };
     }
 
+    getCurrentPage() {
+        return this.currentPage;
+    }
+
     setContent(text) {
         this.content = text;
         this.pages = this.splitIntoPages(text);
         this.currentPage = 1;
-        return this.getCurrentPageContent();
+        return {
+            ...this.getCurrentPageContent(),
+            currentPage: this.getCurrentPage()
+        };
     }
 
     splitIntoPages(text) {
