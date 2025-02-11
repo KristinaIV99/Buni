@@ -372,6 +372,7 @@ hr {
     box-shadow: 0 2px 4px var(--shadow-light);
     
     /* Dydis ir tarpai */
+    width: 100%;
     padding: 8px 16px;
     
     /* Tekstas */
@@ -382,6 +383,9 @@ hr {
     text-overflow: ellipsis;
 
     /* Interaktyvumas */
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
     transition: all 0.2s ease;
 }
 
@@ -419,6 +423,7 @@ hr {
     }
     .file-input-text {
         padding: 8px;
+        left: 10px;
         font-size: 10px;
     }
 }
