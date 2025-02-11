@@ -294,16 +294,30 @@ export class TextHighlighter {
         const rect = popup.getBoundingClientRect();
 		const viewportWidth = window.innerWidth;
 		const viewportHeight = window.innerHeight;
+		const contentWidth = document.querySelector('.text-content').getBoundingClientRect().width;
+		const contentLeft = document.querySelector('.text-content').getBoundingClientRect().left;
 
 		// Horizontalus pozicionavimas
-		if (rect.right > viewportWidth) {
-			const overflow = rect.right - viewportWidth;
-			popup.style.left = `${parseInt(popup.style.left) - overflow - 10}px`;
+		const maxRight = contentLeft + contentWidth - 10; // 10px tarpas nuo dešinio krašto
+		if (rect.right > maxRight) {
+			// Jei išeina už teksto dešinio krašto
+			const newLeft = maxRight - rect.width;
+			popup.style.left = `${Math.max(10, newLeft)}px`;
 		}
 
-		// Vertikalus pozicionavimas
+		// Papildomas patikrinimas dešiniam kraštui
+		const updatedRect = popup.getBoundingClientRect();
+		if (updatedRect.right > maxRight) {
+			// Jei vis dar išeina už ribų, mažiname plotį
+			const maxWidth = contentWidth - 20; // 20px tarpas (10px iš abiejų pusių)
+			popup.style.maxWidth = `${maxWidth}px`;
+			popup.style.left = `${contentLeft + 10}px`; // Pridedame minimalų tarpą nuo kairės
+		}
+
+		// Vertikalus pozicionavimas lieka toks pat
 		if (rect.bottom > viewportHeight) {
-			popup.style.top = `${parseInt(popup.style.top) - rect.height - 25}px`;
+			const top = parseInt(popup.style.top) - rect.height - 30;
+			popup.style.top = `${Math.max(10, top)}px`;
 		}
 	}
 
