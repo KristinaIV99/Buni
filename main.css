@@ -341,11 +341,8 @@ hr {
     top: max(20px, env(safe-area-inset-top));
     left: max(20px, env(safe-area-inset-left));
     z-index: 1001;
-
     /* Dydis */
-    width: 40px;
-    height: 32px;
-
+    width: 100px;
     /* Interaktyvumas */
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
@@ -368,18 +365,23 @@ hr {
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100%;
     background: var(--primary-color);
     color: var(--background-light);
     border: none;
     border-radius: 4px;
     box-shadow: 0 2px 4px var(--shadow-light);
-    padding: 6px 8px;
+    
+    /* Dydis ir tarpai */
+    padding: 8px 16px;
     
     /* Tekstas */
     font-size: 12px;
-    
-    /* Animacija */
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* Interaktyvumas */
     transition: all 0.2s ease;
 }
 
@@ -402,6 +404,7 @@ hr {
 /* Tamsi tema */
 @media (prefers-color-scheme: dark) {
     .file-input-text {
+        color: var(--background-dark);
         box-shadow: 0 2px 4px var(--shadow-dark);
     }
     .file-input-wrapper:hover .file-input-text {
@@ -412,11 +415,19 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .file-input-wrapper {
-        top: max(10px, env(safe-area-inset-top));
-        left: max(10px, env(safe-area-inset-left));
+        width: 40px;
     }
     .file-input-text {
+        padding: 8px;
         font-size: 10px;
+    }
+}
+
+@supports (padding: max(0px)) {
+    .file-input-wrapper {
+        padding-top: max(8px, env(safe-area-inset-top));
+        top: max(16px, env(safe-area-inset-top));
+        left: max(10px, env(safe-area-inset-left));
     }
 }
 
