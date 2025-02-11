@@ -339,7 +339,7 @@ hr {
     top: max(20px, env(safe-area-inset-top));
     left: max(20px, env(safe-area-inset-left));
     z-index: 1001;
-    width: 100px;
+    width: 76px;
     cursor: pointer;
 }
 
@@ -358,8 +358,9 @@ hr {
     border: none;
     border-radius: 4px;
     box-shadow: 0 2px 4px var(--shadow-light);
-    width: 100px;
-    padding: 8px 16px;
+    width: 76px; /* Tas pats dydis kaip wrapper */
+    height: 76px; /* Kvadratinis, toks pat kaip plotis */
+    padding: 8px;
     font-size: 12px;
     text-align: center;
     white-space: nowrap;
@@ -399,11 +400,12 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .file-input-wrapper {
-        width: 40px;
+        width: 76px;
     }
     
     .file-input-text {
-        width: 40px;
+        width: 76px;
+        height: 76px;
         padding: 8px;
         font-size: 10px;
     }
