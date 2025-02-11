@@ -258,8 +258,8 @@ export class TextHighlighter {
 					${info.meanings.map((meaning, index) => `
 						${index > 0 ? '<hr class="thin-divider">' : ''}
 						<div class="meaning-block">
-							<div class="part-of-speech">${meaning["kalbos dalis"]}</div>
 							<div class="translation">${meaning.vertimas}</div>
+							<div class="part-of-speech">${meaning["kalbos dalis"]}</div>
 							<div class="base-form">
 								<span class="base-word">${info.text}</span> - ${meaning["bazė vertimas"]}
 							</div>
