@@ -5,6 +5,7 @@ export class TextHighlighter {
         this.boundHandlePopup = this._handlePopup.bind(this);
         this.activePopup = null;
 		this.activePopup = null;
+        this.savedHighlights = null;
 
 		// Pridedame globalų event listener
 		document.addEventListener('click', (e) => {
@@ -16,17 +17,40 @@ export class TextHighlighter {
 		});
 	}
 
-    async processText(text, html) {
-        console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
-    
+    // Naujas metodas pažymėjimų išsaugojimui
+    saveHighlights() {
+        const highlights = document.querySelectorAll('.highlight-word, .highlight-phrase');
+        this.savedHighlights = Array.from(highlights).map(el => ({
+            text: el.textContent,
+            info: el.dataset.info,
+            type: el.classList.contains('highlight-phrase') ? 'phrase' : 'word'
+        }));
+        return this.savedHighlights;
+    }
+
+    // Naujas metodas pažymėjimų atkūrimui
+    loadHighlights(savedHighlights) {
+        if (savedHighlights) {
+            this.savedHighlights = savedHighlights;
+        }
+    }
+
+    async processText(text, html, savedHighlights = null) {
+		console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
+
 		try {
+			// Naudojame išsaugotus pažymėjimus jei jie yra
+			if (savedHighlights) {
+				this.loadHighlights(savedHighlights);
+			}
+			
 			const { results } = await this.dictionaryManager.findInText(text);
 			const doc = new DOMParser().parseFromString(html, 'text/html');
 
 			// Saugome puslapiavimo elementus
 			const paginationControls = doc.querySelector('.pagination-controls');
 			if (paginationControls) {
-				paginationControls.remove();
+			paginationControls.remove();
 			}
 
 			// Surenkame žodžius ir frazes
@@ -55,7 +79,13 @@ export class TextHighlighter {
 				doc.body.appendChild(paginationControls);
 			}
 
-			return doc.body.innerHTML;
+			// Grąžiname rezultatą
+			const processedHtml = doc.body.innerHTML;
+			
+			// Išsaugome pažymėjimus po apdorojimo
+			this.saveHighlights();
+			
+			return processedHtml;
 		} catch (error) {
 			console.error('Klaida žymint tekstą:', error);
 			return html;
