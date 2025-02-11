@@ -822,7 +822,7 @@ hr {
 @supports (padding: max(0px)) {
     .view-saved-button {
         padding-top: max(8px, env(safe-area-inset-top));
-        top: max(66px, env(safe-area-inset-top)); /* 16px + 50px tarpas tarp mygtukų */
+        top: max(56px, env(safe-area-inset-top)); /* 16px + 40px tarpas tarp mygtukų */
         right: max(10px, env(safe-area-inset-right));
     }
 }
