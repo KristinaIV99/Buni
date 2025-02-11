@@ -753,7 +753,7 @@ hr {
 .view-saved-button {
     /* Pozicionavimas */
     position: fixed;
-    top: max(60px, env(safe-area-inset-top)); /* Padidintas top, kad būtų po eksporto */
+    top: max(57px, env(safe-area-inset-top)); /* Padidintas top, kad būtų po eksporto */
     right: max(20px, env(safe-area-inset-right));
     z-index: 1001;
 
@@ -822,7 +822,7 @@ hr {
 @supports (padding: max(0px)) {
     .view-saved-button {
         padding-top: max(8px, env(safe-area-inset-top));
-        top: max(56px, env(safe-area-inset-top)); /* 16px + 40px tarpas tarp mygtukų */
+        top: max(53px, env(safe-area-inset-top)); /* 16px + 37px tarpas tarp mygtukų */
         right: max(10px, env(safe-area-inset-right));
     }
 }
