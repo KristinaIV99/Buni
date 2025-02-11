@@ -146,7 +146,7 @@ class App {
             this.stateManager.saveBookState({
                 text: this.currentText,
                 fileName: this.currentFileName,
-                lastPage: pageNumber
+                lastPage: this.paginator.getCurrentPage()
             });
         }
     }
