@@ -1,3 +1,4 @@
+
 // main.js
 import { TextNormalizer } from './text-normalizer.js';
 import { TextReader } from './text-reader.js';
@@ -205,8 +206,11 @@ class App {
 
 				// Nustatome paskutinį skaitytą puslapį
 				if (savedState.lastPage) {
-					this.paginator.goToPage(savedState.lastPage);
+					setTimeout(() => {
+						this.paginator.goToPage(savedState.lastPage);
+					}, 0);
 				}
+
 			} catch (error) {
 				console.error('Klaida atkuriant knygos būseną:', error);
 				this.stateManager.clearBookState();
