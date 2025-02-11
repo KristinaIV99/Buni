@@ -340,6 +340,7 @@ hr {
     left: max(20px, env(safe-area-inset-left));
     z-index: 1001;
     width: 100px;
+    cursor: pointer;
 }
 
 .file-input {
@@ -410,12 +411,12 @@ hr {
 
 @supports (padding: max(0px)) {
     .file-input-text {
-        width: 40px;
-        padding: 8px;
+        padding-top: max(8px, env(safe-area-inset-top));
     }
     
     .file-input-wrapper {
-        width: 40px;
+        top: max(16px, env(safe-area-inset-top));
+        left: max(10px, env(safe-area-inset-left));
     }
 }
 
