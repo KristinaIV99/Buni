@@ -5,19 +5,20 @@ export class StateManager {
     }
 
     saveBookState(state) {
-        try {
-            console.log(`${this.APP_NAME} Išsaugoma knygos būsena`);
-            const bookState = {
-                text: state.text,
-                fileName: state.fileName,
-                lastPage: state.lastPage,
-                timestamp: new Date().getTime()
-            };
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(bookState));
-        } catch (error) {
-            console.error(`${this.APP_NAME} Klaida išsaugant knygos būseną:`, error);
-        }
-    }
+		try {
+			console.log(`${this.APP_NAME} Išsaugoma knygos būsena`);
+			const bookState = {
+				text: state.text,
+				fileName: state.fileName,
+				lastPage: state.lastPage,
+				highlights: state.highlights, // Pridedame pažymėjimus
+				timestamp: new Date().getTime()
+			};
+			localStorage.setItem(this.STORAGE_KEY, JSON.stringify(bookState));
+		} catch (error) {
+			console.error(`${this.APP_NAME} Klaida išsaugant knygos būseną:`, error);
+		}
+	}
 
     loadBookState() {
         try {
