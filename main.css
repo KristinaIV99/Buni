@@ -339,7 +339,7 @@ hr {
     top: max(20px, env(safe-area-inset-top));
     left: max(20px, env(safe-area-inset-left));
     z-index: 1001;
-    width: 65px;
+    width: 68px;
     cursor: pointer;
 }
 
@@ -360,8 +360,8 @@ hr {
     box-shadow: 0 2px 4px var(--shadow-light);
     
     /* Dydis */
-    width: 65px;
-    height: 65px;
+    width: 68px;
+    height: 68px;
     padding: 0;
     
     /* Centravimas */
@@ -405,12 +405,12 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .file-input-wrapper {
-        width: 65px;
+        width: 68px;
     }
     
     .file-input-text {
-        width: 65px;
-        height: 65px;
+        width: 68px;
+        height: 68px;
         font-size: 10px;
     }
 }
@@ -753,7 +753,7 @@ hr {
 .view-saved-button {
     /* Pozicionavimas */
     position: fixed;
-    top: max(70px, env(safe-area-inset-top)); /* Padidintas top, kad būtų po eksporto */
+    top: max(20px, env(safe-area-inset-top)); /* Padidintas top, kad būtų po eksporto */
     right: max(20px, env(safe-area-inset-right));
     z-index: 1001;
 
@@ -822,7 +822,7 @@ hr {
 @supports (padding: max(0px)) {
     .view-saved-button {
         padding-top: max(8px, env(safe-area-inset-top));
-        top: max(66px, env(safe-area-inset-top)); /* 16px + 50px tarpas tarp mygtukų */
+        top: max(26, env(safe-area-inset-top)); /* 16px + 10px tarpas tarp mygtukų */
         right: max(10px, env(safe-area-inset-right));
     }
 }
@@ -830,7 +830,7 @@ hr {
 /* Išsaugojimo patvirtinimo pranešimas */
 .save-confirmation {
     position: fixed;
-    bottom: max(20px, env(safe-area-inset-bottom));
+    bottom: max(70px, env(safe-area-inset-bottom));
     right: max(20px, env(safe-area-inset-right));
     background: var(--primary-color);
     color: var(--background-light);
