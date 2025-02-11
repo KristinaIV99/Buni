@@ -16,10 +16,13 @@
 </head>
 <body>
     <div id="app">
-        <input type="file" accept=".md" id="fileInput" class="file-input">
-        <button id="savedTextsButton" class="view-saved-button">Žodynas</button>
-        <div id="content"></div>
-    </div>
+		<label class="file-input-wrapper">
+			<input type="file" accept=".md" id="fileInput" class="file-input" hidden>
+			<span class="file-input-text">.md</span>
+		</label>
+		<button id="savedTextsButton" class="view-saved-button">Žodynas</button>
+		<div id="content"></div>
+	</div>
 
     <!-- Vendor moduliai -->
     <script type="module" src="./vendor/marked.esm.js"></script>
