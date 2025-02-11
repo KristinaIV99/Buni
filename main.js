@@ -23,10 +23,8 @@ class App {
             onPageChange: (pageData) => this.updatePageContent(pageData)
         });
         this.textHighlighter = new TextHighlighter(this.dictionaryManager);
-		this.textSelectionHandler = new TextSelectionHandler();
-		this.stateManager = new StateManager();
-			this.initializeBookState();
-		}
+        this.textSelectionHandler = new TextSelectionHandler();
+        this.stateManager = new StateManager();
         
         this.isProcessing = false;
         this.currentText = '';
@@ -37,6 +35,7 @@ class App {
         this.initUI();
         this.bindEvents();
         this.loadDefaultDictionaries();
+        this.initializeBookState(); // Perkeltas į konstruktoriaus pabaigą
     }
 
     initUI() {
