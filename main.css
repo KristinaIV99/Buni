@@ -579,7 +579,7 @@ hr {
     background: var(--background-dark);
     color: var(--text-dark);
     border-radius: 8px;
-    padding: 12px;
+    padding: 8px;
     box-shadow: 0 4px 12px var(--shadow-dark);
     min-width: 150px;
     max-width: 250px;
@@ -593,21 +593,21 @@ hr {
     font-size: 18px;
     font-weight: bold;
     color: var(--primary-color);
-    margin-bottom: 3px;
+    margin-bottom: 1px;
     text-align: left;
 }
 
 .thick-divider {
     height: 1px;
     background: #FFFFFF;
-    margin: 2px 0;
+    margin: 1px 0;
     border: none;
 }
 
 .thin-divider {
     height: 1px;
     background: rgba(112, 124, 94, 0.5);
-    margin: 2px 0;
+    margin: 1px 0;
     border: none;
 }
 
@@ -626,7 +626,7 @@ hr {
 
 .translation {
     font-size: 16px;
-    margin: 1px 0;
+    margin: 0;
     text-align: left;
     color: var(--text-secondary-dark);
 }
@@ -634,7 +634,7 @@ hr {
 .base-form {
     color: var(--text-secondary-dark);
     font-size: 14px;
-    margin: 1px 0;;
+    margin: 0;
 }
 
 .base-word {
@@ -645,7 +645,13 @@ hr {
     color: var(--primary-color);
     font-size: 12px;
     font-weight: bold;
-    margin-top: 1px;
+    margin-top: 0;
+}
+
+.meaning-block {
+    display: flex;
+    flex-direction: column;
+    gap: 1px; /* Tarpas tarp elementų */
 }
 
 /* Tamsi tema */
