@@ -951,6 +951,7 @@ hr {
     
     .view-saved-button {
         right: 60px;
+        display: none;
     }
     
     .save-confirmation {
