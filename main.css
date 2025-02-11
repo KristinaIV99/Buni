@@ -340,7 +340,6 @@ hr {
     left: max(20px, env(safe-area-inset-left));
     z-index: 1001;
     width: 100px;
-    cursor: pointer;
 }
 
 .file-input {
@@ -369,7 +368,7 @@ hr {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     transition: all 0.2s ease;
-    display: block; /* Pridėta */
+    display: inline-block;
 }
 
 /* Hover efektas (tik desktop) */
@@ -411,12 +410,12 @@ hr {
 
 @supports (padding: max(0px)) {
     .file-input-text {
-        padding-top: max(8px, env(safe-area-inset-top));
+        width: 40px;
+        padding: 8px;
     }
     
     .file-input-wrapper {
-        top: max(16px, env(safe-area-inset-top));
-        left: max(10px, env(safe-area-inset-left));
+        width: 40px;
     }
 }
 
