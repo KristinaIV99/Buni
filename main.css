@@ -339,7 +339,7 @@ hr {
     top: max(20px, env(safe-area-inset-top));
     left: max(20px, env(safe-area-inset-left));
     z-index: 1001;
-    width: 60px;
+    width: 65px;
     cursor: pointer;
 }
 
@@ -352,27 +352,29 @@ hr {
 }
 
 .file-input-text {
-    /* Kopiruojame TIKSLIAI export-button stilių */
+    /* Pagrindinės savybės */
     background: var(--primary-color);
     color: var(--background-light);
     border: none;
     border-radius: 4px;
     box-shadow: 0 2px 4px var(--shadow-light);
-    width: 60px; /* Tas pats dydis kaip wrapper */
-    height: 60px; /* Kvadratinis, toks pat kaip plotis */
-    padding: 0; /* Pašalintas padding */
-    font-size: 12px;
-    justify-content: center; /* Horizontalus centravimas */
-    align-items: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    transition: all 0.2s ease;
-    line-height: 1;
+    
+    /* Dydis */
+    width: 65px;
+    height: 65px;
+    
+    /* Centravimas */
     display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* Teksto stilius */
+    font-size: 12px;
+    line-height: 1;
+    
+    /* Interaktyvumas */
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 /* Hover efektas (tik desktop) */
@@ -406,8 +408,8 @@ hr {
     }
     
     .file-input-text {
-        width: 60px;
-        height: 60px;
+        width: 65px;
+        height: 65px;
         font-size: 10px;
     }
 }
