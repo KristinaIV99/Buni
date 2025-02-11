@@ -178,6 +178,12 @@ class App {
 			const knownWords = this.dictionaryManager.getDictionaryWords();
 			const textStats = this.textStatistics.calculateStats(text, knownWords);
 			
+			// Rodome žodyno mygtuką kai įkeliama knyga
+			const savedTextsButton = document.getElementById('savedTextsButton');
+			if (savedTextsButton) {
+				savedTextsButton.style.display = 'block';
+			}
+
 			if (textStats.unknownWords > 0 && this.exportButton) {
 				this.exportButton.style.display = 'block';
 			}
