@@ -694,10 +694,39 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .word-info-popup {
-        left: 10px !important; /* Priverstinai nustatom kairėje */
-        right: 10px !important;
-        width: auto !important;
-        max-width: calc(100% - 20px) !important;
+        width: auto;
+        min-width: 200px;
+        max-width: 280px;
+        margin: 0;
+        padding: 8px;
+        position: fixed;
+        transform: translateX(-50%);
+        left: 50% !important; /* Centruojame horizontaliai */
+        box-sizing: border-box;
+    }
+
+    /* Sumažiname elementų dydžius popup viduje */
+    .word-text {
+        font-size: 16px;
+        margin-bottom: 1px;
+    }
+
+    .translation {
+        font-size: 14px;
+    }
+
+    .base-form {
+        font-size: 12px;
+    }
+
+    .cerf {
+        font-size: 11px;
+    }
+
+    /* Sumažiname tarpus */
+    .thick-divider,
+    .thin-divider {
+        margin: 1px 0;
     }
 }
 
