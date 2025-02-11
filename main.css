@@ -612,7 +612,8 @@ hr {
 }
 
 .part-of-speech {
-    display: inline-block;
+    display: inline-flex; /* Pakeičiame į inline-flex */
+    align-items: center; /* Centruojame vertikaliai */
     font-style: italic;
     background-color: rgba(74, 70, 57, 0.2);
     color: var(--text-secondary-dark); 
@@ -622,6 +623,8 @@ hr {
     margin-bottom: 0px;
     border: 1px solid rgba(74, 70, 57, 0.4);
     line-height: 1;
+    width: fit-content; /* Pridedame, kad plotis būtų tik pagal turinį */
+    height: fit-content; /* Pridedame, kad aukštis būtų tik pagal turinį */
 }
 
 .translation {
