@@ -362,7 +362,6 @@ hr {
     height: 60px; /* Kvadratinis, toks pat kaip plotis */
     padding: 0; /* Pašalintas padding */
     font-size: 12px;
-    text-align: center;
     justify-content: center; /* Horizontalus centravimas */
     align-items: center;
     white-space: nowrap;
