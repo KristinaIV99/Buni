@@ -72,12 +72,17 @@ export class TextPaginator {
     }
 
     goToPage(pageNumber) {
-        if (pageNumber < 1 || pageNumber > this.pages.length) return false;
-        this.currentPage = pageNumber;
-        const pageData = this.getCurrentPageContent();
-        this.callbacks.onPageChange(pageData);
-        return true;
-    }
+		console.log('Bandoma pereiti į puslapį:', pageNumber);
+		if (pageNumber < 1 || pageNumber > this.pages.length) {
+			console.warn('Neteisingas puslapio numeris:', pageNumber);
+			return false;
+		}
+		this.currentPage = pageNumber;
+		const pageData = this.getCurrentPageContent();
+		console.log('Puslapio duomenys:', pageData);
+		this.callbacks.onPageChange(pageData);
+		return true;
+	}
 
     nextPage() {
         return this.goToPage(this.currentPage + 1);
