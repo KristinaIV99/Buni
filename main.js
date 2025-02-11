@@ -169,52 +169,54 @@ class App {
 	}
 
     async initializeBookState() {
+		console.log(`${this.APP_NAME} Pradedama knygos būsenos inicializacija`);
 		const savedState = this.stateManager.loadBookState();
-		if (savedState) {
-			try {
-				// Pirma įsitikiname, kad žodynai užkrauti
-				await this.loadDefaultDictionaries();
-				this.currentFileName = savedState.fileName;
-				this.currentText = savedState.text;
-				
-				// Apdorojame tekstą kai žodynai jau užkrauti
-				const knownWords = this.dictionaryManager.getDictionaryWords();
-				const textStats = this.textStatistics.calculateStats(this.currentText, knownWords);
-				
-				// Ieškome žodžių ir frazių
-				const { results, searchStats } = await this.dictionaryManager.findInText(this.currentText);
-				
-				// Konvertuojame į HTML ir perduodame išsaugotus pažymėjimus
-				const html = await this.htmlConverter.convertToHtml(this.currentText);
-				const processedHtml = await this.textHighlighter.processText(
-					this.currentText, 
-					html,
-					savedState.highlights // Perduodame išsaugotus pažymėjimus
-				);
-				
-				// Nustatome turinį su statistika
-				this.setContent(processedHtml, textStats);
+		if (!savedState) return;
 
-				// Rodome mygtukus
-				const savedTextsButton = document.getElementById('savedTextsButton');
-				if (savedTextsButton) {
-					savedTextsButton.style.display = 'block';
-				}
-				if (textStats.unknownWords > 0 && this.exportButton) {
-					this.exportButton.style.display = 'block';
-				}
+		try {
+		// Nustatome pradinius duomenis
+			this.currentFileName = savedState.fileName;
+			this.currentText = savedState.text;
 
-				// Nustatome paskutinį skaitytą puslapį
-				if (savedState.lastPage) {
-					setTimeout(() => {
-						this.paginator.goToPage(savedState.lastPage);
-					}, 0);
-				}
+			// Paraleliai vykdome žodynų įkėlimą ir HTML konvertavimą
+			const [_, html] = await Promise.all([
+				this.loadDefaultDictionaries(),
+				this.htmlConverter.convertToHtml(this.currentText)
+			]);
 
-			} catch (error) {
-				console.error('Klaida atkuriant knygos būseną:', error);
-				this.stateManager.clearBookState();
+			// Kai turime žodynus, atliekame statistikos skaičiavimus
+			const knownWords = this.dictionaryManager.getDictionaryWords();
+			const textStats = this.textStatistics.calculateStats(this.currentText, knownWords);
+
+			// Pritaikome pažymėjimus
+			const processedHtml = await this.textHighlighter.processText(
+				this.currentText, 
+				html,
+				savedState.highlights
+			);
+
+			// Nustatome turinį ir mygtukus
+			this.setContent(processedHtml, textStats);
+
+			const savedTextsButton = document.getElementById('savedTextsButton');
+			if (savedTextsButton) {
+				savedTextsButton.style.display = 'block';
 			}
+
+			if (textStats.unknownWords > 0 && this.exportButton) {
+				this.exportButton.style.display = 'block';
+			}
+
+			// Nustatome puslapį pačiame gale
+			if (savedState.lastPage) {
+				setTimeout(() => {
+					this.paginator.goToPage(savedState.lastPage);
+				}, 0);
+			}
+
+		} catch (error) {
+			console.error(`${this.APP_NAME} Klaida atkuriant knygos būseną:`, error);
+			this.stateManager.clearBookState();
 		}
 	}
 
