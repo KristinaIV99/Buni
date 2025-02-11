@@ -77,9 +77,9 @@ p {
 
 @media (max-width: 768px) {
     .text-content {
-        font-size: 22px;
-        line-height: 1.6;
-        padding: 12px;
+        font-size: 16px;
+        line-height: 1.4;
+        padding: 10px;
         max-width: 100%;
         padding-bottom: 140px;
         margin-bottom: 80px;
@@ -541,8 +541,13 @@ hr {
 /* Mobili versija */
 @media (max-width: 768px) {
     .pagination-controls {
-        padding: 8px;
         gap: 10px;
+        width: 100%; /* Pilnas plotis */
+        left: 0;
+        right: 0;
+        padding: 8px 0;
+        margin: 0;
+        border-radius: 0;
     }
     
     .pagination-controls button {
@@ -687,8 +692,10 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .word-info-popup {
-        min-width: auto; /* Pašaliname minimalų plotį mobiliuose */
-        max-width: calc(100vw - 40px); /* Maksimalus plotis su tarpais */
+        left: 10px !important; /* Priverstinai nustatom kairėje */
+        right: 10px !important;
+        width: auto !important;
+        max-width: calc(100% - 20px) !important;
     }
 }
 
@@ -832,11 +839,26 @@ hr {
 
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
+    .export-button, .view-saved-button {
+        width: 35px;  /* Sumažinam plotį */
+        padding: 6px;
+        font-size: 10px;
+    }
+
     .view-saved-button {
         width: 40px;
         padding: 8px;
         right: 10px;
         font-size: 10px;
+    }
+
+file-input-wrapper {
+        width: 45px; /* Sumažinam .md mygtuką */
+    }
+    
+    .file-input-text {
+        width: 45px;
+        height: 45px;
     }
 }
 
