@@ -334,59 +334,42 @@ hr {
 /* ==========================================================================
    FILE INPUT
    ========================================================================== */
-/* Failo įvesties wrapper */
 .file-input-wrapper {
-    /* Pozicionavimas */
     position: fixed;
     top: max(20px, env(safe-area-inset-top));
     left: max(20px, env(safe-area-inset-left));
     z-index: 1001;
-    /* Dydis */
     width: 100px;
-    /* Interaktyvumas */
     cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
 }
 
-/* Paslėpti originalų input */
 .file-input {
-    width: 0.1px;
-    height: 0.1px;
-    opacity: 0;
     position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
     z-index: -1;
 }
 
-/* Mygtukas su .md tekstu */
 .file-input-text {
-    /* Išvaizda */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+    /* Kopiruojame TIKSLIAI export-button stilių */
     background: var(--primary-color);
     color: var(--background-light);
     border: none;
     border-radius: 4px;
     box-shadow: 0 2px 4px var(--shadow-light);
-    
-    /* Dydis ir tarpai */
-    width: 100%;
+    width: 100px;
     padding: 8px 16px;
-    
-    /* Tekstas */
     font-size: 12px;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-
-    /* Interaktyvumas */
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     transition: all 0.2s ease;
+    display: block; /* Pridėta */
 }
 
 /* Hover efektas (tik desktop) */
@@ -411,9 +394,6 @@ hr {
         color: var(--background-dark);
         box-shadow: 0 2px 4px var(--shadow-dark);
     }
-    .file-input-wrapper:hover .file-input-text {
-        box-shadow: 0 3px 6px var(--shadow-dark);
-    }
 }
 
 /* Mobilūs įrenginiai */
@@ -421,16 +401,20 @@ hr {
     .file-input-wrapper {
         width: 40px;
     }
+    
     .file-input-text {
+        width: 40px;
         padding: 8px;
-        left: 10px;
         font-size: 10px;
     }
 }
 
 @supports (padding: max(0px)) {
-    .file-input-wrapper {
+    .file-input-text {
         padding-top: max(8px, env(safe-area-inset-top));
+    }
+    
+    .file-input-wrapper {
         top: max(16px, env(safe-area-inset-top));
         left: max(10px, env(safe-area-inset-left));
     }
