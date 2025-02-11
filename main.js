@@ -150,7 +150,6 @@ class App {
             });
         }
     }
-}
 
     getLastPage() {
         return {
