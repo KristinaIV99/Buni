@@ -35,7 +35,7 @@ class App {
         this.initUI();
         this.bindEvents();
         this.loadDefaultDictionaries();
-        this.initializeBookState(); // Perkeltas į konstruktoriaus pabaigą
+        this.initializeBookState();
     }
 
     initUI() {
