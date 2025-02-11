@@ -1,5 +1,3 @@
-
-
 /* ==========================================================================
    KINTAMIEJI
    ========================================================================== */
@@ -336,8 +334,8 @@ hr {
 /* ==========================================================================
    FILE INPUT
    ========================================================================== */
-/* Failo įvesties kontrolė */
-.file-input {
+/* Failo įvesties wrapper */
+.file-input-wrapper {
     /* Pozicionavimas */
     position: fixed;
     top: max(20px, env(safe-area-inset-top));
@@ -347,42 +345,47 @@ hr {
     /* Dydis */
     width: 40px;
     height: 32px;
-    padding: 6px 8px;
-
-    /* Išvaizda */
-    background: var(--primary-color);
-    color: transparent; /* Tik šitą pridėjome */
-    border: none;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px var(--shadow-light);
 
     /* Interaktyvumas */
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    transition: all 0.2s ease;
 }
 
-/* Failų pasirinkimo mygtuko paslėpimas */
-.file-input::file-selector-button,
-.file-input::-webkit-file-upload-button {
-    display: none;
+/* Paslėpti originalų input */
+.file-input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
 }
 
-/* Tekstas vietoj ikonos */
-.file-input::before {
-    content: '.md';
+/* Mygtukas su .md tekstu */
+.file-input-text {
+    /* Išvaizda */
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
     height: 100%;
+    background: var(--primary-color);
+    color: var(--background-light);
+    border: none;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px var(--shadow-light);
+    padding: 6px 8px;
+    
+    /* Tekstas */
     font-size: 12px;
-    color: var(--background-light); /* Tik šitą pridėjome */
+    
+    /* Animacija */
+    transition: all 0.2s ease;
 }
 
 /* Hover efektas (tik desktop) */
 @media (hover: hover) {
-    .file-input:hover {
+    .file-input-wrapper:hover .file-input-text {
         background: var(--accent-color);
         transform: translateY(-1px);
         box-shadow: 0 3px 6px var(--shadow-light);
@@ -390,7 +393,7 @@ hr {
 }
 
 /* Aktyvus būsena */
-.file-input:active {
+.file-input-wrapper:active .file-input-text {
     background: var(--accent-color);
     transform: translateY(1px);
     box-shadow: 0 1px 2px var(--shadow-light);
@@ -398,22 +401,21 @@ hr {
 
 /* Tamsi tema */
 @media (prefers-color-scheme: dark) {
-    .file-input {
+    .file-input-text {
         box-shadow: 0 2px 4px var(--shadow-dark);
     }
-    .file-input:hover {
+    .file-input-wrapper:hover .file-input-text {
         box-shadow: 0 3px 6px var(--shadow-dark);
     }
 }
 
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
-    .file-input {
+    .file-input-wrapper {
         top: max(10px, env(safe-area-inset-top));
         left: max(10px, env(safe-area-inset-left));
-        font-size: 0;
     }
-    .file-input::before {
+    .file-input-text {
         font-size: 10px;
     }
 }
