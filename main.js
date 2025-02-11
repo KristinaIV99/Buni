@@ -162,51 +162,49 @@ class App {
     }
 
     async initializeBookState() {
-		// Pirma patikriname ar yra išsaugota būsena
 		const savedState = this.stateManager.loadBookState();
-		if (!savedState) return;
+		if (savedState) {
+			try {
+				// Pirma įsitikiname, kad žodynai užkrauti
+				await this.loadDefaultDictionaries();
+				this.currentFileName = savedState.fileName;
+				this.currentText = savedState.text;
+				
+				// Apdorojame tekstą kai žodynai jau užkrauti
+				const knownWords = this.dictionaryManager.getDictionaryWords();
+				const textStats = this.textStatistics.calculateStats(this.currentText, knownWords);
+				
+				// Ieškome žodžių ir frazių
+				const { results, searchStats } = await this.dictionaryManager.findInText(this.currentText);
+				
+				// Konvertuojame į HTML ir perduodame išsaugotus pažymėjimus
+				const html = await this.htmlConverter.convertToHtml(this.currentText);
+				const processedHtml = await this.textHighlighter.processText(
+					this.currentText, 
+					html,
+					savedState.highlights // Perduodame išsaugotus pažymėjimus
+				);
+				
+				// Nustatome turinį su statistika
+				this.setContent(processedHtml, textStats);
 
-		try {
-			// Pirma įsitikiname, kad žodynai užkrauti
-			await this.loadDefaultDictionaries();
+				// Rodome mygtukus
+				const savedTextsButton = document.getElementById('savedTextsButton');
+				if (savedTextsButton) {
+					savedTextsButton.style.display = 'block';
+				}
+				if (textStats.unknownWords > 0 && this.exportButton) {
+					this.exportButton.style.display = 'block';
+				}
 
-			this.currentFileName = savedState.fileName;
-			this.currentText = savedState.text;
-
-			// Apdorojame tekstą kai žodynai jau užkrauti
-			const knownWords = this.dictionaryManager.getDictionaryWords();
-			const textStats = this.textStatistics.calculateStats(this.currentText, knownWords);
-			
-			// Ieškome žodžių ir frazių
-			const { results, searchStats } = await this.dictionaryManager.findInText(this.currentText);
-			
-			// Konvertuojame į HTML
-			const html = await this.htmlConverter.convertToHtml(this.currentText);
-			
-			// Pritaikome žodžių pažymėjimus
-			const processedHtml = await this.textHighlighter.processText(this.currentText, html);
-			
-			// Nustatome turinį su statistika
-			this.setContent(processedHtml, textStats);
-
-			// Rodome mygtukus
-			const savedTextsButton = document.getElementById('savedTextsButton');
-			if (savedTextsButton) {
-				savedTextsButton.style.display = 'block';
+				// Nustatome paskutinį skaitytą puslapį
+				if (savedState.lastPage) {
+					this.paginator.goToPage(savedState.lastPage);
+				}
+			} catch (error) {
+				console.error('Klaida atkuriant knygos būseną:', error);
+				this.stateManager.clearBookState();
 			}
-
-			if (textStats.unknownWords > 0 && this.exportButton) {
-				this.exportButton.style.display = 'block';
-			}
-
-			// Nustatome paskutinį skaitytą puslapį
-			if (savedState.lastPage) {
-				this.paginator.goToPage(savedState.lastPage);
-			}
-
-		} catch (error) {
-			console.error('Klaida atkuriant knygos būseną:', error);
-			this.stateManager.clearBookState();
 		}
 	}
 
@@ -246,17 +244,9 @@ class App {
 			if (savedTextsButton) {
 				savedTextsButton.style.display = 'block';
 			}
-
 			if (textStats.unknownWords > 0 && this.exportButton) {
 				this.exportButton.style.display = 'block';
 			}
-
-			// Išsaugome būseną
-			this.stateManager.saveBookState({
-				text: this.currentText,
-				fileName: this.currentFileName,
-				lastPage: this.paginator.getCurrentPage()
-			});
 
 			// Ieškome žodžių ir frazių
 			const { results, searchStats } = await this.dictionaryManager.findInText(text);
@@ -265,6 +255,14 @@ class App {
 			const html = await this.htmlConverter.convertToHtml(text);
 			this.setContent(html, textStats);
 
+			// Išsaugome būseną su pažymėjimais PO turinio nustatymo
+			const highlights = this.textHighlighter.saveHighlights();
+			this.stateManager.saveBookState({
+				text: this.currentText,
+				fileName: this.currentFileName,
+				lastPage: this.paginator.getCurrentPage(),
+				highlights: highlights
+			});
 		} catch(error) {
 			console.error(`${this.APP_NAME} Klaida:`, error);
 			this.handleError(error);
