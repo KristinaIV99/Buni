@@ -616,11 +616,12 @@ hr {
     font-style: italic;
     background-color: rgba(74, 70, 57, 0.2);
     color: var(--text-secondary-dark); 
-    padding: 1px 1px;
+    padding: 0px 1px;
     border-radius: 2px;
     font-size: 9px;
-    margin-bottom: 1px;
+    margin-bottom: 0px;
     border: 1px solid rgba(74, 70, 57, 0.4);
+    line-height: 1;
 }
 
 .translation {
