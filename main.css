@@ -362,6 +362,7 @@ hr {
     /* Dydis */
     width: 65px;
     height: 65px;
+    padding: 0;
     
     /* Centravimas */
     display: flex;
@@ -404,7 +405,7 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .file-input-wrapper {
-        width: 60px;
+        width: 65px;
     }
     
     .file-input-text {
@@ -415,10 +416,6 @@ hr {
 }
 
 @supports (padding: max(0px)) {
-    .file-input-text {
-        padding-top: max(8px, env(safe-area-inset-top));
-    }
-    
     .file-input-wrapper {
         top: max(16px, env(safe-area-inset-top));
         left: max(10px, env(safe-area-inset-left));
