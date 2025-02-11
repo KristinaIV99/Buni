@@ -756,6 +756,7 @@ hr {
     top: max(57px, env(safe-area-inset-top)); /* Padidintas top, kad būtų po eksporto */
     right: max(20px, env(safe-area-inset-right));
     z-index: 1001;
+    display: none;
 
     /* Išvaizda */
     background: var(--primary-color);
@@ -951,7 +952,6 @@ hr {
     
     .view-saved-button {
         right: 60px;
-        display: none;
     }
     
     .save-confirmation {
