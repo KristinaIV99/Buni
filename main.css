@@ -79,10 +79,9 @@ p {
     .text-content {
         font-size: 16px;
         line-height: 1.4;
-        padding: 10px;
         max-width: 100%;
-        padding-bottom: 140px;
-        margin-bottom: 80px;
+        padding: 0 10px 140px 10px;  /* viršus, dešinė, apačia, kairė */
+        margin: 15px 0 80px 0;       /* viršus, dešinė, apačia, kairė */
     }
 }
 
@@ -236,17 +235,17 @@ hr {
 
 @media (max-width: 768px) {
     .text-stats {
-        padding: 8px;
-        gap: 8px;
-        margin: 100px auto 10px auto;
+        margin-top: 55px; /* Padidintas tarpas nuo viršaus po mygtukais */
+        padding: 6px;
+        font-size: 10px;
     }
 
     .stat-value {
-        font-size: 12px;
+        font-size: 11px;
     }
 
     .stat-label {
-        font-size: 9px;
+        font-size: 8px;
     }
 }
 
@@ -405,12 +404,15 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .file-input-wrapper {
-        width: 68px;
+        top: 10px;
+        left: 10px;
+        width: 35px;
+        height: 35px;
     }
     
     .file-input-text {
-        width: 68px;
-        height: 68px;
+        width: 35px;
+        height: 35px;
         font-size: 10px;
     }
 }
@@ -840,15 +842,20 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .export-button, .view-saved-button {
-        width: 35px;  /* Sumažinam plotį */
-        padding: 6px;
+        top: 10px;
+        right: 50px; /* Tarpas nuo žodyno mygtuko */
+        width: 35px;
+        height: 35px;
+        padding: 8px;
         font-size: 10px;
     }
 
     .view-saved-button {
-        width: 40px;
-        padding: 8px;
+        top: 10px;
         right: 10px;
+        width: 35px;
+        height: 35px;
+        padding: 8px;
         font-size: 10px;
     }
 
