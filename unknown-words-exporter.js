@@ -16,10 +16,12 @@ export class UnknownWordsExporter {
 		console.log(`${this.APP_NAME} Pradedu teksto apdorojimą`);
 		console.log(`Viso nežinomų žodžių: ${unknownWords.length}`);
 		
+		const wordsWithoutContext = []; // Pridedame masyvą čia
+		
 		unknownWords.forEach(word => {
 			// Modifikuojame žodį regex'ui kad veiktų su skandinaviškomis raidėmis
 			const escapedWord = word
-				.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // Escape special characters
+				.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 				.replace(/[åäöÅÄÖ]/g, char => {
 					switch(char) {
 						case 'å': return '[åÅ]';
@@ -61,7 +63,8 @@ export class UnknownWordsExporter {
 		console.log(`${this.APP_NAME} Apdorota ${this.sentences.size} žodžių`);
 		console.log(`${this.APP_NAME} Nerasta ${unknownWords.length - this.sentences.size} žodžių`);
 		console.log("Pirmi 20 žodžių be konteksto:", wordsWithoutContext.slice(0, 20));
-		// Pridėkime dar kelis žodžius su jų aplinka tekste
+		
+		// Debug informacija apie žodžius be konteksto
 		wordsWithoutContext.slice(0, 5).forEach(word => {
 			const index = text.toLowerCase().indexOf(word.toLowerCase());
 			if (index !== -1) {
@@ -71,7 +74,7 @@ export class UnknownWordsExporter {
 				console.log(`Žodžio "${word}" aplinka tekste:`, text.slice(start, end));
 			} else {
 				console.log(`Žodis "${word}" nerastas tekste iš viso!`);
-		}
+			}
 		});
 	}
 
