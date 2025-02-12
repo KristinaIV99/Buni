@@ -19,6 +19,20 @@ export class UnknownWordsExporter {
 		const wordsWithoutContext = []; // Pridedame masyvą čia
 		
 		unknownWords.forEach(word => {
+			// DEBUG: Patikriname ar žodis iš viso yra tekste
+			const simpleSearch = text.toLowerCase().includes(word.toLowerCase());
+			const hasHyphen = text.toLowerCase().includes(`-${word.toLowerCase()}`) || 
+							text.toLowerCase().includes(`${word.toLowerCase()}-`);
+			
+			if (!simpleSearch) {
+				console.log(`Žodis "${word}" nerastas paprastoje paieškoje`);
+			} else {
+				console.log(`Žodis "${word}" RASTAS tekste, bet nerandamas regex`);
+			}
+			if (hasHyphen) {
+				console.log(`Žodis "${word}" rastas su brūkšneliu`);
+			}
+
 			// Sutvarkome specialius simbolius ir raides
 			const escapedWord = word
 				.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
