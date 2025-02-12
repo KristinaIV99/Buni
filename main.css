@@ -109,6 +109,14 @@ hr {
     hr {
         border-color: var(--border-dark);
     }
+
+	hr {
+		margin: 1em 0;
+	}
+	
+	.after-hr {
+		margin-top: 1em;
+	}
 }
 
 /* ==========================================================================
@@ -315,7 +323,6 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .export-button {
-        position: fixed;
         top: 5px;
         right: 5px;
         width: 30px;
@@ -323,8 +330,7 @@ hr {
         padding: 0;
         min-width: 30px;
         display: flex;
-        justify-content: center;
-        align-items: center;
+        font-size: 6px;
     }
 }
 
@@ -418,11 +424,9 @@ hr {
     .file-input-text {
         width: 30px;
         height: 30px;
-        font-size: 10px;
+        font-size: 8px;
         padding: 0;
         display: flex;
-        justify-content: center;
-        align-items: center;
     }
 }
 
@@ -568,7 +572,7 @@ hr {
     }
 
     .page-info {
-        font-size: 14px;
+        font-size: 12px;
         padding: 0 10px;
         min-width: 40px;
     }
@@ -710,7 +714,7 @@ hr {
         padding: 8px;
         position: fixed;
         transform: translateX(-50%);
-        left: 50% !important; /* Centruojame horizontaliai */
+        left: 30% !important; /* Centruojame horizontaliai */
         box-sizing: border-box;
     }
 
@@ -882,23 +886,13 @@ hr {
     .view-saved-button {
         position: fixed;
         top: 5px;
-        right: 40px; /* 5px nuo eksporto mygtuko */
+        right: 60px; /* 5px nuo eksporto mygtuko */
         width: 30px;
         height: 30px;
         padding: 0;
         min-width: 30px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-file-input-wrapper {
-        width: 45px; /* Sumažinam .md mygtuką */
-    }
-    
-    .file-input-text {
-        width: 45px;
-        height: 45px;
+        display: none;
+        font-size: 6px;
     }
 }
 
@@ -1026,18 +1020,8 @@ file-input-wrapper {
 
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
-    .selection-save-button,
-    .view-saved-button {
-        padding: 6px 12px;
-        font-size: 10px;
-    }
-    
-    .view-saved-button {
-        right: 60px;
-    }
-    
     .save-confirmation {
-        font-size: 12px;
+        font-size: 0px;
         padding: 8px 16px;
     }
 }
