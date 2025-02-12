@@ -402,11 +402,18 @@ class App {
     	async handleExport() {
 		try {
 			const knownWords = this.dictionaryManager.getDictionaryWords();
-			// Naudojame tą patį tekstą ir žodyną kaip statistikai
+			// Paimame HTML tekstą vietoj originalaus
+			const contentDiv = document.querySelector('.text-content');
+			if (!contentDiv) {
+				throw new Error('Nerastas teksto turinys');
+			}
+			
+			// Naudojame HTML tekstą
+			const htmlContent = contentDiv.innerHTML;
 			const unknownWords = this.textStatistics.getUnknownWords(this.currentText, knownWords);
 
-			// Apdorojame tekstą ir eksportuojame
-			this.unknownWordsExporter.processText(this.currentText, unknownWords);
+			// Perduodame HTML į eksporterį
+			this.unknownWordsExporter.processText(htmlContent, unknownWords);
 			this.unknownWordsExporter.exportToTxt();
 			
 			console.log(`${this.APP_NAME} Nežinomi žodžiai eksportuoti sėkmingai`);
