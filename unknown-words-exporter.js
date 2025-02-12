@@ -15,34 +15,52 @@ export class UnknownWordsExporter {
     processText(text, unknownWords) {
         console.log(`${this.APP_NAME} Pradedu teksto apdorojimą`);
 		console.log(`Viso nežinomų žodžių: ${unknownWords.length}`);
+		console.log("Pirmi 5 nežinomi žodžiai:", unknownWords.slice(0, 5)); // DEBUG
 		
 		// Funkcija sakinio tinkamumui patikrinti - ją keliame į metodo pradžią
 		const isSentenceValid = (sentence, word) => {
 			// Būtinos sąlygos
-			if (!sentence || !word) return false;
+			if (!sentence || !word) {
+				console.log("Tuščias sakinys arba žodis:", {sentence, word}); // DEBUG
+				return false;
+			}
 			
 			// Sakinys turi turėti bent minimalų kontekstą
 			const minLength = word.length + 5;
-			if (sentence.length < minLength) return false;
+			if (sentence.length < minLength) {
+				console.log("Per trumpas sakinys:", sentence); // DEBUG
+				return false;
+			}
 			
 			// Sakinys turėtų turėti tašką gale (bet gali būti ir ! arba ?)
-			if (!/[.!?]$/.test(sentence)) return false;
+			if (!/[.!?]$/.test(sentence)) {
+				console.log("Sakinys be taško:", sentence); // DEBUG
+				return false;
+			}
 			
 			// Jei tai dialogas (prasideda brūkšniu), tai yra geras kontekstas
-			if (sentence.startsWith('–') || sentence.startsWith('-')) {
-				return true;
+			if (!/[.!?]$/.test(sentence)) {
+				console.log("Sakinys be taško:", sentence); // DEBUG
+				return false;
 			}
 			
 			// Kiti sakiniai turi turėti daugiau konteksto
-			return sentence.split(' ').length >= 3;
+			const wordCount = sentence.split(' ').length;
+			console.log("Žodžių skaičius sakinyje:", wordCount); // DEBUG
+			return wordCount >= 3;
 		};
 
-		// Sukuriame laikinį DOM elementą HTML analizei
 		const tempDiv = document.createElement('div');
 		tempDiv.innerHTML = text;
 		
 		const paragraphs = tempDiv.getElementsByTagName('p');
+		console.log("Rastų paragrafų skaičius:", paragraphs.length); // DEBUG
 		
+		// Patikriname pirmą paragrafą
+		if (paragraphs.length > 0) {
+			console.log("Pirmo paragrafo turinys:", paragraphs[0].textContent); // DEBUG
+		}
+
 		unknownWords.forEach(word => {
 			const wordPattern = new RegExp(word, 'i');
 			let bestSentence = null;
@@ -55,6 +73,8 @@ export class UnknownWordsExporter {
 				const wordIndex = paragraphText.toLowerCase().indexOf(word.toLowerCase());
 				if (wordIndex === -1) return;
 
+				console.log("Rastas žodis:", word, "paragrafe:", paragraphText.slice(0, 100)); // DEBUG
+
 				// Randame sakinio pradžią
 				let sentenceStart = paragraphText.lastIndexOf('.', wordIndex);
 				sentenceStart = sentenceStart === -1 ? 0 : sentenceStart + 1;
@@ -65,10 +85,12 @@ export class UnknownWordsExporter {
 
 				// Ištraukiame sakinį
 				const sentence = paragraphText.slice(sentenceStart, sentenceEnd).trim();
+				console.log("Ištrauktas sakinys:", sentence); // DEBUG
 				
 				// Tikriname sakinio tinkamumą naudodami mūsų validacijos funkciją
 				if (isSentenceValid(sentence, word)) {
 					bestSentence = sentence;
+					console.log("Rastas tinkamas sakinys žodžiui:", word, "->", sentence); // DEBUG
 					return; // Radome tinkamą sakinį, nutraukiame paiešką
 				}
 			});
