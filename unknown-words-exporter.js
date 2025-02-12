@@ -19,32 +19,49 @@ export class UnknownWordsExporter {
 		const wordsWithoutContext = [];
 		
 		unknownWords.forEach(word => {
-			const sentences = []; // Saugosime visus rastus sakinius
-			
-			// Randame žodžio poziciją
+			const sentences = [];
 			let currentIndex = 0;
 			let bestSentence = null;
 			let shortestLength = Infinity;
 			
-			// Ieškome visų sakinio variantų su šiuo žodžiu
 			while ((currentIndex = text.toLowerCase().indexOf(word.toLowerCase(), currentIndex)) !== -1) {
-				let sentenceStart = text.lastIndexOf('.', currentIndex);
-				sentenceStart = sentenceStart === -1 ? 0 : sentenceStart + 1;
+				// Ieškome sakinio pradžios nuo bet kurio sakinio pabaigos ženklo
+				let sentenceStart = currentIndex;
+				while (sentenceStart > 0) {
+					const char = text.charAt(sentenceStart - 1);
+					if (char === '.' || char === '!' || char === '?') {
+						const nextChar = text.charAt(sentenceStart);
+						if (/[A-ZÅÄÖ]/.test(nextChar)) {
+							break;
+						}
+					}
+					sentenceStart--;
+				}
+				sentenceStart = Math.max(0, sentenceStart);
 				
-				let sentenceEnd = text.indexOf('.', currentIndex);
-				sentenceEnd = sentenceEnd === -1 ? text.length : sentenceEnd + 1;
+				// Ieškome sakinio pabaigos
+				let sentenceEnd = currentIndex;
+				while (sentenceEnd < text.length) {
+					const char = text.charAt(sentenceEnd);
+					if (char === '.' || char === '!' || char === '?') {
+						sentenceEnd++;
+						break;
+					}
+					sentenceEnd++;
+				}
 				
 				const sentence = text.slice(sentenceStart, sentenceEnd).trim();
-				sentences.push(sentence);
 				
-				// Tikriname ar šis sakinys geresnis
-				const wordCount = sentence.split(' ').length;
-				if (wordCount <= 15) {
-					bestSentence = sentence;
-					break; // Radome trumpą sakinį, galime baigti paiešką
-				} else if (wordCount < shortestLength) {
-					shortestLength = wordCount;
-					bestSentence = sentence;
+				// Tikriname sakinio tinkamumą
+				if (/^[A-ZÅÄÖ]/.test(sentence) && sentence.length > word.length + 10) {
+					const wordCount = sentence.split(' ').length;
+					if (wordCount <= 15) {
+						bestSentence = sentence;
+						break;
+					} else if (wordCount < shortestLength) {
+						shortestLength = wordCount;
+						bestSentence = sentence;
+					}
 				}
 				
 				currentIndex = sentenceEnd;
@@ -53,20 +70,7 @@ export class UnknownWordsExporter {
 			if (bestSentence) {
 				this.sentences.set(word, new Set([bestSentence]));
 			} else {
-				// Bandome su brūkšneliu
-				currentIndex = text.toLowerCase().indexOf(`-${word.toLowerCase()}`);
-				if (currentIndex !== -1) {
-					let sentenceStart = text.lastIndexOf('.', currentIndex);
-					sentenceStart = sentenceStart === -1 ? 0 : sentenceStart + 1;
-					
-					let sentenceEnd = text.indexOf('.', currentIndex);
-					sentenceEnd = sentenceEnd === -1 ? text.length : sentenceEnd + 1;
-					
-					bestSentence = text.slice(sentenceStart, sentenceEnd).trim();
-					this.sentences.set(word, new Set([bestSentence]));
-				} else {
-					wordsWithoutContext.push(word);
-				}
+				wordsWithoutContext.push(word);
 			}
 		});
 
