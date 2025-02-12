@@ -16,11 +16,23 @@ export class UnknownWordsExporter {
 		console.log(`${this.APP_NAME} Pradedu teksto apdorojimą`);
 		console.log(`Viso nežinomų žodžių: ${unknownWords.length}`);
 		
-		// Sukurkime masyvą žodžiams be konteksto
-		const wordsWithoutContext = [];
-		
 		unknownWords.forEach(word => {
-			const wordRegex = new RegExp(`[^.!?]*\\b${word}\\b[^.!?]*[.!?]`, 'gi');
+			// Modifikuojame žodį regex'ui kad veiktų su skandinaviškomis raidėmis
+			const escapedWord = word
+				.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // Escape special characters
+				.replace(/[åäöÅÄÖ]/g, char => {
+					switch(char) {
+						case 'å': return '[åÅ]';
+						case 'ä': return '[äÄ]';
+						case 'ö': return '[öÖ]';
+						case 'Å': return '[åÅ]';
+						case 'Ä': return '[äÄ]';
+						case 'Ö': return '[öÖ]';
+						default: return char;
+					}
+				});
+				
+			const wordRegex = new RegExp(`[^.!?]*?${escapedWord}[^.!?]*[.!?]`, 'gi');
 			const matches = text.match(wordRegex);
 			
 			if (matches && matches.length > 0) {
