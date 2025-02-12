@@ -256,10 +256,10 @@ hr {
 
 @media (max-width: 768px) {
     .text-stats {
-        margin-top: 45px; /* Tarpas po mygtukais */
-        padding: 5px;
+        margin-top: 5px; /* Tarpas po mygtukais */
+        padding: 8px 3px;
         font-size: 10px;
-        gap: 8px;
+        gap: 5px;
     }
 
     .stat-value {
