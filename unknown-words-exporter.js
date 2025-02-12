@@ -16,81 +16,46 @@ export class UnknownWordsExporter {
 		console.log(`${this.APP_NAME} Pradedu teksto apdorojimą`);
 		console.log(`Viso nežinomų žodžių: ${unknownWords.length}`);
 		
-		const wordsWithoutContext = []; // Pridedame masyvą čia
+		const wordsWithoutContext = [];
 		
 		unknownWords.forEach(word => {
-			// DEBUG: Patikriname ar žodis iš viso yra tekste
-			const simpleSearch = text.toLowerCase().includes(word.toLowerCase());
-			const hasHyphen = text.toLowerCase().includes(`-${word.toLowerCase()}`) || 
-							text.toLowerCase().includes(`${word.toLowerCase()}-`);
+			// Randame žodžio poziciją
+			const index = text.toLowerCase().indexOf(word.toLowerCase());
 			
-			if (!simpleSearch) {
-				console.log(`Žodis "${word}" nerastas paprastoje paieškoje`);
+			if (index !== -1) {
+				// Randame sakinio pradžią (ieškome taško prieš žodį)
+				let sentenceStart = text.lastIndexOf('.', index);
+				sentenceStart = sentenceStart === -1 ? 0 : sentenceStart + 1;
+				
+				// Randame sakinio pabaigą (ieškome taško po žodžio)
+				let sentenceEnd = text.indexOf('.', index);
+				sentenceEnd = sentenceEnd === -1 ? text.length : sentenceEnd + 1;
+				
+				// Ištraukiame sakinį
+				const sentence = text.slice(sentenceStart, sentenceEnd).trim();
+				
+				this.sentences.set(word, new Set([sentence]));
 			} else {
-				console.log(`Žodis "${word}" RASTAS tekste, bet nerandamas regex`);
-			}
-			if (hasHyphen) {
-				console.log(`Žodis "${word}" rastas su brūkšneliu`);
-			}
-
-			// Sutvarkome specialius simbolius ir raides
-			const escapedWord = word
-				.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-				.replace(/[åäöÅÄÖéèÉÈ]/g, char => {
-					switch(char.toLowerCase()) {
-						case 'å': return '[åÅ]';
-						case 'ä': return '[äÄ]';
-						case 'ö': return '[öÖ]';
-						case 'é': return '[éÉ]';
-						case 'è': return '[èÈ]';
-						default: return char;
-					}
-				});
-				
-			// Ieškome žodžio arba žodžio su brūkšneliu (kaip vieno žodžio)
-			const wordWithHyphen = escapedWord.replace(/(\w+)/, '$1-\\w+');
-			const wordRegex = new RegExp(`[^.!?]*?(${escapedWord}|${wordWithHyphen})[^.!?]*[.!?]`, 'gi');
-			const matches = text.match(wordRegex);
-			
-			if (matches && matches.length > 0) {
-				let bestSentence = null;
-				let shortestLength = Infinity;
-				
-				for (const sentence of matches) {
-					const trimmed = sentence.trim();
-					const wordCount = trimmed.split(' ').length;
+				// Bandome su brūkšneliu
+				const hyphenIndex = text.toLowerCase().indexOf(`-${word.toLowerCase()}`);
+				if (hyphenIndex !== -1) {
+					let sentenceStart = text.lastIndexOf('.', hyphenIndex);
+					sentenceStart = sentenceStart === -1 ? 0 : sentenceStart + 1;
 					
-					if (wordCount <= 15) {
-						bestSentence = trimmed;
-						break;
-					}
-					else if (wordCount < shortestLength) {
-						shortestLength = wordCount;
-						bestSentence = trimmed;
-					}
+					let sentenceEnd = text.indexOf('.', hyphenIndex);
+					sentenceEnd = sentenceEnd === -1 ? text.length : sentenceEnd + 1;
+					
+					const sentence = text.slice(sentenceStart, sentenceEnd).trim();
+					this.sentences.set(word, new Set([sentence]));
+				} else {
+					wordsWithoutContext.push(word);
 				}
-				this.sentences.set(word, new Set([bestSentence]));
-			} else {
-				wordsWithoutContext.push(word);
 			}
 		});
 
 		console.log(`${this.APP_NAME} Apdorota ${this.sentences.size} žodžių`);
 		console.log(`${this.APP_NAME} Nerasta ${unknownWords.length - this.sentences.size} žodžių`);
 		console.log("Pirmi 20 žodžių be konteksto:", wordsWithoutContext.slice(0, 20));
-		
-		// Debug informacija apie žodžius be konteksto
-		wordsWithoutContext.slice(0, 5).forEach(word => {
-			const index = text.toLowerCase().indexOf(word.toLowerCase());
-			if (index !== -1) {
-				// Paimame 50 simbolių prieš ir po žodžio
-				const start = Math.max(0, index - 50);
-				const end = Math.min(text.length, index + word.length + 50);
-				console.log(`Žodžio "${word}" aplinka tekste:`, text.slice(start, end));
-			} else {
-				console.log(`Žodis "${word}" nerastas tekste iš viso!`);
-			}
-		});
 	}
 
     exportToTxt() {
