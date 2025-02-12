@@ -19,27 +19,23 @@ export class UnknownWordsExporter {
 		const wordsWithoutContext = []; // Pridedame masyvą čia
 		
 		unknownWords.forEach(word => {
-			// Modifikuojame žodį regex'ui kad veiktų su skandinaviškomis raidėmis
+			// Sutvarkome specialius simbolius ir raides
 			const escapedWord = word
 				.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-				.replace(/[åäöÅÄÖéè]/g, char => {
-					switch(char) {
+				.replace(/[åäöÅÄÖéèÉÈ]/g, char => {
+					switch(char.toLowerCase()) {
 						case 'å': return '[åÅ]';
 						case 'ä': return '[äÄ]';
 						case 'ö': return '[öÖ]';
-						case 'Å': return '[åÅ]';
-						case 'Ä': return '[äÄ]';
-						case 'Ö': return '[öÖ]';
-						case 'é': return '[éeE]';
-						case 'è': return '[èeE]';
+						case 'é': return '[éÉ]';
+						case 'è': return '[èÈ]';
 						default: return char;
 					}
-				})
-				.replace(/(\w+)/, word => { // Ieškome žodžio su/be brūkšnelio
-					return `(?:${word}|-${word}|${word}-)`;
 				});
 				
-			const wordRegex = new RegExp(`[^.!?]*?${escapedWord}[^.!?]*[.!?]`, 'gi');
+			// Ieškome žodžio su galimu brūkšneliu
+			const wordPattern = `${escapedWord}|${escapedWord.replace(/(\w+)/, '-$1')}|${escapedWord.replace(/(\w+)/, '$1-')}`;
+			const wordRegex = new RegExp(`[^.!?]*?(${wordPattern})[^.!?]*[.!?]`, 'gi');
 			const matches = text.match(wordRegex);
 			
 			if (matches && matches.length > 0) {
