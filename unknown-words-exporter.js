@@ -17,17 +17,41 @@ export class UnknownWordsExporter {
 		console.log(`Viso nežinomų žodžių: ${unknownWords.length}`);
 		
 		unknownWords.forEach(word => {
-			// Ieškome žodžio ir jo konteksto (pilno sakinio)
-			const wordRegex = new RegExp(`[^.!?]*?\\b${word}\\b.*?[.!?]`, 'gi');
+			const wordRegex = new RegExp(`[^.!?]*\\b${word}\\b[^.!?]*[.!?]`, 'gi');
 			const matches = text.match(wordRegex);
 			
 			if (matches && matches.length > 0) {
-				// Išvalome sakinį nuo nereikalingų tarpų ir simbolių
-				const sentence = matches[0]
-					.trim()
-					.replace(/\s+/g, ' ');
+				let bestSentence = null;
+            
+				// Ieškome trumpesnio, aiškesnio sakinio
+				for (const sentence of matches) {
+					const trimmed = sentence.trim();
+					const wordCount = trimmed.split(' ').length;
+					
+					// Trumpesnis sakinys (ne daugiau 15 žodžių)
+					if (wordCount <= 15) {
+						bestSentence = trimmed;
+						break;
+					}
+				}
 				
-				this.sentences.set(word, new Set([sentence]));
+				// Jei neradome trumpo sakinio, ieškome bet kokio, kuris nėra per ilgas
+				if (!bestSentence) {
+					for (const sentence of matches) {
+						const trimmed = sentence.trim();
+						if (trimmed.split(' ').length <= 20) {
+							bestSentence = trimmed;
+							break;
+						}
+					}
+				}
+				
+				// Jei vis dar neradome tinkamo sakinio, imame pirmą
+				if (!bestSentence && matches.length > 0) {
+					bestSentence = matches[0].trim();
+				}
+
+				this.sentences.set(word, new Set([bestSentence]));
 			}
 		});
 
