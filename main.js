@@ -402,6 +402,7 @@ class App {
 			try {
 				const knownWords = this.dictionaryManager.getDictionaryWords();
 				const unknownWords = this.textStatistics.getUnknownWords(this.currentText, knownWords);
+				console.log("Pirmi 20 nežinomų žodžių iš TextStatistics:", unknownWords.slice(0, 20));
 
 				// Gauname visą HTML turinį (ne tik dabartinį puslapį)
 				const div = document.createElement('div');
