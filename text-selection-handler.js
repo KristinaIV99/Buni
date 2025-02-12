@@ -106,11 +106,8 @@ class TextSelectionHandler {
 		sentenceEnd = sentenceEnd === -1 ? paragraphText.length : sentenceEnd + 1;
 		
 		// Ištraukiame sakinį ir sutvarkome tarpus
-		let sentence = paragraphText.slice(sentenceStart, sentenceEnd).trim();
-		}
-		
-		return sentence;
-	}
+                return paragraphText.slice(sentenceStart, sentenceEnd).trim();
+   }
 
 	showSaveButton(selection, selectedText, contextSentence) {
 		const oldButton = document.querySelector('.selection-save-button');
