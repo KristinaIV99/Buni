@@ -33,9 +33,9 @@ export class UnknownWordsExporter {
 					}
 				});
 				
-			// Ieškome žodžio su galimu brūkšneliu
-			const wordPattern = `${escapedWord}|${escapedWord.replace(/(\w+)/, '-$1')}|${escapedWord.replace(/(\w+)/, '$1-')}`;
-			const wordRegex = new RegExp(`[^.!?]*?(${wordPattern})[^.!?]*[.!?]`, 'gi');
+			// Ieškome žodžio arba žodžio su brūkšneliu (kaip vieno žodžio)
+			const wordWithHyphen = escapedWord.replace(/(\w+)/, '$1-\\w+');
+			const wordRegex = new RegExp(`[^.!?]*?(${escapedWord}|${wordWithHyphen})[^.!?]*[.!?]`, 'gi');
 			const matches = text.match(wordRegex);
 			
 			if (matches && matches.length > 0) {
