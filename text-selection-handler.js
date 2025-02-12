@@ -1,3 +1,4 @@
+
 /**
  * Teksto pažymėjimo ir išsaugojimo funkcionalumo klasė
  */
@@ -106,10 +107,6 @@ class TextSelectionHandler {
 		
 		// Ištraukiame sakinį ir sutvarkome tarpus
 		let sentence = paragraphText.slice(sentenceStart, sentenceEnd).trim();
-		
-		// Jei tai dialogas (prasideda brūkšniu), įtraukiame brūkšnį
-		if (containerNode.classList.contains('dialog')) {
-			sentence = '– ' + sentence;
 		}
 		
 		return sentence;
