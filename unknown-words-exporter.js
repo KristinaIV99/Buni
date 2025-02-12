@@ -22,7 +22,7 @@ export class UnknownWordsExporter {
 			// Modifikuojame žodį regex'ui kad veiktų su skandinaviškomis raidėmis
 			const escapedWord = word
 				.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-				.replace(/[åäöÅÄÖ]/g, char => {
+				.replace(/[åäöÅÄÖéè]/g, char => {
 					switch(char) {
 						case 'å': return '[åÅ]';
 						case 'ä': return '[äÄ]';
@@ -30,8 +30,13 @@ export class UnknownWordsExporter {
 						case 'Å': return '[åÅ]';
 						case 'Ä': return '[äÄ]';
 						case 'Ö': return '[öÖ]';
+						case 'é': return '[éeE]';
+						case 'è': return '[èeE]';
 						default: return char;
 					}
+				})
+				.replace(/(\w+)/, word => { // Ieškome žodžio su/be brūkšnelio
+					return `(?:${word}|-${word}|${word}-)`;
 				});
 				
 			const wordRegex = new RegExp(`[^.!?]*?${escapedWord}[^.!?]*[.!?]`, 'gi');
