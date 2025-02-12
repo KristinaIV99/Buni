@@ -16,6 +16,9 @@ export class UnknownWordsExporter {
 		console.log(`${this.APP_NAME} Pradedu teksto apdorojimą`);
 		console.log(`Viso nežinomų žodžių: ${unknownWords.length}`);
 		
+		// Sukurkime masyvą žodžiams be konteksto
+		const wordsWithoutContext = [];
+		
 		unknownWords.forEach(word => {
 			const wordRegex = new RegExp(`[^.!?]*\\b${word}\\b[^.!?]*[.!?]`, 'gi');
 			const matches = text.match(wordRegex);
@@ -24,29 +27,40 @@ export class UnknownWordsExporter {
 				let bestSentence = null;
 				let shortestLength = Infinity;
 				
-				// Ieškome trumpesnio, aiškesnio sakinio
 				for (const sentence of matches) {
 					const trimmed = sentence.trim();
 					const wordCount = trimmed.split(' ').length;
 					
-					// Trumpesnis sakinys (ne daugiau 15 žodžių)
 					if (wordCount <= 15) {
 						bestSentence = trimmed;
 						break;
 					}
-					// Jei neradome trumpo sakinio, saugome trumpiausią iš ilgesnių
 					else if (wordCount < shortestLength) {
 						shortestLength = wordCount;
 						bestSentence = trimmed;
 					}
 				}
-
 				this.sentences.set(word, new Set([bestSentence]));
+			} else {
+				wordsWithoutContext.push(word);
 			}
 		});
 
 		console.log(`${this.APP_NAME} Apdorota ${this.sentences.size} žodžių`);
 		console.log(`${this.APP_NAME} Nerasta ${unknownWords.length - this.sentences.size} žodžių`);
+		console.log("Pirmi 20 žodžių be konteksto:", wordsWithoutContext.slice(0, 20));
+		// Pridėkime dar kelis žodžius su jų aplinka tekste
+		wordsWithoutContext.slice(0, 5).forEach(word => {
+			const index = text.toLowerCase().indexOf(word.toLowerCase());
+			if (index !== -1) {
+				// Paimame 50 simbolių prieš ir po žodžio
+				const start = Math.max(0, index - 50);
+				const end = Math.min(text.length, index + word.length + 50);
+				console.log(`Žodžio "${word}" aplinka tekste:`, text.slice(start, end));
+			} else {
+				console.log(`Žodis "${word}" nerastas tekste iš viso!`);
+		}
+		});
 	}
 
     exportToTxt() {
