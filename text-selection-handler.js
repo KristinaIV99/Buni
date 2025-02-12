@@ -79,89 +79,40 @@ class TextSelectionHandler {
 
     extractContextSentence(selection) {
         const range = selection.getRangeAt(0);
-		let node = range.startContainer;
 		
-		while (node && (!node.textContent || node.textContent.trim().length === 0)) {
-			node = node.parentNode;
+		// Ieškome artimiausio tėvinio <p> elemento
+		let containerNode = range.startContainer;
+		while (containerNode && containerNode.nodeName !== 'P') {
+			containerNode = containerNode.parentNode;
 		}
 		
-		if (!node) return selection.toString();
+		// Jei nerandam paragrafo, grąžinam tik pažymėtą tekstą
+		if (!containerNode) {
+			return selection.toString().trim();
+		}
 		
-		const fullText = node.textContent;
 		const selectedText = selection.toString().trim();
+		const paragraphText = containerNode.textContent;
 		
-		// Gauname pažymėto teksto poziciją
-		const preSelectionRange = range.cloneRange();
-		preSelectionRange.selectNodeContents(node);
-		preSelectionRange.setEnd(range.startContainer, range.startOffset);
-		const selectionStart = preSelectionRange.toString().length;
-		const selectionEnd = selectionStart + selectedText.length;
-
-		// Funkcija dialogo tęsinio patikrinimui
-		const isDialogueContinuation = (text, position) => {
-			const nextChar = text.charAt(position + 1);
-			if (!nextChar) return false;
-			
-			let i = position + 1;
-			while (i < text.length && [' ', '–', '-'].includes(text[i])) {
-				i++;
-			}
-			return text[i] && text[i] === text[i].toLowerCase() && text[i] !== ' ';
-		};
-
 		// Randame sakinio pradžią
-		let sentenceStart = selectionStart;
-		while (sentenceStart > 0) {
-			const char = fullText.charAt(sentenceStart - 1);
-			if (char === '\n') {
-				break;
-			}
-			if (['.', '?', '!'].includes(char) && !isDialogueContinuation(fullText, sentenceStart - 1)) {
-				break;
-			}
-			sentenceStart--;
-		}
-
-		// Randame sakinio pabaigą
-		let sentenceEnd = selectionEnd;
-		while (sentenceEnd < fullText.length) {
-			const char = fullText.charAt(sentenceEnd);
-			if (char === '\n') {
-				const prevChar = fullText.charAt(sentenceEnd - 1);
-				if (prevChar === ',' || 
-					!/[.!?]/.test(prevChar) || 
-					['', '', '~', ',', ','].includes(prevChar)) {
-					if (!/[.!?]/.test(prevChar) && 
-						(/\w/.test(prevChar) || ['', '', '~', ',', ','].includes(prevChar))) {
-						break;
-					}
-				}
-				while (sentenceEnd > 0 && !['.', '?', '!'].includes(fullText.charAt(sentenceEnd - 1))) {
-					sentenceEnd--;
-				}
-				break;
-			}
-			if (['.', '?', '!'].includes(char)) {
-				sentenceEnd++;
-				if (isDialogueContinuation(fullText, sentenceEnd - 1)) {
-					continue;
-				}
-				break;
-			}
-			sentenceEnd++;
-		}
-
-		// Ištraukiame pilną sakinį ir tikriname brūkšnius/kabutes
-		let containingSentence = fullText.substring(sentenceStart, sentenceEnd).trim();
+		let sentenceStart = paragraphText.lastIndexOf('.', 
+			paragraphText.indexOf(selectedText));
+		sentenceStart = sentenceStart === -1 ? 0 : sentenceStart + 1;
 		
-		if (sentenceStart > 0) {
-			const prevChar = fullText.charAt(sentenceStart - 1);
-			if (prevChar === '–' || prevChar === '-' || prevChar === '"') {
-				containingSentence = prevChar + containingSentence;
-			}
+		// Randame sakinio pabaigą
+		let sentenceEnd = paragraphText.indexOf('.', 
+			paragraphText.indexOf(selectedText) + selectedText.length);
+		sentenceEnd = sentenceEnd === -1 ? paragraphText.length : sentenceEnd + 1;
+		
+		// Ištraukiame sakinį ir sutvarkome tarpus
+		let sentence = paragraphText.slice(sentenceStart, sentenceEnd).trim();
+		
+		// Jei tai dialogas (prasideda brūkšniu), įtraukiame brūkšnį
+		if (containerNode.classList.contains('dialog')) {
+			sentence = '– ' + sentence;
 		}
-
-		return containingSentence.includes(selectedText) ? containingSentence : selectedText;
+		
+		return sentence;
 	}
 
 	showSaveButton(selection, selectedText, contextSentence) {
