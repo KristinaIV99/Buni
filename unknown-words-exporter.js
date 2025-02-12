@@ -15,19 +15,14 @@ export class UnknownWordsExporter {
     processText(text, unknownWords) {
 		console.log(`${this.APP_NAME} Pradedu teksto apdorojimą`);
 		console.log(`Viso nežinomų žodžių: ${unknownWords.length}`);
-
-		// Turime paragrafus iš HTML
-		const paragraphs = document.querySelectorAll('.paginated-content p');
-
-		// Kiekvienam nežinomam žodžiui randame jo sakinį
+		
 		unknownWords.forEach(word => {
-			// Einame per paragrafus, kol randame sakinį su žodžiu
-			for (const p of paragraphs) {
-				const text = p.textContent;
-				if (text.toLowerCase().includes(word.toLowerCase())) {
-					this.sentences.set(word, new Set([text]));
-					break; // Radome sakinį, einame prie kito žodžio
-				}
+			const wordRegex = new RegExp(`[^.!?]*\\b${word}\\b[^.!?]*[.!?]`, 'gi');
+			const matches = text.match(wordRegex);
+			
+			if (matches && matches.length > 0) {
+				// Išsaugome pirmą rastą sakinį su šiuo žodžiu
+				this.sentences.set(word, new Set([matches[0].trim()]));
 			}
 		});
 
