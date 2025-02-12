@@ -15,19 +15,28 @@ export class UnknownWordsExporter {
     processText(text, unknownWords) {
 		console.log(`${this.APP_NAME} Pradedu teksto apdorojimą`);
 		console.log(`Viso nežinomų žodžių: ${unknownWords.length}`);
-		
-		unknownWords.forEach(word => {
-			const wordRegex = new RegExp(`[^.!?]*\\b${word}\\b[^.!?]*[.!?]`, 'gi');
-			const matches = text.match(wordRegex);
-			
-			if (matches && matches.length > 0) {
-				// Išsaugome pirmą rastą sakinį su šiuo žodžiu
-				this.sentences.set(word, new Set([matches[0].trim()]));
-			}
+    
+		// Padalinkime tekstą į sakinius iš anksto
+		const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
+    
+		// Sukuriame žodžių lookup objektą greitesnei paieškai
+		const sentenceMap = new Map();
+    
+		// Prafiltruojame sakinius pagal žodžius
+		sentences.forEach(sentence => {
+			const lowerSentence = sentence.toLowerCase();
+			unknownWords.forEach(word => {
+				if (lowerSentence.includes(word.toLowerCase())) {
+					sentenceMap.set(word, sentence.trim());
+				}
+			});
 		});
+    
+		// Išsaugome rezultatus
+		this.sentences = sentenceMap;
 
 		console.log(`${this.APP_NAME} Apdorota ${this.sentences.size} žodžių`);
-		console.log(`${this.APP_NAME} Nerasta ${unknownWords.length - this.sentences.size} žodžių`);
+	console.log(`${this.APP_NAME} Nerasta ${unknownWords.length - this.sentences.size} žodžių`);
 	}
 
     exportToTxt() {
