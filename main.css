@@ -337,8 +337,8 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .export-button {
-        top: 5px;
-        right: 5px;
+        top: 3px;
+        right: 3px;
         width: 30px;
         height: 30px;
         padding: 0;
@@ -430,8 +430,8 @@ hr {
 /* Mobilūs įrenginiai */
 @media (max-width: 768px) {
     .file-input-wrapper {
-        top: 5px;
-        left: 5px;
+        top: 3px;
+        left: 3px;
         width: 30px;
     }
     
@@ -899,8 +899,8 @@ hr {
 @media (max-width: 768px) {
     .view-saved-button {
         position: fixed;
-        top: 5px;
-        right: 60px; /* 5px nuo eksporto mygtuko */
+        top: 3px;
+        right: 58px; /* 5px nuo eksporto mygtuko */
         width: 30px;
         height: 30px;
         padding: 0;
