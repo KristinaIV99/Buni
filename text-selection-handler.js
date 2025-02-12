@@ -79,56 +79,122 @@ class TextSelectionHandler {
 
     extractContextSentence(selection) {
         const range = selection.getRangeAt(0);
-        let node = range.startContainer;
-        
-        while (node && (!node.textContent || node.textContent.trim().length === 0)) {
-            node = node.parentNode;
-        }
-        
-        if (!node) return selection.toString();
-        
-        const fullText = node.textContent;
-        const selectedText = selection.toString();
-        
-        const sentenceRegex = /[^.!?]+[.!?]+/g;
-        const sentences = fullText.match(sentenceRegex) || [fullText];
-        
-        return sentences.find(sentence => 
-            sentence.includes(selectedText.trim())
-        ) || selectedText;
-    }
+		let node = range.startContainer;
+		
+		while (node && (!node.textContent || node.textContent.trim().length === 0)) {
+			node = node.parentNode;
+		}
+		
+		if (!node) return selection.toString();
+		
+		const fullText = node.textContent;
+		const selectedText = selection.toString().trim();
+		
+		// Gauname pažymėto teksto poziciją
+		const preSelectionRange = range.cloneRange();
+		preSelectionRange.selectNodeContents(node);
+		preSelectionRange.setEnd(range.startContainer, range.startOffset);
+		const selectionStart = preSelectionRange.toString().length;
+		const selectionEnd = selectionStart + selectedText.length;
 
-    showSaveButton(selection, selectedText, contextSentence) {
-        const oldButton = document.querySelector('.selection-save-button');
-        if (oldButton) oldButton.remove();
+		// Funkcija dialogo tęsinio patikrinimui
+		const isDialogueContinuation = (text, position) => {
+			const nextChar = text.charAt(position + 1);
+			if (!nextChar) return false;
+			
+			let i = position + 1;
+			while (i < text.length && [' ', '–', '-'].includes(text[i])) {
+				i++;
+			}
+			return text[i] && text[i] === text[i].toLowerCase() && text[i] !== ' ';
+		};
 
-        const range = selection.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
+		// Randame sakinio pradžią
+		let sentenceStart = selectionStart;
+		while (sentenceStart > 0) {
+			const char = fullText.charAt(sentenceStart - 1);
+			if (char === '\n') {
+				break;
+			}
+			if (['.', '?', '!'].includes(char) && !isDialogueContinuation(fullText, sentenceStart - 1)) {
+				break;
+			}
+			sentenceStart--;
+		}
 
-        const button = document.createElement('button');
-        button.className = 'selection-save-button';
-        button.textContent = 'Išsaugoti';
-        
-        const verticalPosition = rect.top + window.scrollY - 50;
-        const horizontalPosition = rect.left + (rect.width / 2);
-        
-        button.style.position = 'absolute';
-        button.style.top = `${verticalPosition}px`;
-        button.style.left = `${horizontalPosition}px`;
-        button.style.transform = 'translate(-50%, -100%)';
+		// Randame sakinio pabaigą
+		let sentenceEnd = selectionEnd;
+		while (sentenceEnd < fullText.length) {
+			const char = fullText.charAt(sentenceEnd);
+			if (char === '\n') {
+				const prevChar = fullText.charAt(sentenceEnd - 1);
+				if (prevChar === ',' || 
+					!/[.!?]/.test(prevChar) || 
+					['', '', '~', ',', ','].includes(prevChar)) {
+					if (!/[.!?]/.test(prevChar) && 
+						(/\w/.test(prevChar) || ['', '', '~', ',', ','].includes(prevChar))) {
+						break;
+					}
+				}
+				while (sentenceEnd > 0 && !['.', '?', '!'].includes(fullText.charAt(sentenceEnd - 1))) {
+					sentenceEnd--;
+				}
+				break;
+			}
+			if (['.', '?', '!'].includes(char)) {
+				sentenceEnd++;
+				if (isDialogueContinuation(fullText, sentenceEnd - 1)) {
+					continue;
+				}
+				break;
+			}
+			sentenceEnd++;
+		}
 
-        button.addEventListener('click', () => {
-            this.saveSelection(selectedText, contextSentence);
-            button.remove();
-            window.getSelection().removeAllRanges();
-        });
+		// Ištraukiame pilną sakinį ir tikriname brūkšnius/kabutes
+		let containingSentence = fullText.substring(sentenceStart, sentenceEnd).trim();
+		
+		if (sentenceStart > 0) {
+			const prevChar = fullText.charAt(sentenceStart - 1);
+			if (prevChar === '–' || prevChar === '-' || prevChar === '"') {
+				containingSentence = prevChar + containingSentence;
+			}
+		}
 
-        document.body.appendChild(button);
-        setTimeout(() => button.remove(), 3000);
-    }
+		return containingSentence.includes(selectedText) ? containingSentence : selectedText;
+	}
 
-    showSavedTextsModal() {
-        console.log(`${this.APP_NAME} Rodomas išsaugotų tekstų modalinis langas`);
+	showSaveButton(selection, selectedText, contextSentence) {
+		const oldButton = document.querySelector('.selection-save-button');
+		if (oldButton) oldButton.remove();
+
+		const range = selection.getRangeAt(0);
+		const rect = range.getBoundingClientRect();
+
+		const button = document.createElement('button');
+		button.className = 'selection-save-button';
+		button.textContent = 'Išsaugoti';
+		
+		const verticalPosition = rect.top + window.scrollY - 50;
+		const horizontalPosition = rect.left + (rect.width / 2);
+		
+		button.style.position = 'absolute';
+		button.style.top = `${verticalPosition}px`;
+		button.style.left = `${horizontalPosition}px`;
+		button.style.transform = 'translate(-50%, -100%)';
+
+		button.addEventListener('click', () => {
+			this.saveSelection(selectedText, contextSentence);
+			button.remove();
+			window.getSelection().removeAllRanges();
+		});
+
+		document.body.appendChild(button);
+		setTimeout(() => button.remove(), 3000);
+	}
+
+	showSavedTextsModal() {
+	console.log(`${this.APP_NAME} Rodomas išsaugotų tekstų modalinis langas`);
         const modal = document.createElement('div');
         modal.className = 'saved-texts-modal';
         
