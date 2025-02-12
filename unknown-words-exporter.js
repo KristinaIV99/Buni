@@ -16,49 +16,38 @@ export class UnknownWordsExporter {
 		console.log(`${this.APP_NAME} Pradedu teksto apdorojimą`);
 		console.log(`Viso nežinomų žodžių: ${unknownWords.length}`);
 
-		// Gauname dabartinį HTML iš DOM
+		// Gauname HTML elementą
 		const contentDiv = document.querySelector('.text-content');
-		if (!contentDiv) {
-			console.error('Nerastas teksto turinys');
-			return;
-		}
-
-		// Ieškome per visus paragrafus
 		const paragraphs = contentDiv.getElementsByTagName('p');
 
+		// Einame per kiekvieną nežinomą žodį iš statistikos
 		unknownWords.forEach(word => {
-			const wordPattern = new RegExp(word, 'i');
-			let bestSentence = null;
-
 			Array.from(paragraphs).forEach(p => {
-			const paragraphText = p.textContent;
-				const wordIndex = paragraphText.toLowerCase().indexOf(word.toLowerCase());
+				const paragraphText = p.textContent;
 				
-				if (wordIndex === -1) return;
+				// Ar yra žodis šiame paragrafe?
+				if (paragraphText.toLowerCase().includes(word.toLowerCase())) {
+					// Randame sakinio pradžią
+					let sentenceStart = paragraphText.lastIndexOf('.', 
+						paragraphText.toLowerCase().indexOf(word.toLowerCase()));
+					sentenceStart = sentenceStart === -1 ? 0 : sentenceStart + 1;
 
-				// Randame sakinio pradžią
-				let sentenceStart = paragraphText.lastIndexOf('.', wordIndex);
-				sentenceStart = sentenceStart === -1 ? 0 : sentenceStart + 1;
+					// Randame sakinio pabaigą
+					let sentenceEnd = paragraphText.indexOf('.', 
+						paragraphText.toLowerCase().indexOf(word.toLowerCase()) + word.length);
+					sentenceEnd = sentenceEnd === -1 ? paragraphText.length : sentenceEnd + 1;
 
-				// Randame sakinio pabaigą
-				let sentenceEnd = paragraphText.indexOf('.', wordIndex + word.length);
-				sentenceEnd = sentenceEnd === -1 ? paragraphText.length : sentenceEnd + 1;
-
-				// Ištraukiame sakinį
-				const sentence = paragraphText.slice(sentenceStart, sentenceEnd).trim();
-
-				// Išsaugome, jei randame
-				if (sentence && sentence.includes(word)) {
-					bestSentence = sentence;
-					return;
+					// Ištraukiame sakinį
+					const sentence = paragraphText.slice(sentenceStart, sentenceEnd).trim();
+					
+					// Jei radome tinkamą sakinį, išsaugome
+					if (sentence.toLowerCase().includes(word.toLowerCase())) {
+						this.sentences.set(word, new Set([sentence]));
+					}
 				}
 			});
-
-			if (bestSentence) {
-				this.sentences.set(word, new Set([bestSentence]));
-			}
 		});
-    
+		
 		console.log(`${this.APP_NAME} Apdorota ${this.sentences.size} žodžių`);
 		console.log(`${this.APP_NAME} Nerasta ${unknownWords.length - this.sentences.size} žodžių`);
 	}
