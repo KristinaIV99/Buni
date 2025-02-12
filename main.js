@@ -1,4 +1,3 @@
-
 // main.js
 import { TextNormalizer } from './text-normalizer.js';
 import { TextReader } from './text-reader.js';
@@ -401,20 +400,26 @@ class App {
 
     	async handleExport() {
 			try {
-			const knownWords = this.dictionaryManager.getDictionaryWords();
-			// Naudojame originalų tekstą nežinomų žodžių gavimui
-			const unknownWords = this.textStatistics.getUnknownWords(this.currentText, knownWords);
+				const knownWords = this.dictionaryManager.getDictionaryWords();
+				const unknownWords = this.textStatistics.getUnknownWords(this.currentText, knownWords);
 
-			// Perduodame originalų tekstą į eksporterį
-			this.unknownWordsExporter.processText(this.currentText, unknownWords);
-			this.unknownWordsExporter.exportToTxt();
-			
-			console.log(`${this.APP_NAME} Nežinomi žodžiai eksportuoti sėkmingai`);
-		} catch(error) {
-			console.error(`${this.APP_NAME} Klaida eksportuojant nežinomus žodžius:`, error);
-			this.showError('Klaida eksportuojant nežinomus žodžius');
+				// Gauname visą HTML turinį (ne tik dabartinį puslapį)
+				const div = document.createElement('div');
+				div.className = 'text-content';
+				const highlightedHtml = await this.textHighlighter.processText(this.currentText, 
+					await this.htmlConverter.convertToHtml(this.currentText));
+				div.innerHTML = highlightedHtml;
+
+				// Perduodame visą tekstą į eksporterį
+				this.unknownWordsExporter.processText(div, unknownWords);
+				this.unknownWordsExporter.exportToTxt();
+				
+				console.log(`${this.APP_NAME} Nežinomi žodžiai eksportuoti sėkmingai`);
+			} catch(error) {
+				console.error(`${this.APP_NAME} Klaida eksportuojant nežinomus žodžius:`, error);
+				this.showError('Klaida eksportuojant nežinomus žodžius');
+			}
 		}
-	}
 
     async handleDictionaryFiles(e) {
         const files = Array.from(e.target.files);
