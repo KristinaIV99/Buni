@@ -19,34 +19,51 @@ export class UnknownWordsExporter {
 		const wordsWithoutContext = [];
 		
 		unknownWords.forEach(word => {
-			// Randame žodžio poziciją
-			const index = text.toLowerCase().indexOf(word.toLowerCase());
+			const sentences = []; // Saugosime visus rastus sakinius
 			
-			if (index !== -1) {
-				// Randame sakinio pradžią (ieškome taško prieš žodį)
-				let sentenceStart = text.lastIndexOf('.', index);
+			// Randame žodžio poziciją
+			let currentIndex = 0;
+			let bestSentence = null;
+			let shortestLength = Infinity;
+			
+			// Ieškome visų sakinio variantų su šiuo žodžiu
+			while ((currentIndex = text.toLowerCase().indexOf(word.toLowerCase(), currentIndex)) !== -1) {
+				let sentenceStart = text.lastIndexOf('.', currentIndex);
 				sentenceStart = sentenceStart === -1 ? 0 : sentenceStart + 1;
 				
-				// Randame sakinio pabaigą (ieškome taško po žodžio)
-				let sentenceEnd = text.indexOf('.', index);
+				let sentenceEnd = text.indexOf('.', currentIndex);
 				sentenceEnd = sentenceEnd === -1 ? text.length : sentenceEnd + 1;
 				
-				// Ištraukiame sakinį
 				const sentence = text.slice(sentenceStart, sentenceEnd).trim();
+				sentences.push(sentence);
 				
-				this.sentences.set(word, new Set([sentence]));
+				// Tikriname ar šis sakinys geresnis
+				const wordCount = sentence.split(' ').length;
+				if (wordCount <= 15) {
+					bestSentence = sentence;
+					break; // Radome trumpą sakinį, galime baigti paiešką
+				} else if (wordCount < shortestLength) {
+					shortestLength = wordCount;
+					bestSentence = sentence;
+				}
+				
+				currentIndex = sentenceEnd;
+			}
+			
+			if (bestSentence) {
+				this.sentences.set(word, new Set([bestSentence]));
 			} else {
 				// Bandome su brūkšneliu
-				const hyphenIndex = text.toLowerCase().indexOf(`-${word.toLowerCase()}`);
-				if (hyphenIndex !== -1) {
-					let sentenceStart = text.lastIndexOf('.', hyphenIndex);
+				currentIndex = text.toLowerCase().indexOf(`-${word.toLowerCase()}`);
+				if (currentIndex !== -1) {
+					let sentenceStart = text.lastIndexOf('.', currentIndex);
 					sentenceStart = sentenceStart === -1 ? 0 : sentenceStart + 1;
 					
-					let sentenceEnd = text.indexOf('.', hyphenIndex);
+					let sentenceEnd = text.indexOf('.', currentIndex);
 					sentenceEnd = sentenceEnd === -1 ? text.length : sentenceEnd + 1;
 					
-					const sentence = text.slice(sentenceStart, sentenceEnd).trim();
-					this.sentences.set(word, new Set([sentence]));
+					bestSentence = text.slice(sentenceStart, sentenceEnd).trim();
+					this.sentences.set(word, new Set([bestSentence]));
 				} else {
 					wordsWithoutContext.push(word);
 				}
