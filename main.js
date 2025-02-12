@@ -398,29 +398,23 @@ class App {
 			pageData.totalPages > 1 ? 'flex' : 'none';
 	}
 
-    	async handleExport() {
-			try {
-				const knownWords = this.dictionaryManager.getDictionaryWords();
-				const unknownWords = this.textStatistics.getUnknownWords(this.currentText, knownWords);
-				console.log("Pirmi 20 nežinomų žodžių iš TextStatistics:", unknownWords.slice(0, 20));
+    async handleExport() {
+		try {
+			const knownWords = this.dictionaryManager.getDictionaryWords();
+			// Gauname nežinomus žodžius
+			const unknownWords = this.textStatistics.getUnknownWords(this.currentText, knownWords);
+			console.log("Nežinomų žodžių kiekis:", unknownWords.length);
 
-				// Gauname visą HTML turinį (ne tik dabartinį puslapį)
-				const div = document.createElement('div');
-				div.className = 'text-content';
-				const highlightedHtml = await this.textHighlighter.processText(this.currentText, 
-					await this.htmlConverter.convertToHtml(this.currentText));
-				div.innerHTML = highlightedHtml;
-
-				// Perduodame visą tekstą į eksporterį
-				this.unknownWordsExporter.processText(div, unknownWords);
-				this.unknownWordsExporter.exportToTxt();
-				
-				console.log(`${this.APP_NAME} Nežinomi žodžiai eksportuoti sėkmingai`);
-			} catch(error) {
-				console.error(`${this.APP_NAME} Klaida eksportuojant nežinomus žodžius:`, error);
-				this.showError('Klaida eksportuojant nežinomus žodžius');
-			}
+			// Perduodame originalų tekstą ir nežinomus žodžius į eksporterį
+			this.unknownWordsExporter.processText(this.currentText, unknownWords);
+			this.unknownWordsExporter.exportToTxt();
+			
+			console.log(`${this.APP_NAME} Nežinomi žodžiai eksportuoti sėkmingai`);
+		} catch(error) {
+			console.error(`${this.APP_NAME} Klaida eksportuojant nežinomus žodžius:`, error);
+			this.showError('Klaida eksportuojant nežinomus žodžius');
 		}
+	}
 
     async handleDictionaryFiles(e) {
         const files = Array.from(e.target.files);
