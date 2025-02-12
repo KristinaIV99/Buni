@@ -86,15 +86,15 @@ p {
     }
 
     h1 {
-        font-size: 28px; /* Mažesnis šriftas mobiliesiems */
+        font-size: 24px; /* Mažesnis šriftas mobiliesiems */
     }
 
     h2 {
-        font-size: 24px;
+        font-size: 20px;
     }
 
     h3 {
-        font-size: 20px;
+        font-size: 18px;
     }
 }
 
