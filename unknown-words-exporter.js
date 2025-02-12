@@ -15,12 +15,16 @@ export class UnknownWordsExporter {
     processText(text, unknownWords) {
 		console.log(`${this.APP_NAME} Pradedu teksto apdorojimą`);
 		console.log(`Viso nežinomų žodžių: ${unknownWords.length}`);
-		console.log("Turimas HTML turinys:", document.querySelector('.text-content').innerHTML.slice(0, 500));
-		console.log("Rastų paragrafų skaičius:", document.querySelector('.text-content').getElementsByTagName('p').length);
 
-		// Gauname HTML elementą
-		const contentDiv = document.querySelector('.text-content');
+		// Gauname tik tekstinį turinį, be statistikos
+		const contentDiv = document.querySelector('.paginated-content');
+		if (!contentDiv) {
+			console.error('Nerastas teksto turinys');
+			return;
+		}
+
 		const paragraphs = contentDiv.getElementsByTagName('p');
+		console.log("Rastų paragrafų skaičius:", paragraphs.length);
 
 		// Einame per kiekvieną nežinomą žodį iš statistikos
 		unknownWords.forEach(word => {
