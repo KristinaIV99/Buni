@@ -22,7 +22,8 @@ export class UnknownWordsExporter {
 			
 			if (matches && matches.length > 0) {
 				let bestSentence = null;
-            
+				let shortestLength = Infinity;
+				
 				// Ieškome trumpesnio, aiškesnio sakinio
 				for (const sentence of matches) {
 					const trimmed = sentence.trim();
@@ -33,22 +34,11 @@ export class UnknownWordsExporter {
 						bestSentence = trimmed;
 						break;
 					}
-				}
-				
-				// Jei neradome trumpo sakinio, ieškome bet kokio, kuris nėra per ilgas
-				if (!bestSentence) {
-					for (const sentence of matches) {
-						const trimmed = sentence.trim();
-						if (trimmed.split(' ').length <= 20) {
-							bestSentence = trimmed;
-							break;
-						}
+					// Jei neradome trumpo sakinio, saugome trumpiausią iš ilgesnių
+					else if (wordCount < shortestLength) {
+						shortestLength = wordCount;
+						bestSentence = trimmed;
 					}
-				}
-				
-				// Jei vis dar neradome tinkamo sakinio, imame pirmą
-				if (!bestSentence && matches.length > 0) {
-					bestSentence = matches[0].trim();
 				}
 
 				this.sentences.set(word, new Set([bestSentence]));
