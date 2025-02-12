@@ -84,6 +84,18 @@ p {
         padding: 0 10px 140px 10px;  /* viršus, dešinė, apačia, kairė */
         margin: 15px 0 80px 0;       /* viršus, dešinė, apačia, kairė */
     }
+
+    h1 {
+        font-size: 28px; /* Mažesnis šriftas mobiliesiems */
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    h3 {
+        font-size: 20px;
+    }
 }
 
 /* ==========================================================================
