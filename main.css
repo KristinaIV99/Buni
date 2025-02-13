@@ -728,7 +728,7 @@ hr {
         padding: 8px;
         position: fixed;
         transform: translateX(-50%);
-        left: 70% !important; /* Centruojame horizontaliai */
+        left: 50% !important; /* Centruojame horizontaliai */
         box-sizing: border-box;
     }
 
