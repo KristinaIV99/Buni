@@ -1,3 +1,4 @@
+const DEBUG = false;
 
 export class TextHighlighter {
     constructor(dictionaryManager) {
@@ -5,20 +6,17 @@ export class TextHighlighter {
         this.dictionaryManager = dictionaryManager;
         this.boundHandlePopup = this._handlePopup.bind(this);
         this.activePopup = null;
-		this.activePopup = null;
         this.savedHighlights = null;
 
-		// Pridedame globalų event listener
-		document.addEventListener('click', (e) => {
-			const target = e.target.closest('.highlight-word, .highlight-phrase');
-			if (target) {
-				console.log('Clicked on word:', target);
-				this._handlePopup(e);
-			}
-		});
-	}
+        document.addEventListener('click', (e) => {
+            const target = e.target.closest('.highlight-word, .highlight-phrase');
+            if (target) {
+                if (DEBUG) console.log('Clicked on word:', target);
+                this._handlePopup(e);
+            }
+        });
+    }
 
-    // Naujas metodas pažymėjimų išsaugojimui
     saveHighlights() {
         const highlights = document.querySelectorAll('.highlight-word, .highlight-phrase');
         this.savedHighlights = Array.from(highlights).map(el => ({
@@ -29,7 +27,6 @@ export class TextHighlighter {
         return this.savedHighlights;
     }
 
-    // Naujas metodas pažymėjimų atkūrimui
     loadHighlights(savedHighlights) {
         if (savedHighlights) {
             this.savedHighlights = savedHighlights;
@@ -37,168 +34,156 @@ export class TextHighlighter {
     }
 
     async processText(text, html, savedHighlights = null) {
-		console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
+        if (DEBUG) console.log(`${this.HIGHLIGHTER_NAME} Pradedamas teksto žymėjimas`);
 
-		try {
-			// Naudojame išsaugotus pažymėjimus jei jie yra
-			if (savedHighlights) {
-				this.loadHighlights(savedHighlights);
-			}
-			
-			const { results } = await this.dictionaryManager.findInText(text);
-			const doc = new DOMParser().parseFromString(html, 'text/html');
+        try {
+            if (savedHighlights) {
+                this.loadHighlights(savedHighlights);
+            }
+            
+            const { results } = await this.dictionaryManager.findInText(text);
+            const doc = new DOMParser().parseFromString(html, 'text/html');
 
-			// Saugome puslapiavimo elementus
-			const paginationControls = doc.querySelector('.pagination-controls');
-			if (paginationControls) {
-			paginationControls.remove();
-			}
+            const paginationControls = doc.querySelector('.pagination-controls');
+            if (paginationControls) {
+                paginationControls.remove();
+            }
 
-			// Surenkame žodžius ir frazes
-			const patterns = {};
-			results.forEach(result => {
-				const pattern = result.pattern.toLowerCase();
-				if (!patterns[pattern]) {
-					patterns[pattern] = {
-						pattern: result.pattern,
-						type: result.type,
-						info: result.info,
-						length: pattern.length
-					};
-				}
-			});
+            const patterns = {};
+            results.forEach(result => {
+                const pattern = result.pattern.toLowerCase();
+                if (!patterns[pattern]) {
+                    patterns[pattern] = {
+                        pattern: result.pattern,
+                        type: result.type,
+                        info: result.info,
+                        length: pattern.length
+                    };
+                }
+            });
 
-			// Rūšiuojame patterns
-			const sortedPatterns = Object.entries(patterns).sort((a, b) => b[1].length - a[1].length);
-			console.log('Surūšiuoti šablonai:', sortedPatterns);
+            const sortedPatterns = Object.entries(patterns).sort((a, b) => b[1].length - a[1].length);
+            if (DEBUG) console.log('Surūšiuoti šablonai:', sortedPatterns);
 
-			// Apdorojame tekstą
-			this._processNode(doc.body, Object.fromEntries(sortedPatterns));
+            this._processNode(doc.body, Object.fromEntries(sortedPatterns));
 
-			// Grąžiname puslapiavimo elementus
-			if (paginationControls) {
-				doc.body.appendChild(paginationControls);
-			}
+            if (paginationControls) {
+                doc.body.appendChild(paginationControls);
+            }
 
-			// Grąžiname rezultatą
-			const processedHtml = doc.body.innerHTML;
-			
-			// Išsaugome pažymėjimus po apdorojimo
-			this.saveHighlights();
-			
-			return processedHtml;
-		} catch (error) {
-			console.error('Klaida žymint tekstą:', error);
-			return html;
-		}
-	}
+            const processedHtml = doc.body.innerHTML;
+            this.saveHighlights();
+            
+            return processedHtml;
+        } catch (error) {
+            console.error('Klaida žymint tekstą:', error);
+            return html;
+        }
+    }
 
     _processNode(node, words) {
-		console.log('Processing node:', node.nodeType, node.textContent?.slice(0, 50));
-		
-		if (node.nodeType === Node.TEXT_NODE && !this._isInPaginationControls(node)) {
-			const text = node.textContent;
-			const newNode = this._highlightWords(text, words);
-			if (newNode) {
-				node.parentNode.replaceChild(newNode, node);
-			}
-		} else if (node.childNodes && !node.classList?.contains('pagination-controls')) {
-			Array.from(node.childNodes).forEach(child => {
-				this._processNode(child, words);
-			});
-		}
-	}
+        if (DEBUG) console.log('Processing node:', node.nodeType, node.textContent?.slice(0, 50));
+        
+        if (node.nodeType === Node.TEXT_NODE && !this._isInPaginationControls(node)) {
+            const text = node.textContent;
+            const newNode = this._highlightWords(text, words);
+            if (newNode) {
+                node.parentNode.replaceChild(newNode, node);
+            }
+        } else if (node.childNodes && !node.classList?.contains('pagination-controls')) {
+            Array.from(node.childNodes).forEach(child => {
+                this._processNode(child, words);
+            });
+        }
+    }
 
-	_isInPaginationControls(node) {
-		let current = node;
-		while (current) {
-			if (current.classList?.contains('pagination-controls')) {
-				return true;
-			}
-			current = current.parentNode;
-		}
-		return false;
-	}
+    _isInPaginationControls(node) {
+        let current = node;
+        while (current) {
+            if (current.classList?.contains('pagination-controls')) {
+                return true;
+            }
+            current = current.parentNode;
+        }
+        return false;
+    }
 
     _highlightWords(text, words) {
-		const wordBoundaryRegex = /[\s.,!?;:'"„"\(\)\[\]{}<>\/\-—–]/;
-		
-		function isWordBoundary(char) {
-			return !char || wordBoundaryRegex.test(char);
-		}
+        const wordBoundaryRegex = /[\s.,!?;:'"„"\(\)\[\]{}<>\/\-—–]/;
+        
+        function isWordBoundary(char) {
+            return !char || wordBoundaryRegex.test(char);
+        }
 
-		function isFullWord(text, start, end) {
-			const prevChar = start > 0 ? text[start - 1] : ' ';
-			const nextChar = end < text.length ? text[end] : ' ';
-			return isWordBoundary(prevChar) && isWordBoundary(nextChar);
-		}
+        function isFullWord(text, start, end) {
+            const prevChar = start > 0 ? text[start - 1] : ' ';
+            const nextChar = end < text.length ? text[end] : ' ';
+            return isWordBoundary(prevChar) && isWordBoundary(nextChar);
+        }
 
-		const matches = [];
-		Object.keys(words).forEach(word => {
-			let index = 0;
-			const lowerText = text.toLowerCase();
-			
-			while ((index = lowerText.indexOf(word, index)) !== -1) {
-				if (isFullWord(text, index, index + word.length)) {
-					matches.push({
-						start: index,
-						end: index + word.length,
-						word: text.slice(index, index + word.length),
-						...words[word]
-					});
-				}
-				index += 1;
-			}
-		});
+        const matches = [];
+        Object.keys(words).forEach(word => {
+            let index = 0;
+            const lowerText = text.toLowerCase();
+            
+            while ((index = lowerText.indexOf(word, index)) !== -1) {
+                if (isFullWord(text, index, index + word.length)) {
+                    matches.push({
+                        start: index,
+                        end: index + word.length,
+                        word: text.slice(index, index + word.length),
+                        ...words[word]
+                    });
+                }
+                index += 1;
+            }
+        });
 
-		matches.sort((a, b) => a.start - b.start);
-		const filteredMatches = this._filterOverlappingMatches(matches);
+        matches.sort((a, b) => a.start - b.start);
+        const filteredMatches = this._filterOverlappingMatches(matches);
 
-		const fragment = document.createDocumentFragment();
-		let lastIndex = 0;
+        const fragment = document.createDocumentFragment();
+        let lastIndex = 0;
 
-		filteredMatches.forEach(match => {
-			if (match.start > lastIndex) {
-				fragment.appendChild(
-					document.createTextNode(text.slice(lastIndex, match.start))
-				);
-			}
+        filteredMatches.forEach(match => {
+            if (match.start > lastIndex) {
+                fragment.appendChild(
+                    document.createTextNode(text.slice(lastIndex, match.start))
+                );
+            }
 
-			const span = document.createElement('span');
-			span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
-			span.textContent = match.word;
-			
-			// Patikriname ar yra info objektas ir jo turinys
-			console.log('Match info:', match.info); // Debuginimui
-			
-			// Sukuriame meanings masyvą
-			const meanings = match.info?.meanings || [{
-				"vertimas": match.info?.vertimas || '-',
-				"kalbos dalis": match.info?.["kalbos dalis"] || '-',
-				"bazinė forma": match.info?.["bazinė forma"] || '-',
-				"bazė vertimas": match.info?.["bazė vertimas"] || '-',
-				"CERF": match.info?.CERF || '-'
-			}];
+            const span = document.createElement('span');
+            span.className = match.type === 'phrase' ? 'highlight-phrase' : 'highlight-word';
+            span.textContent = match.word;
+            
+            if (DEBUG) console.log('Match info:', match.info);
+            
+            const meanings = match.info?.meanings || [{
+                "vertimas": match.info?.vertimas || '-',
+                "kalbos dalis": match.info?.["kalbos dalis"] || '-',
+                "bazinė forma": match.info?.["bazinė forma"] || '-',
+                "bazė vertimas": match.info?.["bazė vertimas"] || '-',
+                "CERF": match.info?.CERF || '-'
+            }];
 
-			// Perduodame į dataset
-			span.dataset.info = JSON.stringify({
-				text: match.word,
-				type: match.type,
-				meanings: meanings
-			});
+            span.dataset.info = JSON.stringify({
+                text: match.word,
+                type: match.type,
+                meanings: meanings
+            });
 
-			fragment.appendChild(span);
-			lastIndex = match.end;
-		});
+            fragment.appendChild(span);
+            lastIndex = match.end;
+        });
 
-		if (lastIndex < text.length) {
-			fragment.appendChild(
-				document.createTextNode(text.slice(lastIndex))
-			);
-		}
+        if (lastIndex < text.length) {
+            fragment.appendChild(
+                document.createTextNode(text.slice(lastIndex))
+            );
+        }
 
-		return fragment;
-	}
+        return fragment;
+    }
 
 	_filterOverlappingMatches(matches) {
 		// Rūšiuojame pagal poziciją ir ilgį (ilgesni turi prioritetą)
@@ -226,31 +211,36 @@ export class TextHighlighter {
 	}
 
     _handlePopup(event) {
-		console.log('Popup event:', event);
-		console.log('Target:', event.target);
-		console.log('Dataset:', event.target.dataset);
-		
-		event.stopPropagation();
-		event.preventDefault();
-		this._removeAllPopups();
+        if (DEBUG) {
+            console.log('Popup event:', event);
+            console.log('Target:', event.target);
+            console.log('Dataset:', event.target.dataset);
+        }
+        
+        event.stopPropagation();
+        event.preventDefault();
+        this._removeAllPopups();
 
-		try {
-			const data = event.target.dataset.info;
-			console.log('Raw data:', data);
-			const info = JSON.parse(data.replace(/&quot;/g, '"'));
-			console.log('Parsed info:', info);
-			
-			const popup = document.createElement('div');
-			popup.className = 'word-info-popup';
-			
-			// Baziniai stiliai, reikalingi popup veikimui
-			popup.style.cssText = `
-				position: absolute;
-				z-index: 9999;
-				display: block;
-				visibility: visible;
-				opacity: 1;
-			`;
+        try {
+            const data = event.target.dataset.info;
+            if (DEBUG) {
+                console.log('Raw data:', data);
+            }
+            const info = JSON.parse(data.replace(/&quot;/g, '"'));
+            if (DEBUG) {
+                console.log('Parsed info:', info);
+            }
+            
+            const popup = document.createElement('div');
+            popup.className = 'word-info-popup';
+            
+            popup.style.cssText = `
+                position: absolute;
+                z-index: 9999;
+                display: block;
+                visibility: visible;
+                opacity: 1;
+            `;
 
 			popup.innerHTML = `
 				<div class="word-info-container">
