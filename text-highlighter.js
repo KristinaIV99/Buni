@@ -1,3 +1,4 @@
+
 export class TextHighlighter {
     constructor(dictionaryManager) {
         this.HIGHLIGHTER_NAME = '[TextHighlighter]';
@@ -258,10 +259,14 @@ export class TextHighlighter {
 					${info.meanings.map((meaning, index) => `
 						${index > 0 ? '<hr class="thin-divider">' : ''}
 						<div class="meaning-block">
-							${meaning.vertimas ? `<div class="translation">${meaning.vertimas}</div>` : ''}
-							${meaning["kalbos dalis"] ? `<div class="part-of-speech">${meaning["kalbos dalis"]}</div>` : ''}
-							${meaning["bazinė forma"] ? `<div class="base-form">${meaning["bazinė forma"]}${meaning["bazė vertimas"] ? ` - ${meaning["bazė vertimas"]}` : ''}</div>` : ''}
-							${meaning.CERF ? `<div class="cerf">${meaning.CERF}</div>` : ''}
+							${meaning.vertimas && meaning.vertimas !== '-' ? `<div class="translation">${meaning.vertimas}</div>` : ''}
+							${meaning["kalbos dalis"] && meaning["kalbos dalis"] !== '-' ? `<div class="part-of-speech">${meaning["kalbos dalis"]}</div>` : ''}
+							${meaning["bazinė forma"] && meaning["bazinė forma"] !== '-' ? `
+								<div class="base-form">
+									${meaning["bazinė forma"]}${meaning["bazė vertimas"] && meaning["bazė vertimas"] !== '-' ? ` - ${meaning["bazė vertimas"]}` : ''}
+								</div>
+							` : ''}
+							${meaning.CERF && meaning.CERF !== '-' ? `<div class="cerf">${meaning.CERF}</div>` : ''}
 						</div>
 					`).join('')}
 				</div>
