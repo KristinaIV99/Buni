@@ -1,6 +1,6 @@
 {
     "name": "Mano PWA Programėlė",
-    "short_name": "MPD",
+    "short_name": "Buni",
     "description": "Programėlė skirta skaityti ir mokytis švedų kalbos",
     "start_url": "./index.html",
     "display": "standalone",
