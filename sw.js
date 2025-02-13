@@ -15,6 +15,7 @@ const STATIC_ASSETS = [
   './unknown-words-exporter.js',
   './icons/icon-192x192.png',
   './icons/icon-512x512.png',
+  './icons/favicon.ico',
   './vendor/marked.esm.js',   
   './vendor/purify.es.mjs',
   './text-highlighter.js',
