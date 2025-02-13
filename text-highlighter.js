@@ -261,9 +261,9 @@ export class TextHighlighter {
 							<div class="translation">${meaning.vertimas}</div>
 							<div class="part-of-speech">${meaning["kalbos dalis"]}</div>
 							<div class="base-form">
-								<span class="base-word">${info.text}</span> - ${meaning["bazė vertimas"]}
+								${meaning["bazinė forma"]} - ${meaning["bazė vertimas"]}
 							</div>
-							<div class="cerf">A1</div>
+							<div class="cerf">${meaning.CERF}</div>
 						</div>
 					`).join('')}
 				</div>
