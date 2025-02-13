@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mpd-v3'; // Atnaujintas versijos numeris
+const CACHE_NAME = 'mpd-v4'; // Atnaujintas versijos numeris
 const STATIC_ASSETS = [
   './',
   './index.html',
