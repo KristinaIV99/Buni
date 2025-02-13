@@ -96,14 +96,25 @@ class TextSelectionHandler {
 		const paragraphText = containerNode.textContent;
 		
 		// Randame sakinio pradžią
-		let sentenceStart = paragraphText.lastIndexOf('.', 
-			paragraphText.indexOf(selectedText));
+		let sentenceStart = Math.max(
+			paragraphText.lastIndexOf('.', paragraphText.indexOf(selectedText)),
+			paragraphText.lastIndexOf('!', paragraphText.indexOf(selectedText)),
+			paragraphText.lastIndexOf('?', paragraphText.indexOf(selectedText))
+		);
 		sentenceStart = sentenceStart === -1 ? 0 : sentenceStart + 1;
 		
 		// Randame sakinio pabaigą
-		let sentenceEnd = paragraphText.indexOf('.', 
-			paragraphText.indexOf(selectedText) + selectedText.length);
-		sentenceEnd = sentenceEnd === -1 ? paragraphText.length : sentenceEnd + 1;
+		let firstDot = paragraphText.indexOf('.', paragraphText.indexOf(selectedText) + selectedText.length);
+		let firstExcl = paragraphText.indexOf('!', paragraphText.indexOf(selectedText) + selectedText.length);
+		let firstQuest = paragraphText.indexOf('?', paragraphText.indexOf(selectedText) + selectedText.length);
+		
+		// Ignoruojame -1 reikšmes ieškant minimumo
+		let sentenceEnd = Math.min(
+			firstDot === -1 ? Infinity : firstDot,
+			firstExcl === -1 ? Infinity : firstExcl,
+			firstQuest === -1 ? Infinity : firstQuest
+		);
+		sentenceEnd = sentenceEnd === Infinity ? paragraphText.length : sentenceEnd + 1;
 		
 		// Ištraukiame sakinį ir sutvarkome tarpus
                 return paragraphText.slice(sentenceStart, sentenceEnd).trim();
