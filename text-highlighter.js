@@ -263,7 +263,7 @@ export class TextHighlighter {
 							${meaning["kalbos dalis"] && meaning["kalbos dalis"] !== '-' ? `<div class="part-of-speech">${meaning["kalbos dalis"]}</div>` : ''}
 							${meaning["bazinė forma"] && meaning["bazinė forma"] !== '-' ? `
 								<div class="base-form">
-									${meaning["bazinė forma"]}${meaning["bazė vertimas"] && meaning["bazė vertimas"] !== '-' ? ` - ${meaning["bazė vertimas"]}` : ''}
+									**${meaning["bazinė forma"]}**${meaning["bazė vertimas"] && meaning["bazė vertimas"] !== '-' ? ` - ${meaning["bazė vertimas"]}` : ''}
 								</div>
 							` : ''}
 							${meaning.CERF && meaning.CERF !== '-' ? `<div class="cerf">${meaning.CERF}</div>` : ''}
