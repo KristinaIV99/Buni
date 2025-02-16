@@ -114,7 +114,7 @@ export class UnknownWordsExporter {
 						} else {
 							// Žodis yra po dvitaškio - paimame tekstą po dvitaškio iki pirmo sakinio pabaigos ženklo
 							const afterColon = sentence.substring(colonIndex + 1).trim();
-							const match = afterColon.match(/^["'-\s]*(.*?)(?:[.!?]|$)/);
+							const match = afterColon.match(/^["'-\s]*(.*?[.!?])/);
 							if (match) {
 								finalSentence = match[1];
 							}
