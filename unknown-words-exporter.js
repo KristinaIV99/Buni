@@ -29,11 +29,32 @@ export class UnknownWordsExporter {
 			// Ieškome visų sakinio variantų su šiuo žodžiu
 			while ((currentIndex = text.toLowerCase().indexOf(word.toLowerCase(), currentIndex)) !== -1) {
 				let sentenceStart = text.lastIndexOf('.', currentIndex);
-				sentenceStart = sentenceStart === -1 ? 0 : sentenceStart + 1;
+				let questionStart = text.lastIndexOf('?', currentIndex);
+				let exclamationStart = text.lastIndexOf('!', currentIndex);
 				
-				let sentenceEnd = text.indexOf('.', currentIndex);
-				sentenceEnd = sentenceEnd === -1 ? text.length : sentenceEnd + 1;
+				// Randame artimiausią sakinio pradžią
+				sentenceStart = Math.max(
+					sentenceStart === -1 ? 0 : sentenceStart + 1,
+					questionStart === -1 ? 0 : questionStart + 1,
+					exclamationStart === -1 ? 0 : exclamationStart + 1
+				);
+
+				// Ieškome sakinio pabaigos
+				let periodEnd = text.indexOf('.', currentIndex);
+				let questionEnd = text.indexOf('?', currentIndex);
+				let exclamationEnd = text.indexOf('!', currentIndex);
 				
+				// Randame artimiausią sakinio pabaigą
+				let sentenceEnd = Math.min(
+					periodEnd === -1 ? text.length : periodEnd + 1,
+					questionEnd === -1 ? text.length : questionEnd + 1,
+					exclamationEnd === -1 ? text.length : exclamationEnd + 1
+				);
+
+				if (sentenceEnd === text.length) {
+					sentenceEnd = text.length;
+				}
+
 				const sentence = text.slice(sentenceStart, sentenceEnd).trim();
 				sentences.push(sentence);
 				
