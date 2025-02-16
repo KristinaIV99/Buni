@@ -28,23 +28,31 @@ export class UnknownWordsExporter {
 			
 			// Ieškome visų sakinio variantų su šiuo žodžiu
 			while ((currentIndex = text.toLowerCase().indexOf(word.toLowerCase(), currentIndex)) !== -1) {
-				let sentenceStart = text.lastIndexOf('.', currentIndex);
-				let questionStart = text.lastIndexOf('?', currentIndex);
-				let exclamationStart = text.lastIndexOf('!', currentIndex);
+				let sentenceStart = 0;
+				let searchPos = currentIndex;
 				
-				// Randame artimiausią sakinio pradžią
-				sentenceStart = Math.max(
-					sentenceStart === -1 ? 0 : sentenceStart + 1,
-					questionStart === -1 ? 0 : questionStart + 1,
-					exclamationStart === -1 ? 0 : exclamationStart + 1
-				);
+				// Einame atgal per tekstą ieškodami tikros sakinio pradžios
+				while (searchPos > 0) {
+					const char = text[searchPos - 1];
+					if (char === '.' || char === '?' || char === '!') {
+						// Tikriname, ar po skiriamojo ženklo eina mažoji raidė
+						if (searchPos + 1 < text.length && /[a-zåäö]/.test(text[searchPos + 1])) {
+							// Jei mažoji - tęsiame paiešką atgal
+							searchPos--;
+							continue;
+						}
+						// Jei ne mažoji - radome sakinio pradžią
+						sentenceStart = searchPos;
+						break;
+					}
+					searchPos--;
+				}
 
 				// Ieškome sakinio pabaigos
 				let periodEnd = text.indexOf('.', currentIndex);
 				let questionEnd = text.indexOf('?', currentIndex);
 				let exclamationEnd = text.indexOf('!', currentIndex);
 				
-				// Randame artimiausią sakinio pabaigą
 				let sentenceEnd = Math.min(
 					periodEnd === -1 ? text.length : periodEnd + 1,
 					questionEnd === -1 ? text.length : questionEnd + 1,
