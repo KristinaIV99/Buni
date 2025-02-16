@@ -18,6 +18,7 @@ export class UnknownWordsExporter {
             .replace(/[#*_\[\]•]/g, '')
 			.replace(/[#*_\[\]•§]/g, '')  // Pridėjome §
 			.replace(/SECTIONBREAK/g, '')  // Pridėjome SECTIONBREAK
+			.replace(/^-\s*/g, '')  // Pridėta: pašalina brūkšnelį ir tarpus pradžioje
             .replace(/\s+/g, ' ')
             .trim();
 			this.debugLog('Po valymo:', cleaned);
