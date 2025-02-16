@@ -99,6 +99,27 @@ export class UnknownWordsExporter {
 					const sentence = text.slice(sentenceStart, sentenceEnd).trim();
 					this.debugLog('Išskirtas sakinys:', sentence);
 					
+					// Tikriname ar yra citatos
+					let finalSentence = sentence;
+					
+					// Ieškome abiejų tipų citatų
+					if (sentence.includes(': "') || sentence.includes(': -')) {
+						// Skaidome pagal abi galimas citatos pradžias
+						const colonIndex = sentence.indexOf(': ');
+						if (colonIndex !== -1) {
+							// Patikriname, kurioje dalyje yra mūsų ieškomas žodis
+							const wordPosition = currentIndex - sentenceStart;
+							
+							if (wordPosition < colonIndex) {
+								// Žodis yra prieš citatą
+								finalSentence = sentence.substring(0, colonIndex + 1);
+							} else {
+								// Žodis yra citatoje
+								finalSentence = sentence.substring(colonIndex + 2).replace(/^["'-]\s*/, '').replace(/["']$/, '');
+							}
+						}
+					}
+					
 					// Tikriname ar šis sakinys geresnis
 					const wordCount = sentence.split(' ').length;
 					this.debugLog('Žodžių skaičius sakinyje:', wordCount);
