@@ -1,7 +1,15 @@
+const DEBUG = true; // arba false kai norėsime išjungti
+
 export class UnknownWordsExporter {
     constructor() {
         this.APP_NAME = '[UnknownWordsExporter]';
         this.sentences = new Map();
+    }
+
+    debugLog(...args) {
+        if (DEBUG) {
+            console.log(`${this.APP_NAME} [DEBUG]`, ...args);
+        }
     }
 
     cleanSentence(sentence) {
@@ -19,6 +27,7 @@ export class UnknownWordsExporter {
 		const wordsWithoutContext = [];
 		
 		unknownWords.forEach(word => {
+			this.debugLog('Pradedama žodžio paieška:', word);
 			const sentences = []; // Saugosime visus rastus sakinius
 			
 			// Randame žodžio poziciją
@@ -28,6 +37,9 @@ export class UnknownWordsExporter {
 			
 			// Ieškome visų sakinio variantų su šiuo žodžiu
 			while ((currentIndex = text.toLowerCase().indexOf(word.toLowerCase(), currentIndex)) !== -1) {
+				this.debugLog('Rastas žodis pozicijoje:', currentIndex);
+				this.debugLog('Tekstas aplink žodį:', text.slice(Math.max(0, currentIndex - 30), currentIndex + 30));
+				
 				let sentenceStart = 0;
 				let searchPos = currentIndex;
 				
@@ -35,14 +47,18 @@ export class UnknownWordsExporter {
 				while (searchPos > 0) {
 					const char = text[searchPos - 1];
 					if (char === '.' || char === '?' || char === '!') {
+						this.debugLog('Rastas skiriamasis ženklas:', char, 'pozicijoje:', searchPos - 1);
+						
 						// Tikriname, ar po skiriamojo ženklo eina mažoji raidė
 						if (searchPos + 1 < text.length && /[a-zåäö]/.test(text[searchPos + 1])) {
+							this.debugLog('Po skiriamojo ženklo rasta mažoji raidė:', text[searchPos + 1]);
 							// Jei mažoji - tęsiame paiešką atgal
 							searchPos--;
 							continue;
 						}
 						// Jei ne mažoji - radome sakinio pradžią
 						sentenceStart = searchPos;
+						this.debugLog('Rasta sakinio pradžia pozicijoje:', sentenceStart);
 						break;
 					}
 					searchPos--;
@@ -53,25 +69,39 @@ export class UnknownWordsExporter {
 				let questionEnd = text.indexOf('?', currentIndex);
 				let exclamationEnd = text.indexOf('!', currentIndex);
 				
+				this.debugLog('Rasti galimi sakinio pabaigos ženklai:', {
+					taškas: periodEnd,
+					klaustukas: questionEnd,
+					šauktukas: exclamationEnd
+				});
+				
 				let sentenceEnd = Math.min(
 					periodEnd === -1 ? text.length : periodEnd + 1,
 					questionEnd === -1 ? text.length : questionEnd + 1,
 					exclamationEnd === -1 ? text.length : exclamationEnd + 1
 				);
 
+				this.debugLog('Nustatyta sakinio pabaiga:', sentenceEnd);
+
 				if (sentenceEnd === text.length) {
 					sentenceEnd = text.length;
 				}
 
 				const sentence = text.slice(sentenceStart, sentenceEnd).trim();
+				this.debugLog('Išskirtas sakinys:', sentence);
+
 				sentences.push(sentence);
 				
 				// Tikriname ar šis sakinys geresnis
 				const wordCount = sentence.split(' ').length;
+				this.debugLog('Žodžių skaičius sakinyje:', wordCount);
+
 				if (wordCount <= 15) {
+					this.debugLog('Rastas tinkamo ilgio sakinys (<=15 žodžių)');
 					bestSentence = sentence;
 					break; // Radome trumpą sakinį, galime baigti paiešką
 				} else if (wordCount < shortestLength) {
+					this.debugLog('Rastas trumpesnis sakinys nei ankstesnis');
 					shortestLength = wordCount;
 					bestSentence = sentence;
 				}
@@ -80,8 +110,10 @@ export class UnknownWordsExporter {
 			}
 			
 			if (bestSentence) {
+				this.debugLog('Išsaugomas sakinys žodžiui:', word, ':', bestSentence);
 				this.sentences.set(word, new Set([bestSentence]));
 			} else {
+				this.debugLog('Bandoma ieškoti su brūkšneliu žodžiui:', word);
 				// Bandome su brūkšneliu
 				currentIndex = text.toLowerCase().indexOf(`-${word.toLowerCase()}`);
 				if (currentIndex !== -1) {
@@ -92,8 +124,10 @@ export class UnknownWordsExporter {
 					sentenceEnd = sentenceEnd === -1 ? text.length : sentenceEnd + 1;
 					
 					bestSentence = text.slice(sentenceStart, sentenceEnd).trim();
+					this.debugLog('Rastas sakinys su brūkšneliu:', bestSentence);
 					this.sentences.set(word, new Set([bestSentence]));
 				} else {
+					this.debugLog('Žodis nerastas jokiame kontekste:', word);
 					wordsWithoutContext.push(word);
 				}
 			}
