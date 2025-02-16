@@ -16,11 +16,19 @@ export class UnknownWordsExporter {
         return sentence
             .replace(/^["']|["']$/g, '')
             .replace(/[#*_\[\]•]/g, '')
+			.replace(/[#*_\[\]•§]/g, '')  // Pridėjome §
+			.replace(/SECTIONBREAK/g, '')  // Pridėjome SECTIONBREAK
             .replace(/\s+/g, ' ')
             .trim();
+			this.debugLog('Po valymo:', cleaned);
+			return cleaned;
     }
 
     processText(text, unknownWords) {
+		// Pirma išvalome visą tekstą
+		text = text.replace(/§SECTIONBREAK§/g, '');
+		this.debugLog('Pradinis tekstas po valymo (pirmi 200 simboliai):', text.substring(0, 200));
+
 		console.log(`${this.APP_NAME} Pradedu teksto apdorojimą`);
 		console.log(`Viso nežinomų žodžių: ${unknownWords.length}`);
 		
