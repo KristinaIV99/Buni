@@ -103,8 +103,7 @@ export class UnknownWordsExporter {
 					let finalSentence = sentence;
 					
 					// Ieškome dvitaškio su citata
-					const colonQuoteMatch = sentence.match(/:(.*?["'])/);
-					if (colonQuoteMatch) {
+					if (sentence.includes(':')) {
 						const colonIndex = sentence.indexOf(':');
 						// Patikriname, kurioje dalyje yra mūsų ieškomas žodis
 						const wordPosition = currentIndex - sentenceStart;
@@ -113,12 +112,15 @@ export class UnknownWordsExporter {
 							// Žodis yra prieš dvitaškį
 							finalSentence = sentence.substring(0, colonIndex + 1);
 						} else {
-							// Žodis yra po dvitaškio
+							// Žodis yra po dvitaškio - paimame tekstą po dvitaškio iki pirmo sakinio pabaigos ženklo
 							const afterColon = sentence.substring(colonIndex + 1).trim();
-							finalSentence = afterColon.replace(/^["'-]\s*/, '').replace(/["']$/, '');
+							const match = afterColon.match(/^["'-\s]*(.*?)(?:[.!?]|$)/);
+							if (match) {
+								finalSentence = match[1];
+							}
 						}
 					}
-					
+
 					this.debugLog('Galutinis sakinys:', finalSentence);
 					
 					// Tikriname ar šis sakinys geresnis
