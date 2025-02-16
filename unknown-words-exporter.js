@@ -102,23 +102,24 @@ export class UnknownWordsExporter {
 					// Tikriname ar yra citatos
 					let finalSentence = sentence;
 					
-					// Ieškome abiejų tipų citatų
-					if (sentence.includes(': "') || sentence.includes(': -')) {
-						// Skaidome pagal abi galimas citatos pradžias
-						const colonIndex = sentence.indexOf(': ');
-						if (colonIndex !== -1) {
-							// Patikriname, kurioje dalyje yra mūsų ieškomas žodis
-							const wordPosition = currentIndex - sentenceStart;
-							
-							if (wordPosition < colonIndex) {
-								// Žodis yra prieš citatą
-								finalSentence = sentence.substring(0, colonIndex + 1);
-							} else {
-								// Žodis yra citatoje
-								finalSentence = sentence.substring(colonIndex + 2).replace(/^["'-]\s*/, '').replace(/["']$/, '');
-							}
+					// Ieškome dvitaškio su citata
+					const colonQuoteMatch = sentence.match(/:(.*?["'])/);
+					if (colonQuoteMatch) {
+						const colonIndex = sentence.indexOf(':');
+						// Patikriname, kurioje dalyje yra mūsų ieškomas žodis
+						const wordPosition = currentIndex - sentenceStart;
+						
+						if (wordPosition < colonIndex) {
+							// Žodis yra prieš dvitaškį
+							finalSentence = sentence.substring(0, colonIndex + 1);
+						} else {
+							// Žodis yra po dvitaškio
+							const afterColon = sentence.substring(colonIndex + 1).trim();
+							finalSentence = afterColon.replace(/^["'-]\s*/, '').replace(/["']$/, '');
 						}
 					}
+					
+					this.debugLog('Galutinis sakinys:', finalSentence);
 					
 					// Tikriname ar šis sakinys geresnis
 					const wordCount = sentence.split(' ').length;
@@ -126,12 +127,12 @@ export class UnknownWordsExporter {
 
 					if (wordCount <= 15) {
 						this.debugLog('Rastas tinkamo ilgio sakinys (<=15 žodžių)');
-						bestSentence = sentence;
+						bestSentence = finalSentence;
 						break; // Radome trumpą sakinį, galime baigti paiešką
 					} else if (wordCount < shortestLength) {
 						this.debugLog('Rastas trumpesnis sakinys nei ankstesnis');
 						shortestLength = wordCount;
-						bestSentence = sentence;
+						bestSentence = finalSentence;
 					}
 					
 					currentIndex = sentenceEnd;
