@@ -45,73 +45,81 @@ export class UnknownWordsExporter {
 			
 			// Ieškome visų sakinio variantų su šiuo žodžiu
 			while ((currentIndex = text.toLowerCase().indexOf(word.toLowerCase(), currentIndex)) !== -1) {
-				this.debugLog('Rastas žodis pozicijoje:', currentIndex);
-				this.debugLog('Tekstas aplink žodį:', text.slice(Math.max(0, currentIndex - 30), currentIndex + 30));
+				// Patikriname, ar tai tikrai atskiras žodis
+				const beforeChar = currentIndex === 0 ? ' ' : text[currentIndex - 1];
+				const afterChar = currentIndex + word.length >= text.length ? ' ' : text[currentIndex + word.length];
 				
-				let sentenceStart = 0;
-				let searchPos = currentIndex;
-				
-				// Einame atgal per tekstą ieškodami tikros sakinio pradžios
-				while (searchPos > 0) {
-					const char = text[searchPos - 1];
-					if (char === '.' || char === '?' || char === '!') {
-						this.debugLog('Rastas skiriamasis ženklas:', char, 'pozicijoje:', searchPos - 1);
-						
-						// Tikriname, ar po skiriamojo ženklo eina mažoji raidė
-						if (searchPos + 2 < text.length && text[searchPos] === ' ' && /[a-zåäö]/.test(text[searchPos + 1])) {
-							this.debugLog('Po skiriamojo ženklo rasta mažoji raidė:', text[searchPos + 1]);
-							// Jei mažoji - tęsiame paiešką atgal
-							searchPos--;
-							continue;
+				if (!/[a-zåäö]/i.test(beforeChar) && !/[a-zåäö]/i.test(afterChar)) {
+					this.debugLog('Rastas žodis pozicijoje:', currentIndex);
+					this.debugLog('Tekstas aplink žodį:', text.slice(Math.max(0, currentIndex - 30), currentIndex + 30));
+					
+					let sentenceStart = 0;
+					let searchPos = currentIndex;
+					
+					// Einame atgal per tekstą ieškodami tikros sakinio pradžios
+					while (searchPos > 0) {
+						const char = text[searchPos - 1];
+						if (char === '.' || char === '?' || char === '!') {
+							this.debugLog('Rastas skiriamasis ženklas:', char, 'pozicijoje:', searchPos - 1);
+							
+							// Tikriname, ar po skiriamojo ženklo eina mažoji raidė
+							if (searchPos + 2 < text.length && text[searchPos] === ' ' && /[a-zåäö]/.test(text[searchPos + 1])) {
+								this.debugLog('Po skiriamojo ženklo rasta mažoji raidė:', text[searchPos + 1]);
+								// Jei mažoji - tęsiame paiešką atgal
+								searchPos--;
+								continue;
+							}
+							// Jei ne mažoji - radome sakinio pradžią
+							sentenceStart = searchPos;
+							this.debugLog('Rasta sakinio pradžia pozicijoje:', sentenceStart);
+							break;
 						}
-						// Jei ne mažoji - radome sakinio pradžią
-						sentenceStart = searchPos;
-						this.debugLog('Rasta sakinio pradžia pozicijoje:', sentenceStart);
-						break;
+						searchPos--;
 					}
-					searchPos--;
-				}
 
-				// Ieškome sakinio pabaigos
-				let sentenceEnd = currentIndex;
-				while (sentenceEnd < text.length) {
-					if (text[sentenceEnd] === '.' || text[sentenceEnd] === '?' || text[sentenceEnd] === '!') {
-						// Tikriname, ar po skiriamojo ženklo eina tarpas ir mažoji raidė
-						if (sentenceEnd + 2 < text.length && text[sentenceEnd + 1] === ' ' && /[a-zåäö]/.test(text[sentenceEnd + 2])) {
-							this.debugLog('Po skiriamojo ženklo teksto pabaigoje rasta mažoji raidė:', text[sentenceEnd + 2]);
+					// Ieškome sakinio pabaigos
+					let sentenceEnd = currentIndex;
+					while (sentenceEnd < text.length) {
+						if (text[sentenceEnd] === '.' || text[sentenceEnd] === '?' || text[sentenceEnd] === '!') {
+							// Tikriname, ar po skiriamojo ženklo eina tarpas ir mažoji raidė
+							if (sentenceEnd + 2 < text.length && text[sentenceEnd + 1] === ' ' && /[a-zåäö]/.test(text[sentenceEnd + 2])) {
+								this.debugLog('Po skiriamojo ženklo teksto pabaigoje rasta mažoji raidė:', text[sentenceEnd + 2]);
+								sentenceEnd++;
+								continue;
+							}
 							sentenceEnd++;
-							continue;
+							break;
 						}
 						sentenceEnd++;
-						break;
 					}
-					sentenceEnd++;
+					
+					this.debugLog('Nustatyta sakinio pradžia ir pabaiga:', {pradžia: sentenceStart, pabaiga: sentenceEnd});
+
+					// Išskiriame sakinį
+					const sentence = text.slice(sentenceStart, sentenceEnd).trim();
+					this.debugLog('Išskirtas sakinys:', sentence);
+					
+					// Tikriname ar šis sakinys geresnis
+					const wordCount = sentence.split(' ').length;
+					this.debugLog('Žodžių skaičius sakinyje:', wordCount);
+
+					if (wordCount <= 15) {
+						this.debugLog('Rastas tinkamo ilgio sakinys (<=15 žodžių)');
+						bestSentence = sentence;
+						break; // Radome trumpą sakinį, galime baigti paiešką
+					} else if (wordCount < shortestLength) {
+						this.debugLog('Rastas trumpesnis sakinys nei ankstesnis');
+						shortestLength = wordCount;
+						bestSentence = sentence;
+					}
+					
+					currentIndex = sentenceEnd;
+				} else {
+					this.debugLog('Rastas panašus žodis, bet ne tikslus atitikmuo');
+					currentIndex = currentIndex + 1;
 				}
-				
-				this.debugLog('Nustatyta sakinio pradžia ir pabaiga:', {pradžia: sentenceStart, pabaiga: sentenceEnd});
-
-				// Išskiriame sakinį
-				const sentence = text.slice(sentenceStart, sentenceEnd).trim();
-				this.debugLog('Išskirtas sakinys:', sentence);
-
-				
-				// Tikriname ar šis sakinys geresnis
-				const wordCount = sentence.split(' ').length;
-				this.debugLog('Žodžių skaičius sakinyje:', wordCount);
-
-				if (wordCount <= 15) {
-					this.debugLog('Rastas tinkamo ilgio sakinys (<=15 žodžių)');
-					bestSentence = sentence;
-					break; // Radome trumpą sakinį, galime baigti paiešką
-				} else if (wordCount < shortestLength) {
-					this.debugLog('Rastas trumpesnis sakinys nei ankstesnis');
-					shortestLength = wordCount;
-					bestSentence = sentence;
-				}
-				
-				currentIndex = sentenceEnd;
 			}
-			
+
 			if (bestSentence) {
 				this.debugLog('Išsaugomas sakinys žodžiui:', word, ':', bestSentence);
 				this.sentences.set(word, new Set([bestSentence]));
