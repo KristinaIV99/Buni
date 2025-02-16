@@ -28,7 +28,6 @@ export class UnknownWordsExporter {
 		
 		unknownWords.forEach(word => {
 			this.debugLog('Pradedama žodžio paieška:', word);
-			const sentences = []; // Saugosime visus rastus sakinius
 			
 			// Randame žodžio poziciją
 			let currentIndex = 0;
@@ -50,7 +49,7 @@ export class UnknownWordsExporter {
 						this.debugLog('Rastas skiriamasis ženklas:', char, 'pozicijoje:', searchPos - 1);
 						
 						// Tikriname, ar po skiriamojo ženklo eina mažoji raidė
-						if (searchPos + 1 < text.length && /[a-zåäö]/.test(text[searchPos + 1])) {
+						if (searchPos + 2 < text.length && text[searchPos] === ' ' && /[a-zåäö]/.test(text[searchPos + 1])) {
 							this.debugLog('Po skiriamojo ženklo rasta mažoji raidė:', text[searchPos + 1]);
 							// Jei mažoji - tęsiame paiešką atgal
 							searchPos--;
@@ -65,32 +64,27 @@ export class UnknownWordsExporter {
 				}
 
 				// Ieškome sakinio pabaigos
-				let periodEnd = text.indexOf('.', currentIndex);
-				let questionEnd = text.indexOf('?', currentIndex);
-				let exclamationEnd = text.indexOf('!', currentIndex);
-				
-				this.debugLog('Rasti galimi sakinio pabaigos ženklai:', {
-					taškas: periodEnd,
-					klaustukas: questionEnd,
-					šauktukas: exclamationEnd
-				});
-				
-				let sentenceEnd = Math.min(
-					periodEnd === -1 ? text.length : periodEnd + 1,
-					questionEnd === -1 ? text.length : questionEnd + 1,
-					exclamationEnd === -1 ? text.length : exclamationEnd + 1
-				);
-
-				this.debugLog('Nustatyta sakinio pabaiga:', sentenceEnd);
-
-				if (sentenceEnd === text.length) {
-					sentenceEnd = text.length;
+				let sentenceEnd = currentIndex;
+				while (sentenceEnd < text.length) {
+					if (text[sentenceEnd] === '.' || text[sentenceEnd] === '?' || text[sentenceEnd] === '!') {
+						// Tikriname, ar po skiriamojo ženklo eina tarpas ir mažoji raidė
+						if (sentenceEnd + 2 < text.length && text[sentenceEnd + 1] === ' ' && /[a-zåäö]/.test(text[sentenceEnd + 2])) {
+							this.debugLog('Po skiriamojo ženklo teksto pabaigoje rasta mažoji raidė:', text[sentenceEnd + 2]);
+							sentenceEnd++;
+							continue;
+						}
+						sentenceEnd++;
+						break;
+					}
+					sentenceEnd++;
 				}
+				
+				this.debugLog('Nustatyta sakinio pradžia ir pabaiga:', {pradžia: sentenceStart, pabaiga: sentenceEnd});
 
+				// Išskiriame sakinį
 				const sentence = text.slice(sentenceStart, sentenceEnd).trim();
 				this.debugLog('Išskirtas sakinys:', sentence);
 
-				sentences.push(sentence);
 				
 				// Tikriname ar šis sakinys geresnis
 				const wordCount = sentence.split(' ').length;
