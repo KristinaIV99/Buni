@@ -47,13 +47,14 @@ export class TextNormalizer {
    }
 
    normalizeMarkdown(text) {
-       console.log('NORMALIZE MARKDOWN CALLED');  // Pridėti
+       console.log('=== NORMALIZE MARKDOWN PRADŽIA ===');
+       
        if (!text || typeof text !== 'string') {
            throw new Error('Invalid input: text must be a non-empty string');
        }
 
        this.debugLog('Pradedamas Markdown normalizavimas');
-       this.debugLog('Pradinis tekstas:', text);
+       console.log('Gautas tekstas normalizavimui:', text.substring(0, 200));
 
        let normalized = text;
        
@@ -91,6 +92,8 @@ export class TextNormalizer {
        this.debugLog('Po paveikslėlių:', normalized);
        
        this.debugLog('Markdown normalizavimas baigtas');
+
+       console.log('=== NORMALIZE MARKDOWN PABAIGA ===');
        return normalized;
    }
 
