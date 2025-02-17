@@ -283,7 +283,7 @@ class App {
 
             // Ieškome žodžių ir frazių
             this.debugLog('Pradedama žodžių ir frazių paieška');
-            const { results, searchStats } = await this.dictionaryManager.findInText(text);
+            const { results, searchStats } = await this.dictionaryManager.findInText(normalizedText);
             this.debugLog('Paieškos rezultatai:', { rastiFrazių: results.length, paieškosLaikas: searchStats });
             
             // Konvertuojame į HTML
