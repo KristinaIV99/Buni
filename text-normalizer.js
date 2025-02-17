@@ -154,13 +154,15 @@ export class TextNormalizer {
    }
 
    handleSpecialSymbols(text) {
-       this.debugLog('Apdorojami specialūs simboliai');
+       console.log('Pradinis tekstas:', text);  // Pridėtas
+       
        const result = text
            .replace(this.patterns.quotes, '"')
            .replace(this.patterns.apostrophe, "'")
            .replace(this.patterns.enDash, '-')
            .replace(/\.{3}/g, '…');
-       this.debugLog('Specialių simbolių rezultatas:', result);
+           
+       console.log('Tekstas po simbolių pakeitimo:', result);  // Pridėtas
        return result;
    }
 
