@@ -16,6 +16,7 @@ class App {
     constructor() {
         this.CLASS_NAME = '[App]';
         this.reader = new TextReader();
+        this.normalizer = new TextNormalizer();
         this.htmlConverter = new HtmlConverter();
         this.dictionaryManager = new DictionaryManager();
         this.textStatistics = new TextStatistics();
