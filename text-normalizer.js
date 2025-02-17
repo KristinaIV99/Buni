@@ -17,8 +17,8 @@ class TextNormalizer {
       codeBlocks: /```([\s\S]*?)```/g,
       inlineCode: /`([^`]+)`/g,
       enDash: /–/g,
-      quotes: /[""]/g,  // Keičiame tik dvigubas kabutes
-      apostrophe: /[']/g,  // Naujas pattern apostrofams
+      quotes: /[""]/g,         // Tik dvigubos kabutės
+      apostrophe: /[']/g,      // Apostrofai
       strongEmphasis: [/\*\*\*([^*]+?)\*\*\*/g],
       chapterTitle: /^#\s(.+)$/m,
       emptyLines: /\n\s*\n/g,
@@ -106,7 +106,7 @@ class TextNormalizer {
   handleSpecialSymbols(text) {
     return text
       .replace(this.patterns.quotes, '"')
-      .replace(this.patterns.apostrophe, ''')  // Konvertuojame į teisingą apostrofą
+      .replace(this.patterns.apostrophe, ''')
       .replace(this.patterns.enDash, '-')
       .replace(/\.{3}/g, '…');
   }
