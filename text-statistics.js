@@ -15,8 +15,8 @@ export class TextStatistics {
         // Naudojame getUnknownWords metodą, kad išvengtume kodo dubliavimo
         const unknownWordsList = this.getUnknownWords(text, knownWords);
         const words = this._getWords(text);
-        const uniqueWords = new Set(words.map(word => 
-            let lowerWord = word.toLowerCase();
+        const uniqueWords = new Set(words.map(function(word) {
+			var lowerWord = word.toLowerCase();
 			
 			// Jei žodis turi brūkšnelį arba dvitaškį ir atitinka kriterijus, palikti jį nepakeistą
 			if (!this._shouldKeepAsOneWord(lowerWord)) {
