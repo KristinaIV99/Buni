@@ -1,4 +1,4 @@
-const DEBUG = true;  // arba false kai norėsime išjungti
+const DEBUG = false;  // arba false true kai norėsime išjungti
 
 export class TextStatistics {
     constructor() {
