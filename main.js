@@ -185,6 +185,9 @@ class App {
             this.currentFileName = savedState.fileName;
             this.currentText = savedState.text;
 
+			const normalizedText = this.normalizer.normalizeMarkdown(this.currentText);
+			this.debugLog('Tekstas normalizuotas');
+
             // Paraleliai vykdome žodynų įkėlimą ir HTML konvertavimą
             const [_, html] = await Promise.all([
                 this.loadDefaultDictionaries(),
@@ -253,9 +256,12 @@ class App {
                 this.paginator.goToPage(lastPage.pageNumber);
             }
             
-            const text = await this.reader.readFile(file);
-            this.debugLog('Failas nuskaitytas, teksto ilgis:', text.length);
-            this.currentText = text;
+            const rawText = await this.reader.readFile(file);
+			this.debugLog('Failas nuskaitytas, teksto ilgis:', rawText.length);
+			
+			const normalizedText = this.normalizer.normalizeMarkdown(rawText);
+			this.debugLog('Tekstas normalizuotas');
+			this.currentText = normalizedText;
             
             // Skaičiuojame teksto statistiką
             this.debugLog('Pradedamas teksto statistikos skaičiavimas');
@@ -281,7 +287,7 @@ class App {
             
             // Konvertuojame į HTML
             this.debugLog('Pradedama konversija į HTML');
-            const html = await this.htmlConverter.convertToHtml(text);
+            const html = await this.htmlConverter.convertToHtml(normalizedText);
             this.debugLog('HTML konversija baigta, ilgis:', html.length);
             
             this.setContent(html, textStats);
