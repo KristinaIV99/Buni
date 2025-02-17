@@ -154,7 +154,8 @@ export class TextNormalizer {
    }
 
    handleSpecialSymbols(text) {
-       console.log('Pradinis tekstas:', text);  // Pridėtas
+       this.debugLog('Apdorojami specialūs simboliai');
+       this.debugLog('Pradinis tekstas:', text);
        
        const result = text
            .replace(this.patterns.quotes, '"')
@@ -162,7 +163,7 @@ export class TextNormalizer {
            .replace(this.patterns.enDash, '-')
            .replace(/\.{3}/g, '…');
            
-       console.log('Tekstas po simbolių pakeitimo:', result);  // Pridėtas
+       this.debugLog('Specialių simbolių rezultatas:', result);
        return result;
    }
 
