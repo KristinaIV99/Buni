@@ -16,13 +16,19 @@ export class TextStatistics {
         const unknownWordsList = this.getUnknownWords(text, knownWords);
         const words = this._getWords(text);
         const uniqueWords = new Set(words.map(word => 
-            word.toLowerCase()
-            .replace(/[.,!?;#]/g, '')
-            .replace(/[''""'\u201C\u201D\u2018\u2019"]/gu, function(match) {
-                return /['']/.test(match) ? match : '';
-            })
-            .trim()
-        ).filter(word => word.length > 0));
+            let lowerWord = word.toLowerCase();
+			
+			// Jei žodis turi brūkšnelį arba dvitaškį ir atitinka kriterijus, palikti jį nepakeistą
+			if (!this._shouldKeepAsOneWord(lowerWord)) {
+				lowerWord = lowerWord
+					.replace(/[.,!?;#]/g, '')
+					.replace(/[''""'\u201C\u201D\u2018\u2019"]/gu, function(match) {
+						return /['']/.test(match) ? match : '';
+					})
+					.trim();
+			}
+			return lowerWord;
+		}).filter(word => word.length > 0));
 
         const stats = {
             totalWords: words.length,
@@ -35,6 +41,11 @@ export class TextStatistics {
         return stats;
     }
     
+	_shouldKeepAsOneWord(word) {
+			// Tikrina ar žodis turi brūkšnelį arba dvitaškį tarp raidžių
+			return /^[a-zåäöA-ZÅÄÖ]+[-:][a-zåäöA-ZÅÄÖ]+$/.test(word);
+	}
+
     _getWords(text) {
         this.debugLog('Išskiriami žodžiai iš teksto');
         const normalizedText = text.normalize('NFC');
@@ -43,6 +54,7 @@ export class TextStatistics {
             .replace(/<[^>]+>/g, ' ')
             .replace(/[0-9]+(?:_+)?/g, ' ')
             .replace(/\s-\s/g, ' ')
+            .replace(/\s:\s/g, ' ')
             .replace(/[_#\[\](){}.,!?;""'\u201C\u201D\u2018\u2019"]/g, function(match) {
                 if (/[''\u2019]/.test(match)) {
                     return match;
@@ -52,7 +64,7 @@ export class TextStatistics {
             .replace(/___\w+/g, ' ')
             .replace(/_\w+/g, ' ')
             .replace(/\s+/g, ' ')
-            .replace(/[0-9]/g, ' ')
+            .replace(/[0-9]-\w+/g, ' ')
             .replace(/[•…"""]/g, ' ')
             .replace(/^"+|"+$/g, '')
             .replace(/"+/g, ' ')
@@ -60,11 +72,17 @@ export class TextStatistics {
             .trim();
 
         const words = cleanText.split(' ')
-            .filter(word => word.length > 0 && /\p{L}/u.test(word))
-            .map(word => word.trim());
-        
-        this.debugLog('Rasta žodžių:', words.length);
-        return words;
+            .filter(word => {
+				// Jei žodis turi brūkšnelį arba dvitaškį, tikriname ar jis atitinka mūsų kriterijus
+				if (word.includes('-') || word.includes(':')) {
+					return this._shouldKeepAsOneWord(word);
+				}
+				return word.length > 0 && /\p{L}/u.test(word);
+			})
+			.map(word => word.trim());
+		
+		this.debugLog('Rasta žodžių:', words.length);
+		return words;
     }
 
     _isWordInDictionary(word, knownWords) {
@@ -109,10 +127,15 @@ export class TextStatistics {
         // Saugome originalius žodžius ir jų mažąsias versijas žodyno paieškai
         const wordMap = new Map();
         words.forEach(word => {
-            const lowerWord = word.toLowerCase()
-                .replace(/[.,!?;#]/g, '')
-                .replace(/[''""'\u201C\u201D\u2018\u2019"]/gu, match => /['']/.test(match) ? match : '')
-                .trim();
+			let lowerWord = word.toLowerCase();
+			
+			// Jei žodis turi brūkšnelį arba dvitaškį ir atitinka kriterijus, palikti jį nepakeistą
+			if (!this._shouldKeepAsOneWord(lowerWord)) {
+				lowerWord = lowerWord
+					.replace(/[.,!?;#]/g, '')
+					.replace(/[''""'\u201C\u201D\u2018\u2019"]/gu, match => /['']/.test(match) ? match : '')
+					.trim();
+			}
             
             if (lowerWord.length > 0) {
                 if (!wordMap.has(lowerWord)) {
