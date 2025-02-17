@@ -17,7 +17,7 @@ export class TextStatistics {
         const words = this._getWords(text);
         const uniqueWords = new Set(words.map(word => 
             word.toLowerCase()
-            .replace(/[.,!?;:#\-]/g, '')
+            .replace(/[.,!?;#]/g, '')
             .replace(/[''""'\u201C\u201D\u2018\u2019"]/gu, function(match) {
                 return /['']/.test(match) ? match : '';
             })
@@ -43,7 +43,7 @@ export class TextStatistics {
             .replace(/<[^>]+>/g, ' ')
             .replace(/[0-9]+(?:_+)?/g, ' ')
             .replace(/\s-\s/g, ' ')
-            .replace(/[_#\[\](){}.,!?;:""'\u201C\u201D\u2018\u2019"]/g, function(match) {
+            .replace(/[_#\[\](){}.,!?;""'\u201C\u201D\u2018\u2019"]/g, function(match) {
                 if (/[''\u2019]/.test(match)) {
                     return match;
                 }
@@ -110,7 +110,7 @@ export class TextStatistics {
         const wordMap = new Map();
         words.forEach(word => {
             const lowerWord = word.toLowerCase()
-                .replace(/[.,!?;:#\-]/g, '')
+                .replace(/[.,!?;#]/g, '')
                 .replace(/[''""'\u201C\u201D\u2018\u2019"]/gu, match => /['']/.test(match) ? match : '')
                 .trim();
             
