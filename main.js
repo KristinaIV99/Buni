@@ -1,4 +1,29 @@
 // main.js
+const DEBUG = true; // Galima pakeisti į false išjungti detalius pranešimus
+
+// Logger klasė konsolės pranešimų valdymui
+class Logger {
+    constructor(prefix = '') {
+        this.prefix = prefix;
+    }
+
+    log(...args) {
+        if (DEBUG) {
+            console.log(this.prefix, ...args);
+        }
+    }
+
+    error(...args) {
+        // Klaidos visada rodomos, nepriklausomai nuo DEBUG
+        console.error(this.prefix, ...args);
+    }
+
+    warn(...args) {
+        // Įspėjimai visada rodomi, nepriklausomai nuo DEBUG
+        console.warn(this.prefix, ...args);
+    }
+}
+
 import { TextNormalizer } from './text-normalizer.js';
 import { TextReader } from './text-reader.js';
 import { HtmlConverter } from './html-converter.js';
@@ -13,6 +38,7 @@ import { StateManager } from './state-manager.js';
 class App {
     constructor() {
         this.APP_NAME = '[App]';
+        this.logger = new Logger(this.APP_NAME);  // Pridėta logger inicializacija
         this.reader = new TextReader();
         this.htmlConverter = new HtmlConverter();
         this.dictionaryManager = new DictionaryManager();
@@ -31,7 +57,7 @@ class App {
         this.loadedFiles = new Set();
         this.currentFileName = '';
         
-        console.log(`${this.APP_NAME} Konstruktorius inicializuotas`);
+        this.logger.log('Konstruktorius inicializuotas');
         this.initUI();
         this.bindEvents();
         this.initializeBookState().then(() => {
@@ -42,7 +68,7 @@ class App {
 	}
 
     initUI() {
-		console.log(`${this.APP_NAME} Inicializuojami UI elementai...`);
+		this.logger.log('Inicializuojami UI elementai...');
 		
 		this.fileInput = document.getElementById('fileInput');
 		this.content = document.getElementById('content');
@@ -84,11 +110,11 @@ class App {
 			}
 		});
 		
-		console.log(`${this.APP_NAME} UI elementai sėkmingai inicializuoti`);
+		this.logger.log('UI elementai sėkmingai inicializuoti');
 	}
 
     bindEvents() {
-        console.log(`${this.APP_NAME} Prijungiami įvykių klausytojai...`);
+        this.logger.log('Prijungiami įvykių klausytojai...');
 
         this.fileInput.addEventListener('change', (e) => this.handleFile(e));
         this.reader.events.addEventListener('progress', (e) => this.updateProgress(e.detail));
@@ -97,11 +123,11 @@ class App {
         const prevBtn = this.paginationControls.querySelector('.prev-page');
         const nextBtn = this.paginationControls.querySelector('.next-page');
         prevBtn.addEventListener('click', () => {
-            console.log(`${this.APP_NAME} Pereinama į ankstesnį puslapį`);
+            this.logger.log('Pereinama į ankstesnį puslapį');
             this.paginator.previousPage();
         });
         nextBtn.addEventListener('click', () => {
-            console.log(`${this.APP_NAME} Pereinama į kitą puslapį`);
+            this.logger.log('Pereinama į kitą puslapį');
             this.paginator.nextPage();
         });
         
@@ -109,12 +135,12 @@ class App {
             this.wordSearchInput.addEventListener('input', () => this.handleWordSearch());
         }
 
-        console.log(`${this.APP_NAME} Įvykių klausytojai sėkmingai prijungti`);
+        this.logger.log('Įvykių klausytojai sėkmingai prijungti');
     }
 
     async loadDefaultDictionaries() {
         try {
-			console.log(`${this.APP_NAME} Įkeliami numatytieji žodynai...`);
+			this.logger.log('Įkeliami numatytieji žodynai...')
 			
 			// Pirma įkeliam visus žodynus
 			const wordsResponse = await fetch('./words.json');
@@ -134,9 +160,9 @@ class App {
 			this.updateDictionaryList();
 			this.updateDictionaryStats();
 			
-			console.log(`${this.APP_NAME} Numatytieji žodynai sėkmingai įkelti`);
+			this.logger.log('Numatytieji žodynai sėkmingai įkelti');
 		} catch (error) {
-			console.error(`${this.APP_NAME} Klaida įkeliant žodynus:`, error);
+			this.logger.error('Klaida įkeliant žodynus:', error);
 		}
 	}
 
@@ -148,7 +174,7 @@ class App {
 			lastPage: pageNumber,
 			highlights: this.textHighlighter.saveHighlights()
 		});
-		console.log(`${this.APP_NAME} Išsaugotas puslapis:`, pageNumber);
+		this.logger.log('Išsaugotas puslapis:', pageNumber);
 	}
 
     getLastPage() {
@@ -168,7 +194,7 @@ class App {
 	}
 
     async initializeBookState() {
-		console.log(`${this.APP_NAME} Pradedama knygos būsenos inicializacija`);
+		this.logger.log('Pradedama knygos būsenos inicializacija');
 		const savedState = this.stateManager.loadBookState();
 		if (!savedState) return;
 
@@ -214,7 +240,7 @@ class App {
 			}
 
 		} catch (error) {
-			console.error(`${this.APP_NAME} Klaida atkuriant knygos būseną:`, error);
+			this.logger.error('Klaida atkuriant knygos būseną:', error);
 			this.stateManager.clearBookState();
 		}
 	}
@@ -222,7 +248,7 @@ class App {
     async handleFile(e) {
 		try {
 			if(this.isProcessing) {
-				console.warn(`${this.APP_NAME} Atšaukiama esama užklausa...`);
+				this.logger.warn('Atšaukiama esama užklausa...');
 				this.reader.abort();
 			}
 			
@@ -232,7 +258,7 @@ class App {
 			
 			const file = e.target.files[0];
 			if(!file) {
-				console.warn(`${this.APP_NAME} Nepasirinktas failas`);
+				this.logger.warn('Nepasirinktas failas');
 				return;
 			}
 			
@@ -275,7 +301,7 @@ class App {
 				highlights: highlights
 			});
 		} catch(error) {
-			console.error(`${this.APP_NAME} Klaida:`, error);
+			this.logger.error('Klaida:', error);
 			this.handleError(error);
 		} finally {
 			this.isProcessing = false;
@@ -286,7 +312,7 @@ class App {
 	}
 
     async setContent(html, stats = {}) {
-		console.log(`${this.APP_NAME} Nustatomas naujas turinys...`);
+		this.logger.log('Nustatomas naujas turinys...');
 		
 		const div = document.createElement('div');
 		div.className = 'text-content';
@@ -318,7 +344,7 @@ class App {
 
 		 // Tekstas su žymėjimais
 		const highlightedHtml = await this.textHighlighter.processText(this.currentText, html);
-		console.log('Pažymėtas tekstas:', highlightedHtml.slice(0, 200));
+		this.logger.log('Pažymėtas tekstas:', highlightedHtml.slice(0, 200));
 		
 		const contentDiv = document.createElement('div');
 		contentDiv.className = 'paginated-content';
@@ -327,7 +353,7 @@ class App {
 		div.appendChild(contentDiv);
 		
 		const pageData = this.paginator.setContent(contentDiv.innerHTML);
-		 console.log('Puslapiavimo duomenys:', pageData);
+		this.logger.log('Puslapiavimo duomenys:', pageData);
 
 		contentDiv.innerHTML = pageData.content;
 		
@@ -403,15 +429,15 @@ class App {
 			const knownWords = this.dictionaryManager.getDictionaryWords();
 			// Gauname nežinomus žodžius
 			const unknownWords = this.textStatistics.getUnknownWords(this.currentText, knownWords);
-			console.log("Nežinomų žodžių kiekis:", unknownWords.length);
+			 this.logger.log("Nežinomų žodžių kiekis:", unknownWords.length);
 
 			// Perduodame originalų tekstą ir nežinomus žodžius į eksporterį
 			this.unknownWordsExporter.processText(this.currentText, unknownWords);
 			this.unknownWordsExporter.exportToTxt();
 			
-			console.log(`${this.APP_NAME} Nežinomi žodžiai eksportuoti sėkmingai`);
+			this.logger.log('Nežinomi žodžiai eksportuoti sėkmingai');
 		} catch(error) {
-			console.error(`${this.APP_NAME} Klaida eksportuojant nežinomus žodžius:`, error);
+			this.logger.error('Klaida eksportuojant nežinomus žodžius:', error);
 			this.showError('Klaida eksportuojant nežinomus žodžius');
 		}
 	}
@@ -422,11 +448,11 @@ class App {
         try {
             for (const file of files) {
                 if (this.loadedFiles.has(file.name)) {
-                    console.warn(`${this.APP_NAME} Žodynas ${file.name} jau įkeltas`);
+                    this.logger.warn(`Žodynas ${file.name} jau įkeltas`);
                     continue;
                 }
 
-                console.log(`${this.APP_NAME} Įkeliamas žodynas: ${file.name}`);
+                this.logger.log(`Įkeliamas žodynas: ${file.name}`);
                 const result = await this.dictionaryManager.loadDictionary(file);
                 this.loadedFiles.add(file.name);
                 
@@ -434,7 +460,7 @@ class App {
                 this.updateDictionaryStats();
             }
         } catch (error) {
-            console.error(`${this.APP_NAME} Klaida įkeliant žodynus:`, error);
+            this.logger.error('Klaida įkeliant žodynus:', error);
             this.showError(`Klaida įkeliant žodyną: ${error.message}`);
         }
         
@@ -450,7 +476,7 @@ class App {
 
 		try {
 			const { results, stats } = await this.dictionaryManager.findInText(text);
-			console.log('Paieškos laikas:', stats.searchTimeMs, 'ms');
+			this.logger.log('Paieškos laikas:', stats.searchTimeMs, 'ms');
 			this.displaySearchResults(results);
 		} catch (error) {
 			this.showError(`Klaida ieškant: ${error.message}`);
@@ -554,12 +580,12 @@ class App {
             this.loadedFiles.delete(name);
             this.updateDictionaryList();
             this.updateDictionaryStats();
-            console.log(`${this.APP_NAME} Žodynas pašalintas: ${name}`);
+            this.logger.log(`Žodynas pašalintas: ${name}`);
         }
     }
 
     handleError(error) {
-        console.error(`${this.APP_NAME} Klaida:`, error);
+        this.logger.error('Klaida:', error);
         const errorDiv = document.createElement('div');
         errorDiv.className = 'error';
         errorDiv.textContent = `Klaida: ${error.message}`;
@@ -567,7 +593,7 @@ class App {
     }
 
     showError(message) {
-        console.warn(`${this.APP_NAME} Klaidos pranešimas:`, message);
+        this.logger.warn('Klaidos pranešimas:', message);
         const errorDiv = document.createElement('div');
         errorDiv.className = 'error-message';
         errorDiv.textContent = message;
@@ -587,7 +613,7 @@ class App {
     }
 
     showLoadingState() {
-        console.log(`${this.APP_NAME} Rodoma įkėlimo būsena...`);
+        this.logger.log('Rodoma įkėlimo būsena...');
         const loader = document.createElement('div');
         loader.className = 'loading';
         loader.innerHTML = '<p>Kraunama...</p>';
@@ -595,13 +621,14 @@ class App {
     }
 
     hideLoadingState() {
-        console.log(`${this.APP_NAME} Paslepiama įkėlimo būsena`);
+        this.logger.log('Paslepiama įkėlimo būsena');
         const loader = this.content.querySelector('.loading');
         if(loader) loader.remove();
     }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    console.log('[Main] Aplikacija inicializuojama...');
+    const logger = new Logger('[Main]');
+    logger.log('Aplikacija inicializuojama...');
     window.app = new App();
 });
