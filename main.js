@@ -262,52 +262,69 @@ class App {
 				return;
 			}
 			
+			this.debugLog('Pradedamas failo apdorojimas:', file.name);
 			this.currentFileName = file.name;
 			
 			const lastPage = this.getLastPage();
 			if (lastPage.fileName === file.name) {
+				this.debugLog('Rastas paskutinis skaitytas puslapis:', lastPage.pageNumber);
 				this.paginator.goToPage(lastPage.pageNumber);
 			}
 			
 			const text = await this.reader.readFile(file);
+			this.debugLog('Failas nuskaitytas, teksto ilgis:', text.length);
 			this.currentText = text;
 			
 			// Skaičiuojame teksto statistiką
+			this.debugLog('Pradedamas teksto statistikos skaičiavimas');
 			const knownWords = this.dictionaryManager.getDictionaryWords();
 			const textStats = this.textStatistics.calculateStats(text, knownWords);
+			this.debugLog('Teksto statistika:', textStats);
 			
 			// Rodome žodyno mygtuką kai įkeliama knyga
 			const savedTextsButton = document.getElementById('savedTextsButton');
 			if (savedTextsButton) {
 				savedTextsButton.style.display = 'block';
+				this.debugLog('Įjungtas išsaugotų tekstų mygtukas');
 			}
 			if (textStats.unknownWords > 0 && this.exportButton) {
 				this.exportButton.style.display = 'block';
+				this.debugLog('Įjungtas eksporto mygtukas, nežinomų žodžių:', textStats.unknownWords);
 			}
 
 			// Ieškome žodžių ir frazių
+			this.debugLog('Pradedama žodžių ir frazių paieška');
 			const { results, searchStats } = await this.dictionaryManager.findInText(text);
+			this.debugLog('Paieškos rezultatai:', { rastiFrazių: results.length, paieškosLaikas: searchStats });
 			
 			// Konvertuojame į HTML
+			this.debugLog('Pradedama konversija į HTML');
 			const html = await this.htmlConverter.convertToHtml(text);
+			this.debugLog('HTML konversija baigta, ilgis:', html.length);
+			
 			this.setContent(html, textStats);
 
 			// Išsaugome būseną su pažymėjimais PO turinio nustatymo
 			const highlights = this.textHighlighter.saveHighlights();
+			this.debugLog('Išsaugomi pažymėjimai:', highlights.length);
+			
 			this.stateManager.saveBookState({
 				text: this.currentText,
 				fileName: this.currentFileName,
 				lastPage: this.paginator.getCurrentPage(),
 				highlights: highlights
 			});
+			this.debugLog('Būsena išsaugota');
+
 		} catch(error) {
-			this.logger.error('Klaida:', error);
+			this.debugLog('KLAIDA apdorojant failą:', error);
 			this.handleError(error);
 		} finally {
 			this.isProcessing = false;
 			this.fileInput.disabled = false;
 			this.fileInput.value = '';
 			this.hideLoadingState();
+			this.debugLog('Failo apdorojimas baigtas');
 		}
 	}
 
