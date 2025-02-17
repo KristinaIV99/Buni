@@ -87,19 +87,17 @@ export class TextReader {
 		);
 		const rawText = chunks.join('');
 
-		// Pridedame paprastus console.log
-		console.log('PRIEŠ NORMALIZER IŠKVIETIMĄ');
-		
-		// Prieš normalizavimą
+		// Labai aiškūs žymekliai pradžioje
+		console.log('=== READER: PRIEŠ NORMALIZER ===');
 		this.debugLog('TEKSTAS PRIEŠ NORMALIZAVIMĄ:', rawText.substring(0, 200));
-		
-		console.log('KVIEČIAMAS NORMALIZER');
+
+		// Normalizer iškvietimas
 		const normalizedText = this.normalizer.normalizeMarkdown(rawText);
-		console.log('PO NORMALIZER IŠKVIETIMO');
-		
-		// Po normalizavimo
+
+		// Labai aiškūs žymekliai pabaigoje 
+		console.log('=== READER: PO NORMALIZER ===');
 		this.debugLog('TEKSTAS PO NORMALIZAVIMO:', normalizedText.substring(0, 200));
-		
+
 		return normalizedText;
 	}
 
