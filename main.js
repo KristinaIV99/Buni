@@ -267,7 +267,7 @@ class App {
             // Skaičiuojame teksto statistiką
             this.debugLog('Pradedamas teksto statistikos skaičiavimas');
             const knownWords = this.dictionaryManager.getDictionaryWords();
-            const textStats = this.textStatistics.calculateStats(text, knownWords);
+            const textStats = this.textStatistics.calculateStats(normalizedText, knownWords);
             this.debugLog('Teksto statistika:', textStats);
             
             // Rodome žodyno mygtuką kai įkeliama knyga
