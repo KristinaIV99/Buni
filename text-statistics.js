@@ -19,7 +19,7 @@ export class TextStatistics {
             word.toLowerCase()
             .replace(/[.,!?;:#\-]/g, '')
             .replace(/[''""'\u201C\u201D\u2018\u2019"]/gu, function(match) {
-                return /['']/.test(match) ? match : '';
+                return /[']/.test(match) ? match : '';
             })
             .trim()
         ).filter(word => word.length > 0));
