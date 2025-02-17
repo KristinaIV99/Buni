@@ -106,34 +106,23 @@ export class TextStatistics {
    _isProperNoun(word, text) {
        this.debugLog('Tikrinu ar žodis yra tikrinis:', word);
 
-       // Ieškome žodžio su didžiąja raide ne sakinio pradžioje
-       const midSentenceRegex = new RegExp(`[.!?]\\s+([^.!?]+?\\s+${word}\\s|${word}\\s)`, 'gi');
-       const midSentenceMatches = text.match(midSentenceRegex) || [];
-       
-       for (const match of midSentenceMatches) {
-           if (match.includes(` ${word[0].toUpperCase()}${word.slice(1)}`)) {
-               this.debugLog('Rastas žodis su didžiąja raide sakinio viduryje:', match.trim());
-               return true;
-           }
+       // Jei žodis neprasideda didžiąja raide, tai tikrai ne tikrinis
+       if (!/^[A-ZÅÄÖ]/.test(word)) {
+           this.debugLog('Žodis prasideda mažąja raide - ne tikrinis:', word);
+           return false;
        }
 
-       // Skaičiuojame žodžio naudojimą su didžiąja/mažąja raide
-       const capitalizedRegex = new RegExp(`\\b${word[0].toUpperCase()}${word.slice(1)}\\b`, 'g');
+       // Ieškome ar šis žodis kur nors tekste naudojamas mažąja raide
        const lowercaseRegex = new RegExp(`\\b${word.toLowerCase()}\\b`, 'g');
+       const hasLowercase = text.match(lowercaseRegex);
 
-       const capitalizedCount = (text.match(capitalizedRegex) || []).length;
-       const lowercaseCount = (text.match(lowercaseRegex) || []).length;
+       if (hasLowercase) {
+           this.debugLog('Rastas žodžio variantas su mažąja raide - ne tikrinis:', word);
+           return false;
+       }
 
-       this.debugLog('Žodžio statistika:', {
-           žodis: word,
-           suDidžiąjaRaide: capitalizedCount,
-           suMažąjaRaide: lowercaseCount
-       });
-
-       const isProperNoun = capitalizedCount > lowercaseCount && capitalizedCount > 1;
-       this.debugLog('Išvada:', isProperNoun ? 'Tikrinis daiktavardis' : 'Ne tikrinis daiktavardis');
-       
-       return isProperNoun;
+       this.debugLog('Žodis visada rašomas didžiąja raide - tikrinis:', word);
+       return true;
    }
    
    getUnknownWords(text, knownWords) {
