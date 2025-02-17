@@ -192,7 +192,7 @@ class App {
             // Paraleliai vykdome žodynų įkėlimą ir HTML konvertavimą
             const [_, html] = await Promise.all([
                 this.loadDefaultDictionaries(),
-                this.htmlConverter.convertToHtml(this.currentText)
+                this.htmlConverter.convertToHtml(normalizedText)
             ]);
 
             // Kai turime žodynus, atliekame statistikos skaičiavimus
