@@ -89,12 +89,12 @@ export class TextReader {
         const rawText = chunks.join('');
     
 		// Prieš normalizavimą
-		console.log('TEKSTAS PRIEŠ NORMALIZAVIMĄ:', rawText.substring(0, 200));
+		this.debugLog('TEKSTAS PRIEŠ NORMALIZAVIMĄ:', rawText.substring(0, 200));
         
         const normalizedText = this.normalizer.normalizeMarkdown(rawText);
 
         // Po normalizavimo
-		console.log('TEKSTAS PO NORMALIZAVIMO:', normalizedText.substring(0, 200));
+		this.debugLog('TEKSTAS PO NORMALIZAVIMO:', normalizedText.substring(0, 200));
         
         return normalizedText;
     }
