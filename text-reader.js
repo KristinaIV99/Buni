@@ -23,7 +23,9 @@ export class TextReader {
 
         this.debugLog('Konfigūracija:', this.config);
 
+        console.log('PRIEŠ NORMALIZER SUKŪRIMĄ');  // Pridėta
         this.normalizer = new TextNormalizer();
+        console.log('PO NORMALIZER SUKŪRIMO');     // Pridėta
         this.abortController = new AbortController();
         this.events = new EventTarget();
         this.worker = null;
@@ -75,29 +77,31 @@ export class TextReader {
 
     async _readWithProgress(file) {
         this.debugLog('Pradedamas progresyvus skaitymas');
-        const offsets = Array.from(
-            { length: Math.ceil(file.size / this.config.chunkSize) },
-            (_, i) => i * this.config.chunkSize
-        );
+		const offsets = Array.from(
+			{ length: Math.ceil(file.size / this.config.chunkSize) },
+			(_, i) => i * this.config.chunkSize
+		);
+		this.debugLog('Sukurti dalių offsetai:', offsets.length);
+		const chunks = await Promise.all(
+			offsets.map(offset => this._readChunkWithRetry(file, offset))
+		);
+		const rawText = chunks.join('');
 
-        this.debugLog('Sukurti dalių offsetai:', offsets.length);
-
-        const chunks = await Promise.all(
-            offsets.map(offset => this._readChunkWithRetry(file, offset))
-        );
-
-        const rawText = chunks.join('');
-    
+		// Pridedame paprastus console.log
+		console.log('PRIEŠ NORMALIZER IŠKVIETIMĄ');
+		
 		// Prieš normalizavimą
 		this.debugLog('TEKSTAS PRIEŠ NORMALIZAVIMĄ:', rawText.substring(0, 200));
-        
-        const normalizedText = this.normalizer.normalizeMarkdown(rawText);
-
-        // Po normalizavimo
+		
+		console.log('KVIEČIAMAS NORMALIZER');
+		const normalizedText = this.normalizer.normalizeMarkdown(rawText);
+		console.log('PO NORMALIZER IŠKVIETIMO');
+		
+		// Po normalizavimo
 		this.debugLog('TEKSTAS PO NORMALIZAVIMO:', normalizedText.substring(0, 200));
-        
-        return normalizedText;
-    }
+		
+		return normalizedText;
+	}
 
     async _readChunkWithRetry(file, offset, attempt = 1) {
         try {
