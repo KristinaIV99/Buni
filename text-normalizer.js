@@ -1,4 +1,5 @@
 const DEBUG = true;  // arba false kai norėsime išjungti
+console.log('TEXT NORMALIZER LOADED');  // Pridėti
 
 export class TextNormalizer {
     constructor() {
@@ -46,6 +47,7 @@ export class TextNormalizer {
    }
 
    normalizeMarkdown(text) {
+       console.log('NORMALIZE MARKDOWN CALLED');  // Pridėti
        if (!text || typeof text !== 'string') {
            throw new Error('Invalid input: text must be a non-empty string');
        }
@@ -154,6 +156,7 @@ export class TextNormalizer {
    }
 
    handleSpecialSymbols(text) {
+       console.log('HANDLE SPECIAL SYMBOLS CALLED');  // Pridėti
        this.debugLog('Apdorojami specialūs simboliai');
        this.debugLog('Pradinis tekstas:', text);
        
