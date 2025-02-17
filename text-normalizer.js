@@ -1,10 +1,11 @@
 const DEBUG = true;  // arba false kai norėsime išjungti
 
 export class TextNormalizer {
-   constructor() {
-       this.CLASS_NAME = '[TextNormalizer]';
-       
-       this.patterns = {
+    constructor() {
+        this.CLASS_NAME = '[TextNormalizer]';
+        if (DEBUG) console.log(`${this.CLASS_NAME} Konstruktorius inicializuotas`);
+        
+        this.patterns = {
            sectionBreak: /^[&][ \t]*$/gm,
            emphasis: [/_([^_]+?)_/g, /(?<!\*)\*(?!\*)([^*]+?)\*(?!\*)/g],
            strong: [/__([^_]+?)__/g, /\*\*([^*]+?)\*\*/g],
@@ -28,14 +29,14 @@ export class TextNormalizer {
            localPaths: /(?:\.\.?\/)*[a-zA-Z0-9_-]+\/[a-zA-Z0-9_\/-]+\.[a-zA-Z0-9]+/g,
            htmlTags: /<[^>]+>/g,
            bareUrls: /(?:https?:\/\/)[^\s)]+/g
-       };
-   }
+        };
+    }
 
-   debugLog(...args) {
-       if (DEBUG) {
-           console.log(`${this.CLASS_NAME} [DEBUG]`, ...args);
-       }
-   }
+    debugLog(...args) {
+        if (DEBUG) {
+            console.log(`${this.CLASS_NAME} [DEBUG]`, ...args);
+        }
+    }
 
    handleSectionBreaks(text) {
        this.debugLog('Apdorojami sekcijų skirtukai');
