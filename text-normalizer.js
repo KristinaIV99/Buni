@@ -106,7 +106,7 @@ class TextNormalizer {
   handleSpecialSymbols(text) {
     return text
       .replace(this.patterns.quotes, '"')
-      .replace(this.patterns.apostrophe, ''')
+      .replace(this.patterns.apostrophe, "'")
       .replace(this.patterns.enDash, '-')
       .replace(/\.{3}/g, '…');
   }
