@@ -3,6 +3,7 @@ const DEBUG = true;  // arba false true kai norėsime išjungti
 export class TextStatistics {
     constructor() {
         this.CLASS_NAME = '[TextStatistics]';
+        this.currentText = '';
     }
 
     debugLog(...args) {
@@ -12,6 +13,7 @@ export class TextStatistics {
     }
 
     calculateStats(text, knownWords) {
+        this.currentText = text;
         // Naudojame getUnknownWords metodą, kad išvengtume kodo dubliavimo
         const unknownWordsList = this.getUnknownWords(text, knownWords);
         const words = this._getWords(text);
@@ -143,13 +145,21 @@ export class TextStatistics {
     }
     
     _isProperNoun(originalForms) {
-        const hasLowerCase = Array.from(originalForms).some(form => /^[a-zåäö]/.test(form));
-        const hasUpperCase = Array.from(originalForms).some(form => /^[A-ZÅÄÖ]/.test(form));
-
-        return hasUpperCase && !hasLowerCase;
-    }
+		// Ieškome žodžio, kuris yra sakinio viduryje su didžiąja raide
+		return Array.from(originalForms).some(form => {
+			// Patikriname ar žodis prasideda didžiąja raide
+			if (!/^[A-ZÅÄÖ]/.test(form)) {
+				return false;
+			}
+			// Ieškome ar šis žodis yra sakinio viduryje
+			// t.y. po taško, tarpo ir kito žodžio
+			const regex = new RegExp(`[.!?]\\s+\\w+\\s+${form}\\b`);
+			return regex.test(this.currentText);
+		});
+	}
     
     getUnknownWords(text, knownWords) {
+        this.currentText = text;
         this.debugLog('Pradedu nežinomų žodžių paiešką');
         const words = this._getWords(text);
         
