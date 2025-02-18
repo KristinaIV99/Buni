@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 
 import { marked } from './vendor/marked.esm.js';
 import DOMPurify from './vendor/purify.es.mjs';
