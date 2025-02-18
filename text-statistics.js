@@ -1,3 +1,4 @@
+
 const DEBUG = true;  // arba false true kai norėsime išjungti
 
 export class TextStatistics {
@@ -145,16 +146,26 @@ export class TextStatistics {
     }
     
     _isProperNoun(originalForms) {
-		// Ieškome žodžio, kuris yra sakinio viduryje su didžiąja raide
 		return Array.from(originalForms).some(form => {
-			// Patikriname ar žodis prasideda didžiąja raide
+			// Jei žodis neprasideda didžiąja raide, tai tikrai ne tikrinis
 			if (!/^[A-ZÅÄÖ]/.test(form)) {
 				return false;
 			}
-			// Ieškome ar šis žodis yra sakinio viduryje
-			// t.y. po taško, tarpo ir kito žodžio
-			const regex = new RegExp(`[.!?]\\s+\\w+\\s+${form}\\b`);
-			return regex.test(this.currentText);
+
+			// Skaičiuojame kiek kartų žodis pasirodo tekste
+			const totalOccurrences = (this.currentText.match(new RegExp(`\\b${form}\\b`, 'g')) || []).length;
+
+			// Jei žodis pasirodo tik vieną kartą, laikome jį ne tikriniu
+			if (totalOccurrences === 1) {
+				return false;
+			}
+
+			// Ieškome žodžio sakinio viduryje su didžiąja raide
+			const withUpperCase = new RegExp(`\\s\\w+\\s+${form}\\b`).test(this.currentText);
+			// Ieškome to paties žodžio sakinio viduryje su mažąja raide
+			const withLowerCase = new RegExp(`\\s\\w+\\s+${form.toLowerCase()}\\b`).test(this.currentText);
+        
+			return withUpperCase && !withLowerCase;
 		});
 	}
     
