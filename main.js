@@ -1,5 +1,5 @@
 // main.js
-const DEBUG = true;  // arba false kai norėsime išjungti
+const DEBUG = false;  // arba false true kai norėsime išjungti
 
 import { TextNormalizer } from './text-normalizer.js';
 import { TextReader } from './text-reader.js';
