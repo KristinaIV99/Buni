@@ -1,3 +1,4 @@
+
 const DEBUG = false;  // arba false true kai norėsime išjungti
 
 export class TextStatistics {
@@ -15,11 +16,13 @@ export class TextStatistics {
         // Naudojame getUnknownWords metodą, kad išvengtume kodo dubliavimo
         const unknownWordsList = this.getUnknownWords(text, knownWords);
         const words = this._getWords(text);
+        const self = this;  // Išsaugome this kontekstą
+        
         const uniqueWords = new Set(words.map(function(word) {
 			var lowerWord = word.toLowerCase();
 			
 			// Jei žodis turi brūkšnelį arba dvitaškį ir atitinka kriterijus, palikti jį nepakeistą
-			if (!this._shouldKeepAsOneWord(lowerWord)) {
+			if (!self._shouldKeepAsOneWord(lowerWord)) {
 				lowerWord = lowerWord
 					.replace(/[.,!?;#]/g, '')
 					.replace(/[''""'\u201C\u201D\u2018\u2019"]/gu, function(match) {
