@@ -144,7 +144,7 @@ export class TextStatistics {
         return isKnown;
     }
     
-    __isProperNoun(originalForms) {
+    _isProperNoun(originalForms) {
 		return Array.from(originalForms).some(form => {
 			try {
 				// Jei žodis neprasideda didžiąja raide, tai tikrai ne tikrinis
