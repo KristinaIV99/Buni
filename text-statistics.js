@@ -17,6 +17,9 @@ export class TextStatistics {
         const words = this._getWords(text);
         const self = this;  // Išsaugome this kontekstą
         
+		// Sukuriame Map žodžių originalių formų saugojimui
+		const wordMap = new Map();
+		
         const uniqueWords = new Set(words.map(function(word) {
 			var lowerWord = word.toLowerCase();
 
@@ -35,8 +38,23 @@ export class TextStatistics {
 			} else {
 				self.debugLog('Išsaugotas kaip vienas žodis:', lowerWord);
 			}
+
+			// Saugome originalias formas
+			if (!wordMap.has(lowerWord)) {
+				wordMap.set(lowerWord, new Set());
+			}
+			wordMap.get(lowerWord).add(word);
+
 			return lowerWord;
 		}).filter(word => word.length > 0));
+
+		// Filtruojame tikrinius daiktavardžius
+		uniqueWords.forEach(word => {
+			if (this._isProperNoun(wordMap.get(word))) {
+				uniqueWords.delete(word);
+				self.debugLog('Pašalintas tikrinis daiktavardis:', word);
+			}
+		});
 
 		// Čia galime įdėti debug pranešimą apie visus unikalius žodžius
 		this.debugLog('Visi unikalūs žodžiai:', Array.from(uniqueWords));
