@@ -1,5 +1,4 @@
-
-const DEBUG = false;  // arba false true kai norėsime išjungti
+const DEBUG = true;  // arba false true kai norėsime išjungti
 
 export class TextStatistics {
     constructor() {
@@ -20,6 +19,9 @@ export class TextStatistics {
         
         const uniqueWords = new Set(words.map(function(word) {
 			var lowerWord = word.toLowerCase();
+
+			// Pridedame debug pranešimą
+			this.debugLog('Apdorojamas žodis:', word);
 			
 			// Jei žodis turi brūkšnelį arba dvitaškį ir atitinka kriterijus, palikti jį nepakeistą
 			if (!self._shouldKeepAsOneWord(lowerWord)) {
@@ -29,11 +31,17 @@ export class TextStatistics {
 						return /['']/.test(match) ? match : '';
 					})
 					.trim();
+				self.debugLog('Po valymo:', lowerWord);
+			} else {
+				self.debugLog('Išsaugotas kaip vienas žodis:', lowerWord);
 			}
 			return lowerWord;
 		}).filter(word => word.length > 0));
 
-        const stats = {
+		// Čia galime įdėti debug pranešimą apie visus unikalius žodžius
+		this.debugLog('Visi unikalūs žodžiai:', Array.from(uniqueWords));
+
+		const stats = {
             totalWords: words.length,
             uniqueWords: uniqueWords.size,
             unknownWords: unknownWordsList.length,
