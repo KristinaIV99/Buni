@@ -1,5 +1,3 @@
-const DEBUG = true;  // arba false true kai norėsime išjungti
-
 export class TextStatistics {
     constructor() {
         this.CLASS_NAME = '[TextStatistics]';
@@ -14,45 +12,41 @@ export class TextStatistics {
 
     calculateStats(text, knownWords) {
         this.currentText = text;
-
-        // Naudojame getUnknownWords metodą, kad išvengtume kodo dubliavimo
         const unknownWordsList = this.getUnknownWords(text, knownWords);
         const words = this._getWords(text);
-        const self = this;
-
-        const self = this;  // Išsaugome this kontekstą
+        const self = this;  // Tik viena deklaracija
         
-		// Sukuriame Map žodžių originalių formų saugojimui
-		const wordMap = new Map();
-		
+        // Sukuriame Map žodžių originalių formų saugojimui
+        const wordMap = new Map();
+        
         // Renkame unikalius žodžius
         const uniqueWords = new Set(words.map(function(word) {
-			var lowerWord = word.toLowerCase();
+            var lowerWord = word.toLowerCase();
 
-			// Pridedame debug pranešimą
-			self.debugLog('Apdorojamas žodis:', word);
-			
-			// Jei žodis turi brūkšnelį arba dvitaškį ir atitinka kriterijus, palikti jį nepakeistą
-			if (!self._shouldKeepAsOneWord(lowerWord)) {
-				lowerWord = lowerWord
-					.replace(/[.,!?;#]/g, '')
-					.replace(/[''""'\u201C\u201D\u2018\u2019"]/gu, function(match) {
-						return /['']/.test(match) ? match : '';
-					})
-					.trim();
-				self.debugLog('Po valymo:', lowerWord);
-			} else {
-				self.debugLog('Išsaugotas kaip vienas žodis:', lowerWord);
-			}
+            // Pridedame debug pranešimą
+            self.debugLog('Apdorojamas žodis:', word);
+            
+            // Jei žodis turi brūkšnelį arba dvitaškį ir atitinka kriterijus, palikti jį nepakeistą
+            if (!self._shouldKeepAsOneWord(lowerWord)) {
+                lowerWord = lowerWord
+                    .replace(/[.,!?;#]/g, '')
+                    .replace(/[''""'\u201C\u201D\u2018\u2019"]/gu, function(match) {
+                        return /['']/.test(match) ? match : '';
+                    })
+                    .trim();
+                self.debugLog('Po valymo:', lowerWord);
+            } else {
+                self.debugLog('Išsaugotas kaip vienas žodis:', lowerWord);
+            }
 
-			// Saugome originalias formas
-			if (!wordMap.has(lowerWord)) {
-				wordMap.set(lowerWord, new Set());
-			}
-			wordMap.get(lowerWord).add(word);
+            // Saugome originalias formas
+            if (!wordMap.has(lowerWord)) {
+                wordMap.set(lowerWord, new Set());
+            }
+            wordMap.get(lowerWord).add(word);
 
-			return lowerWord;
-		}).filter(word => word.length > 0));
+            return lowerWord;
+        }).filter(word => word.length > 0));
 
         // Išvedame statistiką
         this.debugLog('=== ŽODŽIŲ STATISTIKA ===');
@@ -60,7 +54,6 @@ export class TextStatistics {
         this.debugLog('Visi unikalūs žodžiai:', Array.from(uniqueWords));
         this.debugLog('Unikalių žodžių kiekis:', uniqueWords.size);
         this.debugLog('Bendras žodžių kiekis:', words.length);
-
 
         const stats = {
             totalWords: words.length,
@@ -73,10 +66,10 @@ export class TextStatistics {
         return stats;
     }
     
-	_shouldKeepAsOneWord(word) {
-			// Tikrina ar žodis turi brūkšnelį arba dvitaškį tarp raidžių
-			return /^[a-zåäöA-ZÅÄÖ]+[-:][a-zåäöA-ZÅÄÖ]+$/.test(word);
-	}
+    _shouldKeepAsOneWord(word) {
+        // Tikrina ar žodis turi brūkšnelį arba dvitaškį tarp raidžių
+        return /^[a-zåäöA-ZÅÄÖ]+[-:][a-zåäöA-ZÅÄÖ]+$/.test(word);
+    }
 
     _getWords(text) {
         this.debugLog('Išskiriami žodžiai iš teksto');
@@ -105,16 +98,16 @@ export class TextStatistics {
 
         const words = cleanText.split(' ')
             .filter(word => {
-				// Jei žodis turi brūkšnelį arba dvitaškį, tikriname ar jis atitinka mūsų kriterijus
-				if (word.includes('-') || word.includes(':')) {
-					return this._shouldKeepAsOneWord(word);
-				}
-				return word.length > 0 && /\p{L}/u.test(word);
-			})
-			.map(word => word.trim());
-		
-		this.debugLog('Rasta žodžių:', words.length);
-		return words;
+                // Jei žodis turi brūkšnelį arba dvitaškį, tikriname ar jis atitinka mūsų kriterijus
+                if (word.includes('-') || word.includes(':')) {
+                    return this._shouldKeepAsOneWord(word);
+                }
+                return word.length > 0 && /\p{L}/u.test(word);
+            })
+            .map(word => word.trim());
+        
+        this.debugLog('Rasta žodžių:', words.length);
+        return words;
     }
 
     _isWordInDictionary(word, knownWords) {
@@ -145,7 +138,6 @@ export class TextStatistics {
         return isKnown;
     }
     
-    
     getUnknownWords(text, knownWords) {
         this.currentText = text;
         this.debugLog('Pradedu nežinomų žodžių paiešką');
@@ -154,15 +146,15 @@ export class TextStatistics {
         // Saugome originalius žodžius ir jų mažąsias versijas žodyno paieškai
         const wordMap = new Map();
         words.forEach(word => {
-			let lowerWord = word.toLowerCase();
-			
-			// Jei žodis turi brūkšnelį arba dvitaškį ir atitinka kriterijus, palikti jį nepakeistą
-			if (!this._shouldKeepAsOneWord(lowerWord)) {
-				lowerWord = lowerWord
-					.replace(/[.,!?;#]/g, '')
-					.replace(/[''""'\u201C\u201D\u2018\u2019"]/gu, match => /['']/.test(match) ? match : '')
-					.trim();
-			}
+            let lowerWord = word.toLowerCase();
+            
+            // Jei žodis turi brūkšnelį arba dvitaškį ir atitinka kriterijus, palikti jį nepakeistą
+            if (!this._shouldKeepAsOneWord(lowerWord)) {
+                lowerWord = lowerWord
+                    .replace(/[.,!?;#]/g, '')
+                    .replace(/[''""'\u201C\u201D\u2018\u2019"]/gu, match => /['']/.test(match) ? match : '')
+                    .trim();
+            }
             
             if (lowerWord.length > 0) {
                 if (!wordMap.has(lowerWord)) {
@@ -183,13 +175,7 @@ export class TextStatistics {
                 continue;
             }
 
-            // Tikriname ar žodis yra tikrinis
-            if (this._isProperNoun(originalForms)) {
-                this.debugLog('Žodis yra tikrinis (visada didžiąja):', lowerWord, originalForms);
-                continue;
-            }
-
-            this.debugLog('Žodis nežinomas ir ne tikrinis:', lowerWord);
+            this.debugLog('Žodis nežinomas:', lowerWord);
             unknownWords.push(lowerWord);
         }
 
