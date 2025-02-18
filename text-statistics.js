@@ -1,4 +1,3 @@
-
 const DEBUG = true;  // arba false true kai norėsime išjungti
 
 export class TextStatistics {
@@ -152,6 +151,11 @@ export class TextStatistics {
 				return false;
 			}
 
+			// Ignoruojame trumpus žodžius (pvz., jaustukai, įvardžiai)
+			if (form.length <= 2) {
+				return false;
+			}
+
 			// Skaičiuojame kiek kartų žodis pasirodo tekste
 			const totalOccurrences = (this.currentText.match(new RegExp(`\\b${form}\\b`, 'g')) || []).length;
 
@@ -160,12 +164,20 @@ export class TextStatistics {
 				return false;
 			}
 
-			// Ieškome žodžio sakinio viduryje su didžiąja raide
-			const withUpperCase = new RegExp(`\\s\\w+\\s+${form}\\b`).test(this.currentText);
-			// Ieškome to paties žodžio sakinio viduryje su mažąja raide
-			const withLowerCase = new RegExp(`\\s\\w+\\s+${form.toLowerCase()}\\b`).test(this.currentText);
-        
-			return withUpperCase && !withLowerCase;
+			// Žodis laikomas tikriniu tik jei jis pasirodo sakinio viduryje su didžiąja raide
+			// ir niekada nepasirodo su mažąja
+			const properNoun = withUpperCase && !withLowerCase;
+
+			if (properNoun) {
+				this.debugLog('Tikrinis daiktavardis:', form, {
+					ilgis: form.length,
+					pasikartojimai: totalOccurrences,
+					suDidžiąja: withUpperCase,
+					suMažąja: withLowerCase
+				});
+			}
+		
+			return properNoun;
 		});
 	}
     
