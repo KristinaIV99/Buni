@@ -21,7 +21,7 @@ export class TextStatistics {
 			var lowerWord = word.toLowerCase();
 
 			// Pridedame debug pranešimą
-			this.debugLog('Apdorojamas žodis:', word);
+			self.debugLog('Apdorojamas žodis:', word);
 			
 			// Jei žodis turi brūkšnelį arba dvitaškį ir atitinka kriterijus, palikti jį nepakeistą
 			if (!self._shouldKeepAsOneWord(lowerWord)) {
