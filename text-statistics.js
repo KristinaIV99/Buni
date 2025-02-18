@@ -146,38 +146,46 @@ export class TextStatistics {
     
     _isProperNoun(originalForms) {
 		return Array.from(originalForms).some(form => {
-			// Jei žodis neprasideda didžiąja raide, tai tikrai ne tikrinis
-			if (!/^[A-ZÅÄÖ]/.test(form)) {
-				return false;
-			}
+			try {
+				// Jei žodis neprasideda didžiąja raide, tai tikrai ne tikrinis
+				if (!/^[A-ZÅÄÖ]/.test(form)) {
+					return false;
+				}
 
-			// Ignoruojame trumpus žodžius (pvz., jaustukai, įvardžiai)
-			if (form.length <= 2) {
-				return false;
-			}
+				// Ignoruojame trumpus žodžius (pvz., jaustukai, įvardžiai)
+				if (form.length <= 2) {
+					return false;
+				}
 
-			// Skaičiuojame kiek kartų žodis pasirodo tekste
-			const totalOccurrences = (this.currentText.match(new RegExp(`\\b${form}\\b`, 'g')) || []).length;
+				// Skaičiuojame kiek kartų žodis pasirodo tekste
+				const totalOccurrences = (this.currentText.match(new RegExp(`\\b${form}\\b`, 'g')) || []).length;
 
-			// Jei žodis pasirodo tik vieną kartą, laikome jį ne tikriniu
-			if (totalOccurrences === 1) {
-				return false;
-			}
+				// Jei žodis pasirodo tik vieną kartą, laikome jį ne tikriniu
+				if (totalOccurrences === 1) {
+					return false;
+				}
 
-			// Žodis laikomas tikriniu tik jei jis pasirodo sakinio viduryje su didžiąja raide
-			// ir niekada nepasirodo su mažąja
-			const properNoun = withUpperCase && !withLowerCase;
+			// Ieškome žodžio sakinio viduryje su didžiąja raide ir su mažąja raide
+				let withUpperCase = new RegExp(`\\s\\w+\\s+${form}\\b`).test(this.currentText);
+				let withLowerCase = new RegExp(`\\s\\w+\\s+${form.toLowerCase()}\\b`).test(this.currentText);
 
-			if (properNoun) {
-				this.debugLog('Tikrinis daiktavardis:', form, {
+				// Debug informacija
+				this.debugLog('Žodžio analizė:', {
+					žodis: form,
 					ilgis: form.length,
 					pasikartojimai: totalOccurrences,
 					suDidžiąja: withUpperCase,
 					suMažąja: withLowerCase
 				});
+
+				// Žodis laikomas tikriniu tik jei jis pasirodo sakinio viduryje su didžiąja raide
+				// ir niekada nepasirodo su mažąja
+				return withUpperCase && !withLowerCase;
+
+			} catch (error) {
+				this.debugLog('Klaida apdorojant žodį:', form, error);
+				return false;
 			}
-		
-			return properNoun;
 		});
 	}
     
