@@ -144,7 +144,7 @@ export class TextStatistics {
         return isKnown;
     }
     
-    _isProperNoun(originalForms) {
+    __isProperNoun(originalForms) {
 		return Array.from(originalForms).some(form => {
 			try {
 				// Jei žodis neprasideda didžiąja raide, tai tikrai ne tikrinis
@@ -152,27 +152,35 @@ export class TextStatistics {
 					return false;
 				}
 
-				// Skaičiuojame kiek kartų žodis pasirodo tekste su didžiąja raide
-				const occurrencesWithUpperCase = (this.currentText.match(new RegExp(`\\b${form}\\b`, 'g')) || []).length;
-
-				// Tikriname ar žodis yra pirmas sakinyje (po taško/šauktuko/klaustuko/naujos eilutės)
-				const isFirstInSentence = new RegExp(`(^|[.!?\\n]\\s+)${form}\\b`).test(this.currentText);
-
-				this.debugLog('Žodžio analizė:', {
-					žodis: form,
-					pirmasŽodis: isFirstInSentence,
-					pasikartojimaiSuDidžiąja: occurrencesWithUpperCase
-				});
-
-				// Jei žodis yra pirmas sakinyje ir pasirodo tik vieną kartą - ne tikrinis
-				if (isFirstInSentence && occurrencesWithUpperCase === 1) {
+				// Tikriname, ar žodis pasirodo su mažąja raide
+				const appearsLowerCase = new RegExp(`\\b${form.toLowerCase()}\\b`).test(this.currentText);
+				
+				// Jei žodis pasirodo su mažąja raide - ne tikrinis
+				if (appearsLowerCase) {
 					return false;
 				}
 
 				// Tikriname ar žodis pasirodo sakinio viduryje su didžiąja raide
 				const appearsInMiddle = new RegExp(`[.!?\\n]\\s+\\w+\\s+${form}\\b`).test(this.currentText);
 
-				return appearsInMiddle;
+				// Skaičiuojame kiek kartų žodis pasirodo tekste su didžiąja raide
+				const occurrencesWithUpperCase = (this.currentText.match(new RegExp(`\\b${form}\\b`, 'g')) || []).length;
+
+				// Tikriname ar žodis yra pirmas sakinyje
+				const isFirstInSentence = new RegExp(`(^|[.!?\\n]\\s+)${form}\\b`).test(this.currentText);
+
+				this.debugLog('Žodžio analizė:', {
+					žodis: form,
+					yraPirmas: isFirstInSentence,
+					yraViduryje: appearsInMiddle,
+					yraMažosiomis: appearsLowerCase,
+					pasikartojimaiSuDidžiąja: occurrencesWithUpperCase
+				});
+
+				// Žodis yra tikrinis jei:
+				// 1. Pasirodo tik su didžiąja raide (niekada su mažąja)
+				// 2. IR pasirodo sakinio viduryje bent kartą
+				return !appearsLowerCase && appearsInMiddle;
 
 			} catch (error) {
 				this.debugLog('Klaida apdorojant žodį:', form, error);
