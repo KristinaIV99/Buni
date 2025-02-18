@@ -147,41 +147,61 @@ export class TextStatistics {
     _isProperNoun(originalForms) {
 		return Array.from(originalForms).some(form => {
 			try {
-				// Jei žodis neprasideda didžiąja raide, tai tikrai ne tikrinis
-				if (!/^[A-ZÅÄÖ]/.test(form)) {
-					return false;
-				}
+				// Išsamesnė informacija apie pradines sąlygas
+				this.debugLog('Analizuojamas žodis:', form);
+				this.debugLog('Visas tekstas:', this.currentText);
 
-				// Tikriname, ar žodis pasirodo su mažąja raide
-				const appearsLowerCase = new RegExp(`\\b${form.toLowerCase()}\\b`).test(this.currentText);
+				// Tikriname ar prasideda didžiąja raide
+				const startsWithUpper = /^[A-ZÅÄÖ]/.test(form);
+				this.debugLog('Prasideda didžiąja raide:', startsWithUpper);
 				
-				// Jei žodis pasirodo su mažąja raide - ne tikrinis
-				if (appearsLowerCase) {
+				if (!startsWithUpper) {
 					return false;
 				}
 
-				// Tikriname ar žodis pasirodo sakinio viduryje su didžiąja raide
-				const appearsInMiddle = new RegExp(`[.!?\\n]\\s+\\w+\\s+${form}\\b`).test(this.currentText);
+				// Tikriname žodį mažosiomis
+				const lowerCaseForm = form.toLowerCase();
+				const lowerCaseRegex = new RegExp(`\\b${lowerCaseForm}\\b`);
+				const appearsLowerCase = lowerCaseRegex.test(this.currentText);
+				this.debugLog('Žodžio mažosiomis regex:', lowerCaseRegex);
+				this.debugLog('Rasti atitikimai mažosiomis:', this.currentText.match(lowerCaseRegex));
+				
+				if (appearsLowerCase) {
+					this.debugLog('Žodis rastas mažosiomis raidėmis');
+					return false;
+				}
 
-				// Skaičiuojame kiek kartų žodis pasirodo tekste su didžiąja raide
-				const occurrencesWithUpperCase = (this.currentText.match(new RegExp(`\\b${form}\\b`, 'g')) || []).length;
+				// Tikriname žodį sakinio viduryje
+				const middleRegex = new RegExp(`[.!?\\n]\\s+\\w+\\s+${form}\\b`);
+				const appearsInMiddle = middleRegex.test(this.currentText);
+				this.debugLog('Sakinio vidurio regex:', middleRegex);
+				this.debugLog('Rasti atitikimai viduryje:', this.currentText.match(middleRegex));
 
-				// Tikriname ar žodis yra pirmas sakinyje
-				const isFirstInSentence = new RegExp(`(^|[.!?\\n]\\s+)${form}\\b`).test(this.currentText);
+				// Skaičiuojame pasikartojimus su didžiąja
+				const upperCaseRegex = new RegExp(`\\b${form}\\b`, 'g');
+				const occurrencesWithUpperCase = (this.currentText.match(upperCaseRegex) || []).length;
+				this.debugLog('Didžiųjų raidžių regex:', upperCaseRegex);
+				this.debugLog('Rasti atitikimai su didžiąja:', this.currentText.match(upperCaseRegex));
 
-				this.debugLog('Žodžio analizė:', {
+				// Tikriname ar pirmas sakinyje
+				const firstInSentenceRegex = new RegExp(`(^|[.!?\\n]\\s+)${form}\\b`);
+				const isFirstInSentence = firstInSentenceRegex.test(this.currentText);
+				this.debugLog('Pirmo sakinyje regex:', firstInSentenceRegex);
+				this.debugLog('Rasti pirmo sakinyje atitikimai:', this.currentText.match(firstInSentenceRegex));
+
+				// Detali analizės suvestinė
+				this.debugLog('Žodžio analizės rezultatai:', {
 					žodis: form,
 					yraPirmas: isFirstInSentence,
 					yraViduryje: appearsInMiddle,
 					yraMažosiomis: appearsLowerCase,
-					pasikartojimaiSuDidžiąja: occurrencesWithUpperCase
+					pasikartojimaiSuDidžiąja: occurrencesWithUpperCase,
+					sakinioVidurio_regex: middleRegex.toString(),
+					mažųjų_raidžių_regex: lowerCaseRegex.toString(),
+					pirmo_sakinyje_regex: firstInSentenceRegex.toString()
 				});
 
-				// Žodis yra tikrinis jei:
-				// 1. Pasirodo tik su didžiąja raide (niekada su mažąja)
-				// 2. IR pasirodo sakinio viduryje bent kartą
-				return !appearsLowerCase && appearsInMiddle;
-
+			return !appearsLowerCase && appearsInMiddle;
 			} catch (error) {
 				this.debugLog('Klaida apdorojant žodį:', form, error);
 				return false;
