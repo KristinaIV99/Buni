@@ -4,8 +4,6 @@ export class TextStatistics {
     constructor() {
         this.CLASS_NAME = '[TextStatistics]';
         this.currentText = '';
-		this.allWordsList = [];        // Visi žodžiai (su pasikartojimais)
-        this.removedWordsList = [];    // Pašalinti žodžiai
     }
 
     debugLog(...args) {
@@ -16,19 +14,18 @@ export class TextStatistics {
 
     calculateStats(text, knownWords) {
         this.currentText = text;
-		this.allWordsList = [];      // Išvalome prieš naują skaičiavimą
-        this.removedWordsList = [];  // Išvalome prieš naują skaičiavimą
 
         // Naudojame getUnknownWords metodą, kad išvengtume kodo dubliavimo
         const unknownWordsList = this.getUnknownWords(text, knownWords);
         const words = this._getWords(text);
-        this.allWordsList = words;   // Išsaugome visus žodžius
+        const self = this;
 
         const self = this;  // Išsaugome this kontekstą
         
 		// Sukuriame Map žodžių originalių formų saugojimui
 		const wordMap = new Map();
 		
+        // Renkame unikalius žodžius
         const uniqueWords = new Set(words.map(function(word) {
 			var lowerWord = word.toLowerCase();
 
@@ -57,20 +54,13 @@ export class TextStatistics {
 			return lowerWord;
 		}).filter(word => word.length > 0));
 
-		// Filtruojame tikrinius daiktavardžius
-		uniqueWords.forEach(word => {
-			if (this._isProperNoun(wordMap.get(word))) {
-				uniqueWords.delete(word);
-				this.removedWordsList.push(word); // Įtraukiame į pašalintų sąrašą
-				self.debugLog('Pašalintas tikrinis daiktavardis:', word);
-			}
-		});
-
-		// Išvedame visas suvestines
-        this.debugLog('=== ŽODŽIŲ SUVESTINĖ ===');
-        this.debugLog('Visi žodžiai:', this.allWordsList);
-        this.debugLog('Pašalinti žodžiai:', this.removedWordsList);
+        // Išvedame statistiką
+        this.debugLog('=== ŽODŽIŲ STATISTIKA ===');
+        this.debugLog('Visi žodžiai:', words);
         this.debugLog('Visi unikalūs žodžiai:', Array.from(uniqueWords));
+        this.debugLog('Unikalių žodžių kiekis:', uniqueWords.size);
+        this.debugLog('Bendras žodžių kiekis:', words.length);
+
 
         const stats = {
             totalWords: words.length,
@@ -155,70 +145,6 @@ export class TextStatistics {
         return isKnown;
     }
     
-    _isProperNoun(originalForms) {
-		return Array.from(originalForms).some(form => {
-			try {
-				// Išsamesnė informacija apie pradines sąlygas
-				this.debugLog('Analizuojamas žodis:', form);
-				this.debugLog('Visas tekstas:', this.currentText);
-
-				// Tikriname ar prasideda didžiąja raide
-				const startsWithUpper = /^[A-ZÅÄÖ]/.test(form);
-				this.debugLog('Prasideda didžiąja raide:', startsWithUpper);
-				
-				if (!startsWithUpper) {
-					return false;
-				}
-
-				// Tikriname žodį mažosiomis
-				const lowerCaseForm = form.toLowerCase();
-				const lowerCaseRegex = new RegExp(`\\b${lowerCaseForm}\\b`);
-				const appearsLowerCase = lowerCaseRegex.test(this.currentText);
-				this.debugLog('Žodžio mažosiomis regex:', lowerCaseRegex);
-				this.debugLog('Rasti atitikimai mažosiomis:', this.currentText.match(lowerCaseRegex));
-				
-				if (appearsLowerCase) {
-					this.debugLog('Žodis rastas mažosiomis raidėmis');
-					return false;
-				}
-
-				// Tikriname žodį sakinio viduryje
-				const middleRegex = new RegExp(`[.!?\\n]\\s+\\w+\\s+${form}\\b`);
-				const appearsInMiddle = middleRegex.test(this.currentText);
-				this.debugLog('Sakinio vidurio regex:', middleRegex);
-				this.debugLog('Rasti atitikimai viduryje:', this.currentText.match(middleRegex));
-
-				// Skaičiuojame pasikartojimus su didžiąja
-				const upperCaseRegex = new RegExp(`\\b${form}\\b`, 'g');
-				const occurrencesWithUpperCase = (this.currentText.match(upperCaseRegex) || []).length;
-				this.debugLog('Didžiųjų raidžių regex:', upperCaseRegex);
-				this.debugLog('Rasti atitikimai su didžiąja:', this.currentText.match(upperCaseRegex));
-
-				// Tikriname ar pirmas sakinyje
-				const firstInSentenceRegex = new RegExp(`(^|[.!?\\n]\\s+)${form}\\b`);
-				const isFirstInSentence = firstInSentenceRegex.test(this.currentText);
-				this.debugLog('Pirmo sakinyje regex:', firstInSentenceRegex);
-				this.debugLog('Rasti pirmo sakinyje atitikimai:', this.currentText.match(firstInSentenceRegex));
-
-				// Detali analizės suvestinė
-				this.debugLog('Žodžio analizės rezultatai:', {
-					žodis: form,
-					yraPirmas: isFirstInSentence,
-					yraViduryje: appearsInMiddle,
-					yraMažosiomis: appearsLowerCase,
-					pasikartojimaiSuDidžiąja: occurrencesWithUpperCase,
-					sakinioVidurio_regex: middleRegex.toString(),
-					mažųjų_raidžių_regex: lowerCaseRegex.toString(),
-					pirmo_sakinyje_regex: firstInSentenceRegex.toString()
-				});
-
-			return !appearsLowerCase && appearsInMiddle;
-			} catch (error) {
-				this.debugLog('Klaida apdorojant žodį:', form, error);
-				return false;
-			}
-		});
-	}
     
     getUnknownWords(text, knownWords) {
         this.currentText = text;
