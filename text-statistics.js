@@ -152,35 +152,27 @@ export class TextStatistics {
 					return false;
 				}
 
-				// Ignoruojame trumpus žodžius (pvz., jaustukai, įvardžiai)
-				if (form.length <= 2) {
-					return false;
-				}
+				// Skaičiuojame kiek kartų žodis pasirodo tekste su didžiąja raide
+				const occurrencesWithUpperCase = (this.currentText.match(new RegExp(`\\b${form}\\b`, 'g')) || []).length;
 
-				// Skaičiuojame kiek kartų žodis pasirodo tekste
-				const totalOccurrences = (this.currentText.match(new RegExp(`\\b${form}\\b`, 'g')) || []).length;
+				// Tikriname ar žodis yra pirmas sakinyje (po taško/šauktuko/klaustuko/naujos eilutės)
+				const isFirstInSentence = new RegExp(`(^|[.!?\\n]\\s+)${form}\\b`).test(this.currentText);
 
-				// Jei žodis pasirodo tik vieną kartą, laikome jį ne tikriniu
-				if (totalOccurrences === 1) {
-					return false;
-				}
-
-			// Ieškome žodžio sakinio viduryje su didžiąja raide ir su mažąja raide
-				let withUpperCase = new RegExp(`\\s\\w+\\s+${form}\\b`).test(this.currentText);
-				let withLowerCase = new RegExp(`\\s\\w+\\s+${form.toLowerCase()}\\b`).test(this.currentText);
-
-				// Debug informacija
 				this.debugLog('Žodžio analizė:', {
 					žodis: form,
-					ilgis: form.length,
-					pasikartojimai: totalOccurrences,
-					suDidžiąja: withUpperCase,
-					suMažąja: withLowerCase
+					pirmasŽodis: isFirstInSentence,
+					pasikartojimaiSuDidžiąja: occurrencesWithUpperCase
 				});
 
-				// Žodis laikomas tikriniu tik jei jis pasirodo sakinio viduryje su didžiąja raide
-				// ir niekada nepasirodo su mažąja
-				return withUpperCase && !withLowerCase;
+				// Jei žodis yra pirmas sakinyje ir pasirodo tik vieną kartą - ne tikrinis
+				if (isFirstInSentence && occurrencesWithUpperCase === 1) {
+					return false;
+				}
+
+				// Tikriname ar žodis pasirodo sakinio viduryje su didžiąja raide
+				const appearsInMiddle = new RegExp(`[.!?\\n]\\s+\\w+\\s+${form}\\b`).test(this.currentText);
+
+				return appearsInMiddle;
 
 			} catch (error) {
 				this.debugLog('Klaida apdorojant žodį:', form, error);
