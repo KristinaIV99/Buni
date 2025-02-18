@@ -1,3 +1,5 @@
+const DEBUG = true;  // arba false, kai norėsime išjungti
+
 export class TextStatistics {
     constructor() {
         this.CLASS_NAME = '[TextStatistics]';
