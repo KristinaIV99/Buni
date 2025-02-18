@@ -4,6 +4,8 @@ export class TextStatistics {
     constructor() {
         this.CLASS_NAME = '[TextStatistics]';
         this.currentText = '';
+		this.allWordsList = [];        // Visi žodžiai (su pasikartojimais)
+        this.removedWordsList = [];    // Pašalinti žodžiai
     }
 
     debugLog(...args) {
@@ -14,9 +16,14 @@ export class TextStatistics {
 
     calculateStats(text, knownWords) {
         this.currentText = text;
+		this.allWordsList = [];      // Išvalome prieš naują skaičiavimą
+        this.removedWordsList = [];  // Išvalome prieš naują skaičiavimą
+
         // Naudojame getUnknownWords metodą, kad išvengtume kodo dubliavimo
         const unknownWordsList = this.getUnknownWords(text, knownWords);
         const words = this._getWords(text);
+        this.allWordsList = words;   // Išsaugome visus žodžius
+
         const self = this;  // Išsaugome this kontekstą
         
 		// Sukuriame Map žodžių originalių formų saugojimui
@@ -54,14 +61,18 @@ export class TextStatistics {
 		uniqueWords.forEach(word => {
 			if (this._isProperNoun(wordMap.get(word))) {
 				uniqueWords.delete(word);
+				this.removedWordsList.push(word); // Įtraukiame į pašalintų sąrašą
 				self.debugLog('Pašalintas tikrinis daiktavardis:', word);
 			}
 		});
 
-		// Čia galime įdėti debug pranešimą apie visus unikalius žodžius
-		this.debugLog('Visi unikalūs žodžiai:', Array.from(uniqueWords));
+		// Išvedame visas suvestines
+        this.debugLog('=== ŽODŽIŲ SUVESTINĖ ===');
+        this.debugLog('Visi žodžiai:', this.allWordsList);
+        this.debugLog('Pašalinti žodžiai:', this.removedWordsList);
+        this.debugLog('Visi unikalūs žodžiai:', Array.from(uniqueWords));
 
-		const stats = {
+        const stats = {
             totalWords: words.length,
             uniqueWords: uniqueWords.size,
             unknownWords: unknownWordsList.length,
