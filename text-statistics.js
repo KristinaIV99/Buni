@@ -1,34 +1,57 @@
-const DEBUG = true;  // arba false, kai norėsime išjungti
+const DEBUG = true;  // arba false kai norėsime išjungti
 
 export class TextStatistics {
     constructor() {
         this.CLASS_NAME = '[TextStatistics]';
         this.currentText = '';
+        this.removedWords = new Set(); // Naujas - saugosime pašalintus žodžius
     }
 
-    debugLog(...args) {
-        if (DEBUG) {
-            console.log(`${this.CLASS_NAME} [DEBUG]`, ...args);
+    _isCapitalizedInMiddle(word) {
+        if (!/^[A-ZÅÄÖ]/.test(word)) {
+            this.debugLog(`Žodis "${word}" neprasideda didžiąja raide`);
+            return false;
         }
+
+        // Tikriname ar žodis yra pirmas sakinyje
+        const firstInSentenceRegex = new RegExp(`(^|[.!?\\n]\\s+)${word}\\b`);
+        const isFirstInSentence = firstInSentenceRegex.test(this.currentText);
+        
+        if (isFirstInSentence) {
+            this.debugLog(`Žodis "${word}" yra pirmas sakinyje`);
+            return false;
+        }
+
+        // Tikriname ar žodis yra sakinio viduryje
+        const middleRegex = new RegExp(`[a-zåäöA-ZÅÄÖ]\\s+${word}\\b`);
+        const appearsInMiddle = middleRegex.test(this.currentText);
+
+        if (appearsInMiddle) {
+            this.debugLog(`Žodis "${word}" rastas sakinio viduryje su didžiąja raide`);
+            // Parodome kontekstą, kur žodis rastas
+            const contextRegex = new RegExp(`.{0,20}${word}.{0,20}`, 'g');
+            const matches = this.currentText.match(contextRegex);
+            if (matches) {
+                this.debugLog('Kontekstas:', matches);
+            }
+        }
+
+        return appearsInMiddle;
     }
 
     calculateStats(text, knownWords) {
         this.currentText = text;
+        this.removedWords.clear(); // Išvalome prieš naują skaičiavimą
+        
         const unknownWordsList = this.getUnknownWords(text, knownWords);
         const words = this._getWords(text);
-        const self = this;  // Tik viena deklaracija
+        const self = this;
         
-        // Sukuriame Map žodžių originalių formų saugojimui
         const wordMap = new Map();
         
-        // Renkame unikalius žodžius
         const uniqueWords = new Set(words.map(function(word) {
             var lowerWord = word.toLowerCase();
-
-            // Pridedame debug pranešimą
-            self.debugLog('Apdorojamas žodis:', word);
             
-            // Jei žodis turi brūkšnelį arba dvitaškį ir atitinka kriterijus, palikti jį nepakeistą
             if (!self._shouldKeepAsOneWord(lowerWord)) {
                 lowerWord = lowerWord
                     .replace(/[.,!?;#]/g, '')
@@ -36,12 +59,8 @@ export class TextStatistics {
                         return /['']/.test(match) ? match : '';
                     })
                     .trim();
-                self.debugLog('Po valymo:', lowerWord);
-            } else {
-                self.debugLog('Išsaugotas kaip vienas žodis:', lowerWord);
             }
 
-            // Saugome originalias formas
             if (!wordMap.has(lowerWord)) {
                 wordMap.set(lowerWord, new Set());
             }
@@ -50,11 +69,30 @@ export class TextStatistics {
             return lowerWord;
         }).filter(word => word.length > 0));
 
+        // Filtruojame žodžius su didžiąja raide viduryje sakinio
+        uniqueWords.forEach(word => {
+            const originalForms = wordMap.get(word);
+            if (originalForms) {
+                for (const form of originalForms) {
+                    if (this._isCapitalizedInMiddle(form)) {
+                        uniqueWords.delete(word);
+                        this.removedWords.add(word); // Įtraukiame į pašalintų sąrašą
+                        this.debugLog(`Pašalintas žodis "${word}" (originali forma: "${form}")`);
+                        break;
+                    }
+                }
+            }
+        });
+
         // Išvedame statistiką
         this.debugLog('=== ŽODŽIŲ STATISTIKA ===');
         this.debugLog('Visi žodžiai:', words);
         this.debugLog('Visi unikalūs žodžiai:', Array.from(uniqueWords));
+        this.debugLog('=== PAŠALINTI ŽODŽIAI ===');
+        this.debugLog('Visi pašalinti žodžiai:', Array.from(this.removedWords));
+        this.debugLog('=== SKAIČIAI ===');
         this.debugLog('Unikalių žodžių kiekis:', uniqueWords.size);
+        this.debugLog('Pašalintų žodžių kiekis:', this.removedWords.size);
         this.debugLog('Bendras žodžių kiekis:', words.length);
 
         const stats = {
