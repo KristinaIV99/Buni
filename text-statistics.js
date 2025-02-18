@@ -7,6 +7,12 @@ export class TextStatistics {
         this.removedWords = new Set(); // Naujas - saugosime pašalintus žodžius
     }
 
+    debugLog(...args) {
+        if (DEBUG) {
+            console.log(`${this.CLASS_NAME} [DEBUG]`, ...args);
+        }
+    }
+
     _isCapitalizedInMiddle(word) {
         if (!/^[A-ZÅÄÖ]/.test(word)) {
             this.debugLog(`Žodis "${word}" neprasideda didžiąja raide`);
@@ -105,7 +111,7 @@ export class TextStatistics {
         this.debugLog('Statistika:', stats);
         return stats;
     }
-    
+
     _shouldKeepAsOneWord(word) {
         // Tikrina ar žodis turi brūkšnelį arba dvitaškį tarp raidžių
         return /^[a-zåäöA-ZÅÄÖ]+[-:][a-zåäöA-ZÅÄÖ]+$/.test(word);
@@ -138,7 +144,6 @@ export class TextStatistics {
 
         const words = cleanText.split(' ')
             .filter(word => {
-                // Jei žodis turi brūkšnelį arba dvitaškį, tikriname ar jis atitinka mūsų kriterijus
                 if (word.includes('-') || word.includes(':')) {
                     return this._shouldKeepAsOneWord(word);
                 }
@@ -183,7 +188,6 @@ export class TextStatistics {
         this.debugLog('Pradedu nežinomų žodžių paiešką');
         const words = this._getWords(text);
         
-        // Saugome originalius žodžius ir jų mažąsias versijas žodyno paieškai
         const wordMap = new Map();
         words.forEach(word => {
             let lowerWord = word.toLowerCase();
