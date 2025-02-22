@@ -163,7 +163,7 @@ export class TextHighlighter {
                 "kalbos dalis": match.info?.["kalbos dalis"] || '-',
                 "bazinė forma": match.info?.["bazinė forma"] || '-',
                 "bazė vertimas": match.info?.["bazė vertimas"] || '-',
-                "CERF": match.info?.CERF || '-'
+                "CEFR": match.info?.CEFR || '-'
             }];
 
             span.dataset.info = JSON.stringify({
@@ -256,7 +256,7 @@ export class TextHighlighter {
 									<strong>${meaning["bazinė forma"]}</strong>${meaning["bazė vertimas"] && meaning["bazė vertimas"] !== '-' ? ` - ${meaning["bazė vertimas"]}` : ''}
 								</div>
 							` : ''}
-							${meaning.CERF && meaning.CERF !== '-' ? `<div class="cerf">${meaning.CERF}</div>` : ''}
+							${meaning.CEFR && meaning.CEFR !== '-' ? `<div class="cefr">${meaning.CEFR}</div>` : ''}
 						</div>
 					`).join('')}
 				</div>
