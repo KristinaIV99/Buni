@@ -38,7 +38,7 @@ class AhoCorasick {
                 "vertimas": data[i].vertimas,
                 "bazinė forma": data[i]["bazinė forma"],
                 "bazė vertimas": data[i]["bazė vertimas"],
-                "CERF": data[i].CERF
+                "CEFR": data[i].CEFR
             });
         }
 
