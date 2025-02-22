@@ -382,7 +382,7 @@ class App {
                             <div>Vertimas: ${meaning.vertimas}</div>
                             <div>Bazinė forma: ${meaning["bazinė forma"]}</div>
                             <div>Bazės vertimas: ${meaning["bazė vertimas"]}</div>
-                            <div>CERF: ${meaning.CERF}</div>
+                            <div>CEFR: ${meaning.CEFR}</div>
                         </div>
                     `).join('')}
                 `;
@@ -393,7 +393,7 @@ class App {
                     <div>Vertimas: ${info.vertimas}</div>
                     <div>Bazinė forma: ${info["bazinė forma"]}</div>
                     <div>Bazės vertimas: ${info["bazė vertimas"]}</div>
-                    <div>CERF: ${info.CERF}</div>
+                    <div>CEFR: ${info.CEFR}</div>
                 `;
             }
             
@@ -502,7 +502,7 @@ class App {
                         <div class="pattern">${result.pattern}</div>
                         <div class="info">
                             <div>Vertimas: ${result.info.vertimas}</div>
-                            <div>CERF: ${result.info.CERF}</div>
+                            <div>CEFR: ${result.info.CEFR}</div>
                         </div>
                         ${result.related.length > 0 ? `
                             <div class="related">
@@ -530,7 +530,7 @@ class App {
                 <div class="match-item">
                     <div class="match-header">
                         <strong>${match.word}</strong>
-                        <span class="cerf-badge">${match.CERF || 'N/A'}</span>
+                        <span class="cefr-badge">${match.CEFR || 'N/A'}</span>
                     </div>
                     <div class="match-details">
                         <div>Vertimas: ${match.vertimas}</div>
