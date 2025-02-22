@@ -93,7 +93,7 @@ export class DictionaryManager {
                             "kalbos dalis": output["kalbos dalis"] || '-',
                             "bazinė forma": output["bazinė forma"] || '-',
                             "bazė vertimas": output["bazė vertimas"] || '-',
-                            "CERF": output.CERF || '-'
+                            "CEFR": output.CEFR || '-'
                         }))
                     },
                     positions: [{
@@ -199,7 +199,7 @@ export class DictionaryManager {
                         "vertimas": patternInfo.data.vertimas,
                         "bazinė forma": patternInfo.data["bazinė forma"],
                         "bazė vertimas": patternInfo.data["bazė vertimas"],
-                        "CERF": patternInfo.data.CERF
+                        "CEFR": patternInfo.data.CEFR
                     });
                 }
             }
@@ -216,7 +216,7 @@ export class DictionaryManager {
                 "vertimas": data.vertimas || '-',
                 "bazinė forma": data["bazinė forma"] || '-',
                 "bazė vertimas": data["bazė vertimas"] || '-',
-                "CERF": data.CERF || '-'
+                "CEFR": data.CEFR || '-'
             }]
         };
     }
